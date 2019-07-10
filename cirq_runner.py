@@ -1,5 +1,6 @@
 import cirq
 import numpy as np
+import copy
 from typing import Dict, List, Union
 
 
@@ -9,7 +10,7 @@ class CirqRunner:
     Takes the gate dictionaries defined in the rest of the program and returns probabilities of the results
     TODO: Add noise
     """
-    def __init__(self, no_qubits: int = 4, noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 100):
+    def __init__(self, no_qubits: int = 4, noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000):
         self.noise_prob = noise_prob
         self.noise_on = noise_on
         self.no_qubits = no_qubits
@@ -49,9 +50,6 @@ class CirqRunner:
         :return: circuit, a cirq Circuit representation of that.
         """
         circuit = cirq.Circuit()
-        # This is required to convert from 1 based arrays (used in gate dictionaries) to 0 based arrays
-        gate_dict['qid'] = gate_dict['qid'] - 1
-        gate_dict['control_qid'] = gate_dict['control_qid'] - 1
         for i in range(len(gate_dict['gate_id'])):
             circuit.append(self.read_dict(gate_dict, i), strategy=cirq.InsertStrategy.EARLIEST)
         return circuit
@@ -73,19 +71,20 @@ class CirqRunner:
             theta_index = np.array(np.where(np.isin(gate_dict['theta_indices'], index))).reshape([])
             theta = gate_dict['theta'][theta_index]
             target = self.qubits[gate_dict['qid'][index]]
-            yield cirq.XPowGate().on(target)**theta
+            yield cirq.Rx(theta).on(target)
         if label == 2:
             theta_index = np.array(np.where(np.isin(gate_dict['theta_indices'], index))).reshape([])
             theta = gate_dict['theta'][theta_index]
             target = self.qubits[gate_dict['qid'][index]]
-            yield cirq.YPowGate().on(target)**theta
+            yield cirq.Ry(theta).on(target)
         if label == 3:
             theta_index = np.array(np.where(np.isin(gate_dict['theta_indices'], index))).reshape([])
             theta = gate_dict['theta'][theta_index]
             target = self.qubits[gate_dict['qid'][index]]
-            yield cirq.ZPowGate().on(target)**theta
+            yield cirq.Rz(theta).on(target)
         if label == 4:
-            yield cirq.IdentityGate(self.no_qubits).on(*self.qubits)
+            target = self.qubits[gate_dict['qid'][index]]
+            yield cirq.IdentityGate(1).on(target)
         if label == 5:
             target = self.qubits[gate_dict['qid'][index]]
             yield cirq.H(target)
@@ -106,21 +105,17 @@ class CirqRunner:
         :param gate_dict_1: The gate dictionary performed if measurement of qubit 0 is 1
         :return: cirq.Circuit object representing the whole circuit.
         """
-        if (1 in gate_dict_0['qid']) or (1 in gate_dict_1['qid']) or (1 in gate_dict_0['control_qid']) or (
-                1 in gate_dict_1['control_qid']):
-            raise ValueError('The controlled qubit cannot appear in the gate_dict_1 or gate_dict_0')
-
         circuit_0 = self.gate_dict_to_circuit(gate_dict_0)
         circuit_1 = self.gate_dict_to_circuit(gate_dict_1)
         controlled_0 = self.yield_controlled_circuit(circuit_0, self.qubits[0])
         controlled_1 = self.yield_controlled_circuit(circuit_1, self.qubits[0])
 
         circuit = self.gate_dict_to_circuit(gate_dict)
-        circuit.append(cirq.measure(self.qubits[0], key='m0'))
-        circuit.append(controlled_0)
-        circuit.append(cirq.X(self.qubits[0]))
+        circuit.append(cirq.measure(self.qubits[0], key='m0'), strategy=cirq.InsertStrategy.NEW)
         circuit.append(controlled_1)
-        circuit.append(cirq.measure(self.qubits[1], key='m1'))
+        circuit.append(cirq.X(self.qubits[0]))
+        circuit.append(controlled_0)
+        circuit.append(cirq.measure(self.qubits[1], key='m1'), strategy=cirq.InsertStrategy.NEW)
         return circuit
 
     def calculate_probabilities(self, input_state: np.ndarray, circuit: cirq.Circuit) -> List[float]:
@@ -133,10 +128,12 @@ class CirqRunner:
         simulator = cirq.DensityMatrixSimulator()
         counter = np.array([0, 0, 0, 0])
         for i in range(self.reps):
-            measurements = simulator.simulate(circuit, initial_state=input_state).measurements
+            state_in = copy.copy(input_state)
+            measurements = simulator.simulate(circuit, initial_state=state_in).measurements
             m0 = int(measurements['m0'])
             m1 = int(measurements['m1'])
             result = m0 << 1 | m1
             counter[result] += 1
         probs = counter / self.reps
         return probs
+

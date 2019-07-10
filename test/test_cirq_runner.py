@@ -65,11 +65,11 @@ class TestCirqRunner(np.testing.TestCase):
 
         circuit = runner.create_full_circuit(gate_dict, gate_dict_0, gate_dict_1)
         simulator = cirq.Simulator()
-        result = simulator.run(circuit, repetitions=100)
-        hist0 = result.histogram(key='m0')
-        hist1 = result.histogram(key='m1')
-        self.assertIsInstance(hist0, Counter)
-        self.assertIsInstance(hist1, Counter)
+        result = simulator.simulate(circuit)
+        m0 = int(result.measurements['m0'])
+        m1 = int(result.measurements['m1'])
+        self.assertIn(m0, [0,1])
+        self.assertIn(m1, [0,1])
 
     @staticmethod
     def kron_list(l):
@@ -81,7 +81,7 @@ class TestCirqRunner(np.testing.TestCase):
         return out
 
     def test_calculate_probabilities(self):
-        runner = CirqRunner(sim_repetitions=1000)
+        runner = CirqRunner(sim_repetitions=100)
         qubits = runner.qubits
         zero = np.array([[1,0], [0,0]])
         z_list = [zero for _ in range(4)]
