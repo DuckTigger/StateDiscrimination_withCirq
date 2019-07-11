@@ -8,25 +8,38 @@ from generate_data import CreateDensityMatrices
 
 
 class Datasets:
-
+    """
+    A class for interacting with the saved datasets from the old scheme, and for generating new ones on-the-fly.
+    """
     def __init__(self, file_name: str = None, batch_size: int = 50, max_epoch: int = 1000):
         self.f_name = file_name
         self.batch_size = batch_size
         self.max_epoch = max_epoch
 
     def return_train_val_test(self, **kwargs) -> Tuple[tf.data.Dataset, tf.data.Dataset, tf.data.Dataset]:
+        """
+        If the file_name is given in the class initializer we work with a saved dataset, oitherwise we generate
+        a new one according to the kwargs
+        :param kwargs: See those in CreateDensityMatrices.create_from_distributioun()
+        :return: Three tf.Datasets, train, val, test
+        """
         if self.f_name is not None:
             dataset, length = self.read_from_file()
         else:
             dataset, length = self.generate_datasets(**kwargs)
         return self.split_and_batch_dataset(dataset, length)
 
-    def generate_datasets(self, total_rhos: int = 1000, prop_a: float = 1/3, b_const: bool = True,
-                                 a_const: bool = False, lower: int = 0, upper: int = 1, mu: float = 0.5,
-                                 sigma: float = 0.1) -> Tuple[tf.data.Dataset, int]:
-
-        states = CreateDensityMatrices.create_from_distribution(total_rhos, prop_a, b_const, a_const,
-                                                                lower, upper, mu, sigma)
+    def generate_datasets(self, prop_a: float = 1/3, b_const: bool = True,
+                          a_const: bool = False, lower: int = 0, upper: int = 1,
+                          mu_a: float = 0.5,sigma_a: float = 0.25, mu_b: float = 0.75,
+                          sigma_b: float = 0.125) -> Tuple[tf.data.Dataset, int]:
+        """
+        Generates datasets, uses the same form as the dataset from file loader to keep things consistent.
+        For params see CreateDensityMatrices.create_from_distribution
+        :return: dataset: the full tf.Dataset, and its length.
+        """
+        states = CreateDensityMatrices.create_from_distribution(self.batch_size * self.max_epoch * 2, prop_a, b_const,
+                                                                a_const, lower, upper, mu_a, sigma_a, mu_b, sigma_b)
         states_set = []
         labels_set = []
         for i, st in enumerate(states):
@@ -37,6 +50,10 @@ class Datasets:
         return dataset, len(labels_set)
 
     def read_from_file(self) -> Tuple[tf.data.Dataset, int]:
+        """
+        Reads a data file from this package, created by the old scheme.
+        :return: datset: the dataset in the file, and its length
+        """
         with open(os.path.join(os.path.dirname(__file__), "data", self.f_name)) as f:
             data = json.load(f)
 
@@ -54,7 +71,14 @@ class Datasets:
         return dataset, len(labels_set)
 
     def split_and_batch_dataset(self, dataset: tf.data.Dataset, length: int) -> Tuple[
-        tf.data.Dataset, tf.data.Dataset, tf.data.Dataset]:
+                                tf.data.Dataset, tf.data.Dataset, tf.data.Dataset]:
+        """
+        Takes a full dataset, shuffles it and splits it into test, val and train sets.
+        If the dataset is not long enough for trining it is repeated and re-shuffled.
+        :param dataset: The tf.Dataset to manipulate
+        :param length: its length
+        :return: train, val, test: Training, Validation and Test datasets
+        """
         prop_train = int(0.7 * length)
         shortfall = int(prop_train / self.max_epoch * self.batch_size)
         prop_val = int(0.2 * length)

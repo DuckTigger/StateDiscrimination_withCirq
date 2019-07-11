@@ -16,6 +16,7 @@ class TrainModel:
                  learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
                  g_epsilon: float = 1e-6, no_qubits: int = 4,
                  noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000):
+
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
         self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
         self.model = Model(cost_error, cost_incon, self.runner, g_epsilon)
@@ -38,17 +39,20 @@ class TrainModel:
         checkpoint = tf.train.Checkpoint(optimizer=self.optimizer, model=self.model)
         return checkpoint
 
-    def train_step(self, state: tf.Tensor, label: tf.Tensor):
+    # @tf.function
+    def train_step(self, state_in: tf.Tensor, label_in: tf.Tensor):
         model = self.model
-        loss = model.state_to_loss(state, label)
-        grads = model.variables_gradient(loss, state, label)
-        variables = model.get_variables()
-        self.optimizer.apply_gradients(zip(grads, variables))
+        for state, label in zip(state_in, label_in):
+            loss = model.state_to_loss(state, label)
+            grads = model.variables_gradient(loss, state, label)
+            variables = model.get_variables()
+            self.optimizer.apply_gradients(zip(grads, variables))
 
-    def train(self):
-        gate_dicts = GateDictionaries().return_dicts_rand_vars()
-        self.model.set_all_dicts(*gate_dicts)
-        test, train, val = self.dataset.return_test_train_val()
+    def train(self, **kwargs):
+        # gate_dicts = GateDictionaries().return_dicts_rand_vars()
+        gate_dicts = GateDictionaries().return_short_dicts_ran_vars()
+        self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
+        train, val, test = self.dataset.return_train_val_test(**kwargs)
 
         for epoch in range(self.max_epoch):
             start = time.time()
@@ -60,3 +64,4 @@ class TrainModel:
                 print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
 
         self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+

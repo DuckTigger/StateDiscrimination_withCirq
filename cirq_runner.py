@@ -10,7 +10,7 @@ class CirqRunner:
     Takes the gate dictionaries defined in the rest of the program and returns probabilities of the results
     TODO: Add noise
     """
-    def __init__(self, no_qubits: int = 4, noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000):
+    def __init__(self, no_qubits: int = 4, noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 10):
         self.noise_prob = noise_prob
         self.noise_on = noise_on
         self.no_qubits = no_qubits
@@ -68,18 +68,18 @@ class CirqRunner:
             target = self.qubits[gate_dict['qid'][index]]
             yield cirq.CNOT(control=control, target=target)
         if label == 1:
-            theta_index = np.array(np.where(np.isin(gate_dict['theta_indices'], index))).reshape([])
-            theta = gate_dict['theta'][theta_index]
+            theta_index = np.where(np.isin(gate_dict['theta_indices'], index))[0]
+            theta = gate_dict['theta'][int(theta_index)].numpy()
             target = self.qubits[gate_dict['qid'][index]]
             yield cirq.Rx(theta).on(target)
         if label == 2:
-            theta_index = np.array(np.where(np.isin(gate_dict['theta_indices'], index))).reshape([])
-            theta = gate_dict['theta'][theta_index]
+            theta_index = np.where(np.isin(gate_dict['theta_indices'], index))[0]
+            theta = gate_dict['theta'][int(theta_index)].numpy()
             target = self.qubits[gate_dict['qid'][index]]
             yield cirq.Ry(theta).on(target)
         if label == 3:
-            theta_index = np.array(np.where(np.isin(gate_dict['theta_indices'], index))).reshape([])
-            theta = gate_dict['theta'][theta_index]
+            theta_index = np.where(np.isin(gate_dict['theta_indices'], index))[0]
+            theta = gate_dict['theta'][int(theta_index)].numpy()
             target = self.qubits[gate_dict['qid'][index]]
             yield cirq.Rz(theta).on(target)
         if label == 4:

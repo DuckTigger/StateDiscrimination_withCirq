@@ -2,9 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e79c8cfc-ac16-45aa-9c29-8d5e7ee083fa" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/generate_data.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test/test_train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/base_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cirq_runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/cirq_runner.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datasets.py" beforeDir="false" afterPath="$PROJECT_DIR$/datasets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gate_dictionaries.py" beforeDir="false" afterPath="$PROJECT_DIR$/gate_dictionaries.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/generate_data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -13,14 +19,14 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.47049525">
+    <splitter split-orientation="horizontal" split-proportion="0.5021075">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/test/test_model.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1403">
-                  <caret line="102" column="26" selection-start-line="102" selection-start-column="26" selection-end-line="102" selection-end-column="26" />
+                <state relative-caret-position="465">
+                  <caret line="149" column="60" selection-start-line="149" selection-start-column="60" selection-end-line="149" selection-end-column="60" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -31,8 +37,29 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/train_model.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="555">
-                  <caret line="45" column="60" selection-start-line="45" selection-start-column="60" selection-end-line="45" selection-end-column="60" />
+                <state relative-caret-position="510">
+                  <caret line="52" column="69" selection-start-line="52" selection-start-column="69" selection-end-line="52" selection-end-column="69" />
+                  <folding>
+                    <element signature="e#0#23#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/cirq/sim/density_matrix_utils.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="930">
+                  <caret line="67" column="70" lean-forward="true" selection-start-line="67" selection-start-column="8" selection-end-line="67" selection-end-column="70" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/test/test_train.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="195">
+                  <caret line="13" column="104" selection-start-line="13" selection-start-column="104" selection-end-line="13" selection-end-column="104" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -43,8 +70,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/gate_dictionaries.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1650">
-                  <caret line="110" column="11" selection-start-line="110" selection-start-column="11" selection-end-line="110" selection-end-column="11" />
+                <state relative-caret-position="1">
+                  <caret line="127" lean-forward="true" selection-start-line="127" selection-end-line="127" />
                   <folding>
                     <element signature="e#0#18#0" expanded="true" />
                   </folding>
@@ -55,8 +82,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/datasets.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="480">
-                  <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
+                <state relative-caret-position="465">
+                  <caret line="40" column="99" selection-start-line="40" selection-start-column="99" selection-end-line="40" selection-end-column="99" />
                   <folding>
                     <element signature="e#0#30#0" expanded="true" />
                   </folding>
@@ -67,8 +94,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/generate_data.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="615">
-                  <caret line="54" column="33" selection-start-line="54" selection-start-column="33" selection-end-line="56" selection-end-column="52" />
+                <state relative-caret-position="211">
+                  <caret line="72" column="8" selection-start-line="72" selection-start-column="8" selection-end-line="72" selection-end-column="8" />
                   <folding>
                     <element signature="e#0#18#0" expanded="true" />
                   </folding>
@@ -83,8 +110,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/base_model.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="150">
-                  <caret line="55" column="71" selection-start-line="49" selection-start-column="8" selection-end-line="55" selection-end-column="71" />
+                <state relative-caret-position="375">
+                  <caret line="125" column="28" selection-start-line="125" selection-start-column="28" selection-end-line="125" selection-end-column="28" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -95,8 +122,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/cirq_runner.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-1215">
-                  <caret line="12" column="119" selection-start-line="12" selection-start-column="23" selection-end-line="12" selection-end-column="119" />
+                <state relative-caret-position="391">
+                  <caret line="131" column="52" selection-start-line="131" selection-start-column="52" selection-end-line="131" selection-end-column="52" />
                   <folding>
                     <element signature="e#0#11#0" expanded="true" />
                   </folding>
@@ -127,6 +154,15 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>sigma</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>sigma_a</replace>
+      <replace>sigma_b</replace>
+    </replaceStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -140,12 +176,13 @@
         <option value="$PROJECT_DIR$/test/model.py" />
         <option value="$PROJECT_DIR$/loss_from_state.py" />
         <option value="$PROJECT_DIR$/test/test_loss_from_state.py" />
-        <option value="$PROJECT_DIR$/base_model.py" />
-        <option value="$PROJECT_DIR$/test/test_model.py" />
-        <option value="$PROJECT_DIR$/cirq_runner.py" />
         <option value="$PROJECT_DIR$/gate_dictionaries.py" />
+        <option value="$PROJECT_DIR$/test/test_model.py" />
         <option value="$PROJECT_DIR$/train_model.py" />
         <option value="$PROJECT_DIR$/generate_data.py" />
+        <option value="$PROJECT_DIR$/cirq_runner.py" />
+        <option value="$PROJECT_DIR$/base_model.py" />
+        <option value="$PROJECT_DIR$/test/test_train.py" />
         <option value="$PROJECT_DIR$/datasets.py" />
       </list>
     </option>
@@ -168,6 +205,11 @@
             <path>
               <item name="cirq_state_discrimination" type="b2602c69:ProjectViewProjectNode" />
               <item name="cirq_state_discrimination" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="cirq_state_discrimination" type="b2602c69:ProjectViewProjectNode" />
+              <item name="cirq_state_discrimination" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -200,7 +242,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.datasets">
+  <component name="RunManager" selected="Python tests.Nosetests for test_train.TestTraining.test_training">
     <configuration name="datasets" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="cirq_state_discrimination" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -222,22 +264,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests for gate_dictionaries.test" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="generate_data" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="cirq_state_discrimination" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_regexPattern" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;gate_dictionaries.test&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/generate_data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests for test_model.TestLossFromState" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="Nosetests for test_model.TestLossFromState.test_gradients" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <module name="cirq_state_discrimination" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -248,11 +296,11 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_regexPattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_model.TestLossFromState&quot;" />
+      <option name="_new_target" value="&quot;test_model.TestLossFromState.test_gradients&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests for test.test_model.TestLossFromState.test_variable_setter_getter" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="Nosetests for test_train.TestTraining.test_trainig" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <module name="cirq_state_discrimination" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -263,32 +311,32 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_regexPattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test.test_model.TestLossFromState.test_variable_setter_getter&quot;" />
+      <option name="_new_target" value="&quot;test_train.TestTraining.test_trainig&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Nosetests in gate_dictionaries.py" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+    <configuration name="Nosetests for test_train.TestTraining.test_training" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <module name="cirq_state_discrimination" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_regexPattern" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/gate_dictionaries.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <option name="_new_target" value="&quot;test_train.TestTraining.test_training&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.Nosetests for test_train.TestTraining.test_training" />
+        <item itemvalue="Python tests.Nosetests for test_model.TestLossFromState.test_gradients" />
+        <item itemvalue="Python tests.Nosetests for test_train.TestTraining.test_trainig" />
+        <item itemvalue="Python.generate_data" />
         <item itemvalue="Python.datasets" />
-        <item itemvalue="Python tests.Nosetests in gate_dictionaries.py" />
-        <item itemvalue="Python tests.Nosetests for gate_dictionaries.test" />
-        <item itemvalue="Python tests.Nosetests for test_model.TestLossFromState" />
-        <item itemvalue="Python tests.Nosetests for test.test_model.TestLossFromState.test_variable_setter_getter" />
       </list>
     </recent_temporary>
   </component>
@@ -306,48 +354,48 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 12h 43m 42s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_model_TestLossFromState_test_gradients - 2019.07.11 at 21h 43m 41s.xml">
+      <configuration name="Nosetests for test_model.TestLossFromState.test_gradients" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 12h 44m 51s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_model_TestLossFromState_test_gradients - 2019.07.11 at 21h 44m 29s.xml">
+      <configuration name="Nosetests for test_model.TestLossFromState.test_gradients" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 12h 45m 41s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_training - 2019.07.11 at 21h 45m 29s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_training" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 12h 46m 49s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_training - 2019.07.11 at 21h 46m 31s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_training" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_for_gate_dictionaries_test - 2019.07.11 at 13h 02m 06s.xml">
-      <configuration name="Nosetests for gate_dictionaries.test" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_training - 2019.07.11 at 21h 51m 52s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_training" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 13h 02m 08s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_training - 2019.07.11 at 21h 54m 31s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_training" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 13h 02m 12s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_training - 2019.07.11 at 21h 56m 25s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_training" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 13h 03m 43s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_training - 2019.07.11 at 21h 58m 38s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_training" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 13h 06m 36s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_training - 2019.07.11 at 22h 00m 23s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_training" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetests_in_gate_dictionaries_py - 2019.07.11 at 13h 06m 46s.xml">
-      <configuration name="Nosetests in gate_dictionaries.py" configurationId="tests" />
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_training - 2019.07.11 at 22h 00m 41s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_training" configurationId="tests" />
     </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="22" width="1936" height="1066" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.19915701" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19915701" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3290461" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3397642" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.40085745" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.27331188" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.24866024" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -380,12 +428,20 @@
     </layout-to-restore>
   </component>
   <component name="XDebuggerManager">
-    <watches-manager>
-      <configuration name="tests">
-        <watch expression="measurements" />
-        <watch expression="state_in" />
-      </configuration>
-    </watches-manager>
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/base_model.py</url>
+          <line>136</line>
+          <option name="timeStamp" value="27" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/train_model.py</url>
+          <line>48</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
@@ -410,47 +466,47 @@
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>dataset</expression-string>
+        <expression-string>variables</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>dataset[:3]</expression-string>
+        <expression-string>tf.shape(grads)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>tf.size(dataset)</expression-string>
+        <expression-string>variables.numpy()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>tf.shape(dataset)</expression-string>
+        <expression-string>tf.shape(variables)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>len(dataset)</expression-string>
+        <expression-string>tf.shape(variables</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>min([x == 1 for x in labels_set[len(states):]])</expression-string>
+        <expression-string>len(grads)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>min([x == 1 for x in labels_set[len(states)-1:]])</expression-string>
+        <expression-string>grads</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>[x == 1 for x in labels_set[len(states):]]</expression-string>
+        <expression-string>np.shape(model.get_variables())</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>[x == 1 for x in labels_set[len(states):]].all()</expression-string>
+        <expression-string>model.get_variables()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -502,13 +558,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/cirq/ops/op_tree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
-          <caret line="109" selection-start-line="109" selection-end-line="109" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/tensorflow/python/ops/gen_math_ops.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="200">
@@ -530,13 +579,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/cirq/sim/density_matrix_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="52" selection-start-line="52" selection-end-line="52" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/model.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -544,46 +586,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-160">
           <caret line="190" column="8" selection-start-line="190" selection-start-column="8" selection-end-line="190" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1403">
-          <caret line="102" column="26" selection-start-line="102" selection-start-column="26" selection-end-line="102" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cirq_runner.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1215">
-          <caret line="12" column="119" selection-start-line="12" selection-start-column="23" selection-end-line="12" selection-end-column="119" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_cirq_runner.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" column="26" selection-start-line="34" selection-start-column="26" selection-end-line="34" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/base_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="55" column="71" selection-start-line="49" selection-start-column="8" selection-end-line="55" selection-end-column="71" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -597,10 +599,92 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/nose/suite.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="217" selection-start-line="217" selection-end-line="217" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/cirq/ops/op_tree.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="72" selection-start-line="72" selection-end-line="72" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/cirq/ops/eigen_gate.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="249">
+          <caret line="310" selection-start-line="310" selection-end-line="310" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/cirq/protocols/apply_channel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="259" selection-start-line="259" selection-end-line="259" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test_cirq_runner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" column="26" selection-start-line="34" selection-start-column="26" selection-end-line="34" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/tensorflow/python/training/gen_training_ops.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="156">
+          <caret line="1484" selection-start-line="1484" selection-end-line="1484" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/train_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="45" column="60" selection-start-line="45" selection-start-column="60" selection-end-line="45" selection-end-column="60" />
+        <state relative-caret-position="510">
+          <caret line="52" column="69" selection-start-line="52" selection-start-column="69" selection-end-line="52" selection-end-column="69" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="149" column="60" selection-start-line="149" selection-start-column="60" selection-end-line="149" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/cirq/sim/density_matrix_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="930">
+          <caret line="67" column="70" lean-forward="true" selection-start-line="67" selection-start-column="8" selection-end-line="67" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cirq_runner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="131" column="52" selection-start-line="131" selection-start-column="52" selection-end-line="131" selection-end-column="52" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/base_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="125" column="28" selection-start-line="125" selection-start-column="28" selection-end-line="125" selection-end-column="28" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
@@ -609,18 +693,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/gate_dictionaries.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1650">
-          <caret line="110" column="11" selection-start-line="110" selection-start-column="11" selection-end-line="110" selection-end-column="11" />
+        <state relative-caret-position="1">
+          <caret line="127" lean-forward="true" selection-start-line="127" selection-end-line="127" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/test/test_train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="104" selection-start-line="13" selection-start-column="104" selection-end-line="13" selection-end-column="104" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/generate_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="615">
-          <caret line="54" column="33" selection-start-line="54" selection-start-column="33" selection-end-line="56" selection-end-column="52" />
+        <state relative-caret-position="211">
+          <caret line="72" column="8" selection-start-line="72" selection-start-column="8" selection-end-line="72" selection-end-column="8" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -629,8 +723,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/datasets.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
+        <state relative-caret-position="465">
+          <caret line="40" column="99" selection-start-line="40" selection-start-column="99" selection-end-line="40" selection-end-column="99" />
           <folding>
             <element signature="e#0#30#0" expanded="true" />
           </folding>

@@ -5,6 +5,7 @@ import copy
 
 from base_model import Model
 from cirq_runner import CirqRunner
+from gate_dictionaries import GateDictionaries
 
 
 class TestLossFromState(tf.test.TestCase):
@@ -140,4 +141,15 @@ class TestLossFromState(tf.test.TestCase):
         vars_out = model.get_variables()
         output = [x.numpy() for x in vars_out]
         np.testing.assert_array_almost_equal(output, theta[:n_vars])
+
+    def test_gradients(self):
+        runner = CirqRunner(sim_repetitions=100)
+        model = Model(tf.constant(1., dtype=tf.float64), tf.constant(1., dtype=tf.float64), runner)
+        gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries().return_short_dicts_ran_vars()
+        model.set_all_dicts(gate_dict, gate_dict_0, gate_dict_1)
+        print('Vars before: {}'.format(model.get_variables()))
+        zero_state, oozz_state = self.get_some_states()
+        grads = model.variables_gradient(loss=tf.constant(1., dtype=tf.float64), state=tf.constant(zero_state, dtype=tf.complex64), label=(tf.constant(0, dtype=tf.float32)))
+        print('Grads: {}\n Vars:{}'.format(grads, model.get_variables()))
+
 

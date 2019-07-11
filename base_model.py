@@ -1,18 +1,20 @@
 import tensorflow as tf
+import numpy as np
 import copy
 from typing import List
 
 from cirq_runner import CirqRunner
 
 
-class Model:
+class Model(tf.keras.Model):
 
     def __init__(self, cost_error: float, cost_incon: float, runner: CirqRunner,
                  g_epsilon: float = 1e-6):
+        super().__init__()
         self.runner = runner
         self.cost_error = tf.constant(cost_error, dtype=tf.float64)
         self.cost_incon = tf.constant(cost_incon, dtype=tf.float64)
-        self.g_epsilon = tf.constant(g_epsilon)
+        self.g_epsilon = tf.constant(g_epsilon, dtype=tf.float64)
         self.gate_dict = None
         self.gate_dict_0 = None
         self.gate_dict_1 = None
@@ -67,7 +69,7 @@ class Model:
         :param state: A tensor representing the density matrix of the state to be discriminated.
         :return: prob: A tensor of the measurement probabilities.
         """
-        input_state = state.numpy()
+        input_state = state.numpy().astype(np.complex64)
         circuit = self.runner.create_full_circuit(self.gate_dict, self.gate_dict_0, self.gate_dict_1)
         probs = self.runner.calculate_probabilities(input_state, circuit)
         return tf.constant(probs)
@@ -129,6 +131,6 @@ class Model:
             losses.append(new_loss)
 
         self.set_variables(variables)
-        dy = tf.subtract(losses, loss)
-        grads = tf.divide(dy, self.g_epsilon)
+        dy = [tf.subtract(x, loss) for x in losses]
+        grads = [tf.divide([y], self.g_epsilon) for y in dy]
         return grads

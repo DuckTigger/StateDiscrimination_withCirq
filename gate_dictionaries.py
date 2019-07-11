@@ -10,6 +10,10 @@ class GateDictionaries:
 
     @staticmethod
     def return_empty_dicts():
+        """
+        The standard form of gate dictionaried used in the old scheme - modified slightly.
+        :return: The three gate dictionaries hard-coded here.
+        """
         gate_dict = {
             'gate_id': np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0]),
             'theta': None,
@@ -40,6 +44,14 @@ class GateDictionaries:
 
     @staticmethod
     def build_dict(gate_id: np.ndarray, control: np.ndarray, qid: np.ndarray, theta: np.ndarray = None):
+        """
+        Creates a dictionary from the parameters given easily creates the theta indices and control indices
+        :param gate_id:
+        :param control:
+        :param qid:
+        :param theta:
+        :return:
+        """
         gate_dict = {
             'gate_id': gate_id,
             'theta': theta,
@@ -66,7 +78,7 @@ class GateDictionaries:
         rm_control = control_indices[np.where(control_qid == 1)]
         qid_rm_ctrl = np.delete(qid, rm_control)
         gate_id_rm_ctrl = np.delete(gate_id, rm_control)
-
+        # Hack to return the removed CNOT
         qid_post = np.append(qid_rm_ctrl[np.where(qid_rm_ctrl != 1)], 2)
         gate_id_post = np.append(gate_id_rm_ctrl[np.where(qid_rm_ctrl != 1)], 0)
         control_qid_post = control_qid[np.where(control_qid != 1)]
@@ -89,22 +101,50 @@ class GateDictionaries:
         return gate_dict, gate_dict_0, gate_dict_1
 
     def return_standard_dicts(self, theta: List = None):
+        """
+        Uses the dictionary creator to build the dictionaries hard coded above
+        :param theta:
+        :return:
+        """
         gate_id = np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0])
         qid = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 1])
         control_qid = np.array([1, 2, 3, 4])
         gate_dict, gate_dict_0, gate_dict_1 = self.build_three_dicts(gate_id, qid, control_qid, theta)
         return gate_dict, gate_dict_0, gate_dict_1
 
-    def return_dicts_rand_vars(self):
-        gate_dict, gate_dict_0, gate_dict_1 = self.return_standard_dicts()
+    def return_short_dicts(self, theta=None):
+        gate_id = np.array([1, 1, 1, 0])
+        qid = np.array([1, 2, 3, 4])
+        control_qid = np.array([2, 3])
+        gate_dict, gate_dict_0, gate_dict_1 = self.build_three_dicts(gate_id, qid, control_qid, theta)
+        return gate_dict, gate_dict_0, gate_dict_1
+
+    def return_short_dicts_ran_vars(self):
+        gate_dict, gate_dict_0, gate_dict_1 = self.return_short_dicts()
         th0 = len(np.where(gate_dict['gate_id'] != 0)[0])
         th1 = len(np.where(gate_dict_0['gate_id'] != 0)[0])
-        rand_th = [np.random.rand(1) * 4*np.pi for _ in range(th0 + th1)]
-        variables = [tf.Variable(x, dtype=tf.float32, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
+        rand_th = [np.random.rand(1) * 4 * np.pi for _ in range(th0 + 2 * th1)]
+        variables = [tf.Variable(x, dtype=tf.float64, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
 
         gate_dict['theta'] = [x for x in variables[:th0]]
         gate_dict_0['theta'] = [x for x in variables[th0:th0 + th1]]
-        gate_dict_1['theta'] = [x for x in variables[th0 + th1:th0 + 2*th1]]
+        gate_dict_1['theta'] = [x for x in variables[th0 + th1:th0 + 2 * th1]]
+        return gate_dict, gate_dict_0, gate_dict_1
+
+    def return_dicts_rand_vars(self):
+        """
+        Uses the above function to fill three dictionaries with random thetas.
+        :return:
+        """
+        gate_dict, gate_dict_0, gate_dict_1 = self.return_standard_dicts()
+        th0 = len(np.where(gate_dict['gate_id'] != 0)[0])
+        th1 = len(np.where(gate_dict_0['gate_id'] != 0)[0])
+        rand_th = [np.random.rand(1) * 4*np.pi for _ in range(th0 + 2*th1)]
+        variables = [tf.Variable(x, dtype=tf.float64, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
+
+        gate_dict['theta'] = variables[:th0]
+        gate_dict_0['theta'] = variables[th0:th0 + th1]
+        gate_dict_1['theta'] = variables[th0 + th1:th0 + 2*th1]
         return gate_dict, gate_dict_0, gate_dict_1
 
 
