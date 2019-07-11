@@ -11,4 +11,9 @@ class Datasets:
         self.max_epoch = max_epoch
 
     def return_test_train_val(self) -> Tuple[tf.data.Dataset]:
-        pass
+        if self.loc is not None:
+            return self.datasets_from_file()
+        else:
+            return self.generate_gdatasets()
+
+    def datasets_from_file(self):

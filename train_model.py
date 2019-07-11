@@ -5,6 +5,7 @@ import datetime, time, sys, os
 from base_model import Model
 from cirq_runner import CirqRunner
 from datasets import Datasets
+from gate_dictionaries import GateDictionaries
 
 
 class TrainModel:
@@ -43,6 +44,10 @@ class TrainModel:
         grads = model.variables_gradient(loss, state, label)
         variables = model.get_variables()
         self.optimizer.apply_gradients(zip(grads, variables))
+
+    def train(self):
+        gate_dicts = GateDictionaries().return_dicts_rand_vars()
+        self.model.set_all_dicts(*gate_dicts)
         test, train, val = self.dataset.return_test_train_val()
 
         for epoch in range(self.max_epoch):
