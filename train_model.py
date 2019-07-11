@@ -4,17 +4,21 @@ import datetime, time, sys, os
 
 from base_model import Model
 from cirq_runner import CirqRunner
+from datasets import Datasets
 
 
 class TrainModel:
 
     def __init__(self, cost_error: float, cost_incon: float,
+                 file_loc: str = None,
                  batch_size: int = 50, max_epoch: int = 1000,
                  learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
                  g_epsilon: float = 1e-6, no_qubits: int = 4,
                  noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000):
+        self.dataset = Datasets(file_loc, batch_size, max_epoch)
         self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
         self.model = Model(cost_error, cost_incon, self.runner, g_epsilon)
+        self.max_epoch = max_epoch
         self.save_time = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
         self.checkpoint_prefix = None
         self.optimizer = tf.optimizers.Adam(learning_rate, beta1, beta2)
@@ -39,5 +43,15 @@ class TrainModel:
         grads = model.variables_gradient(loss, state, label)
         variables = model.get_variables()
         self.optimizer.apply_gradients(zip(grads, variables))
+        test, train, val = self.dataset.return_test_train_val()
 
-    
+        for epoch in range(self.max_epoch):
+            start = time.time()
+            for batch in train:
+                self.train_step(batch[0], batch[1])
+
+            if epoch % 10 == 0:
+                self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+                print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
+
+        self.checkpoint.save(file_prefix=self.checkpoint_prefix)
