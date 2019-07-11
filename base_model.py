@@ -1,19 +1,29 @@
 import tensorflow as tf
+import copy
+from typing import List
 
 from cirq_runner import CirqRunner
 
 
-class LossFromState:
+class Model:
 
-    def __init__(self, cost_error: tf.Tensor, cost_incon: tf.Tensor,
-                 noise_on: bool = False, noise_prob: float = 0.1, no_qubits: int = 4, repetitions: int = 100):
-        self.runner = CirqRunner(no_qubits=no_qubits, noise_on=noise_on, noise_prob=noise_prob,
-                                         sim_repetitions=repetitions)
-        self.cost_error = cost_error
-        self.cost_incon = cost_incon
+    def __init__(self, cost_error: float, cost_incon: float, runner: CirqRunner,
+                 g_epsilon: float = 1e-6):
+        self.runner = runner
+        self.cost_error = tf.constant(cost_error, dtype=tf.float64)
+        self.cost_incon = tf.constant(cost_incon, dtype=tf.float64)
+        self.g_epsilon = tf.constant(g_epsilon)
         self.gate_dict = None
         self.gate_dict_0 = None
         self.gate_dict_1 = None
+
+    @property
+    def runner(self):
+        return self.__runner
+
+    @runner.setter
+    def runner(self, runner: CirqRunner):
+        self.__runner = runner
 
     def set_all_dicts(self, gate_dict, gate_dict_0, gate_dict_1):
         self.set_gate_dict(gate_dict)
@@ -31,6 +41,24 @@ class LossFromState:
                 self.gate_dict_1 = gate_dict
             else:
                 self.gate_dict_0 = gate_dict
+
+    def return_gate_dicts(self):
+        return self.gate_dict, self.gate_dict_0, self.gate_dict_1
+
+    def set_variables(self, variables: List[tf.Variable]):
+        gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
+        vars0 = len(gate_dict['theta_indices'])
+        vars1 = len(gate_dict_0['theta_indices']) + vars0
+        vars2 = len(gate_dict_1['theta_indices']) + vars1
+
+        self.gate_dict['theta'] = [x for x in variables[:vars0]]
+        self.gate_dict_0['theta'] = [x for x in variables[vars0:vars1]]
+        self.gate_dict_1['theta'] = [x for x in variables[vars1:vars2]]
+
+    def get_variables(self):
+        gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
+        variables = gate_dict['theta'] + gate_dict_0['theta'] + gate_dict_1['theta']
+        return variables
 
     def state_to_prob(self, state: tf.Tensor) -> tf.Tensor:
         """
@@ -81,3 +109,26 @@ class LossFromState:
         probs = self.state_to_prob(state)
         loss = self.probs_to_loss(probs, label)
         return loss
+
+    def variables_gradient(self, loss: tf.Tensor, state: tf.Tensor, label: tf.Tensor) -> tf.Tensor:
+        """
+        Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
+        by g_epsilon.
+        :param loss: The current loss of the model
+        :param state: The state in
+        :param label: the label of that state
+        :return: grads: a list of tensors representing the gradients for each variable.
+        """
+        variables = self.get_variables()
+        losses = []
+        for i, var in enumerate(variables):
+            new_vars = copy.copy(variables)
+            new_vars[i] = tf.add(var, self.g_epsilon)
+            self.set_variables(new_vars)
+            new_loss = self.state_to_loss(state, label)
+            losses.append(new_loss)
+
+        self.set_variables(variables)
+        dy = tf.subtract(losses, loss)
+        grads = tf.divide(dy, self.g_epsilon)
+        return grads
