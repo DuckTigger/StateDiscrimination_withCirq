@@ -69,7 +69,7 @@ class Model(tf.keras.Model):
         :param state: A tensor representing the density matrix of the state to be discriminated.
         :return: prob: A tensor of the measurement probabilities.
         """
-        input_state = state.numpy().astype(np.complex64)
+        input_state = state.numpy()
         circuit = self.runner.create_full_circuit(self.gate_dict, self.gate_dict_0, self.gate_dict_1)
         probs = self.runner.calculate_probabilities(input_state, circuit)
         return tf.constant(probs)

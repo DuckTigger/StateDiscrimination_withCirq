@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import datetime, time, sys, os
+from typing import Tuple
 
 from base_model import Model
 from cirq_runner import CirqRunner
@@ -26,18 +27,19 @@ class TrainModel:
         self.optimizer = tf.optimizers.Adam(learning_rate, beta1, beta2)
 
         if sys.platform.startswith('win'):
-            self.checkpoint = self.setup_save(
+            self.checkpoint, self.writer = self.setup_save(
                 "C:\\Users\\Andrew Patterson\\Documents\\PhD\\cirq_state_discrimination\\checkpoints")
         else:
-            self.checkpoint = self.setup_save("/home/zcapga1/Scratch/state_discrimination/training_out")
+            self.checkpoint, self.writer = self.setup_save("/home/zcapga1/Scratch/state_discrimination/training_out")
 
-    def setup_save(self, save_dir: str) -> tf.train.Checkpoint:
+    def setup_save(self, save_dir: str) -> Tuple[tf.train.Checkpoint,  tf.summary.SummaryWriter]:
         checkpoint_dir = os.path.join(save_dir, self.save_time)
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
         self.checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
         checkpoint = tf.train.Checkpoint(optimizer=self.optimizer, model=self.model)
-        return checkpoint
+        writer = tf.summary.create_file_writer(checkpoint_dir)
+        return checkpoint, writer
 
     # @tf.function
     def train_step(self, state_in: tf.Tensor, label_in: tf.Tensor):
@@ -47,6 +49,7 @@ class TrainModel:
             grads = model.variables_gradient(loss, state, label)
             variables = model.get_variables()
             self.optimizer.apply_gradients(zip(grads, variables))
+        return loss
 
     def train(self, **kwargs):
         # gate_dicts = GateDictionaries().return_dicts_rand_vars()
@@ -57,9 +60,13 @@ class TrainModel:
         for epoch in range(self.max_epoch):
             start = time.time()
             for batch in train:
-                self.train_step(batch[0], batch[1])
+                loss = self.train_step(batch[0], batch[1])
+                tf.summary.scalar('Training loss', loss, epoch)
+                tf.summary.write('loss{}'.format(epoch), loss)
 
             if epoch % 10 == 0:
+                tf.summary.scalar('Training loss', loss, epoch)
+                tf.summary.write('loss{}'.format(epoch), loss)
                 self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                 print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
 

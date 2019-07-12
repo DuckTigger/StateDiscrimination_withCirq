@@ -38,7 +38,7 @@ class Datasets:
         For params see CreateDensityMatrices.create_from_distribution
         :return: dataset: the full tf.Dataset, and its length.
         """
-        states = CreateDensityMatrices.create_from_distribution(self.batch_size * self.max_epoch * 2, prop_a, b_const,
+        states = CreateDensityMatrices.create_from_distribution(self.batch_size * self.max_epoch * 100, prop_a, b_const,
                                                                 a_const, lower, upper, mu_a, sigma_a, mu_b, sigma_b)
         states_set = []
         labels_set = []
@@ -46,6 +46,7 @@ class Datasets:
             label_vec = np.full(fill_value=i, shape=np.shape(st)[0])
             states_set.extend(st)
             labels_set.extend(label_vec)
+        states_set = tf.constant(states_set, dtype=tf.complex64)
         dataset = tf.data.Dataset.from_tensor_slices((states_set, labels_set))
         return dataset, len(labels_set)
 

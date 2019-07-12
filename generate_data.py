@@ -21,7 +21,7 @@ class CreateDensityMatrices:
         :param vec: A two qubit state vector
         :return: state: The four qubit density matrix
         """
-        zero = np.array([[1, 0], [0, 0]])
+        zero = np.array([[1, 0], [0, 0]]).astype(np.complex64)
         zero_zero = np.kron(zero, zero)
         rho = np.einsum('i,j->ij', vec, np.conj(vec))
         rho = rho / np.trace(rho)
@@ -39,35 +39,37 @@ class CreateDensityMatrices:
         :return:
         """
         if a_const:
-            psi_a = np.array([np.sqrt(1 - (0.25 ** 2)), 0, 0.25, 0])
+            psi_a = np.array([np.sqrt(1 - (0.25 ** 2)), 0, 0.25, 0]).astype(np.complex64)
         else:
             rand_a = dist_choice
-            psi_a = np.array([np.sqrt(1 - (rand_a ** 2)), 0, rand_a, 0])
+            psi_a = np.array([np.sqrt(1 - (rand_a ** 2)), 0, rand_a, 0]).astype(np.complex64)
         state = CreateDensityMatrices.state_from_vec(psi_a)
-
-        assert np.allclose(state, np.conj(state.T))
-        assert np.allclose(np.trace(state), 1)
-        assert np.all(np.linalg.eigvalsh(state) > -1e-8)
+        CreateDensityMatrices.check_state(state, dist_choice, 'a')
         return state
 
     @staticmethod
     def create_b(dist_choice, constant=True):
         if constant:
-            b1 = np.array([0, 1 / np.sqrt(2), 1 / np.sqrt(2), 0])
-            b2 = np.array([0, -1 / np.sqrt(2), 1 / np.sqrt(2), 0])
+            b1 = np.array([0, 1 / np.sqrt(2), 1 / np.sqrt(2), 0]).astype(np.complex64)
+            b2 = np.array([0, -1 / np.sqrt(2), 1 / np.sqrt(2), 0]).astype(np.complex64)
         else:
             rand_b = dist_choice
-            b1 = np.array([0, np.sqrt(1 - (rand_b ** 2)), rand_b, 0])
-            b2 = np.array([0, -1 * np.sqrt(1 - (rand_b ** 2)), rand_b, 0])
+            b1 = np.array([0, np.sqrt(1 - (rand_b ** 2)), rand_b, 0]).astype(np.complex64)
+            b2 = np.array([0, -1 * np.sqrt(1 - (rand_b ** 2)), rand_b, 0]).astype(np.complex64)
         state1 = CreateDensityMatrices.state_from_vec(b1)
         state2 = CreateDensityMatrices.state_from_vec(b2)
-        assert np.allclose(state1, np.conj(state1.T))
-        assert np.allclose(np.trace(state1), 1)
-        assert np.allclose(state2, np.conj(state2.T))
-        assert np.allclose(np.trace(state2), 1)
-        assert np.all(np.linalg.eigvalsh(state1) > -1e-8)
-        assert np.all(np.linalg.eigvalsh(state2) > -1e-8)
         return state1, state2
+
+    @staticmethod
+    def check_state(state, dist_choice, state_name):
+        if not np.allclose(state, np.conj(state.T)):
+            raise ValueError('{} state is not Hermitian, dist_val = {}'.format(state_name, dist_choice))
+        if not np.allclose(np.trace(state), 1):
+            raise ValueError('{} state is Trace=1, dist_val = {}'.format(state_name, dist_choice))
+        if not np.all(np.linalg.eigvalsh(state) > -1e-8):
+            # raise ValueError('{} state is not Positive semidefinite, dist_val = {}'.format(state_name, dist_choice))
+            return False
+        return True
 
     @staticmethod
     def create_from_distribution(total_rhos: int = 1000, prop_a: float = 1/3, b_const: bool = True, 
@@ -79,13 +81,17 @@ class CreateDensityMatrices:
         b_states = []
 
         for i in range(int(total_rhos * prop_a)):
-            a_out = CreateDensityMatrices.create_a( a_dist[i], a_const)
-            a_states.append(a_out)
+            a_out = CreateDensityMatrices.create_a(a_dist[i], a_const)
+            if CreateDensityMatrices.check_state(a_out, a_dist[i], 'a'):
+                a_states.append(a_out)
 
         for i in range(int(total_rhos * (1-prop_a))):
             b1, b2 = CreateDensityMatrices.create_b(b_dist[i], b_const)
-            b_states.append(b1)
-            b_states.append(b2)
+            if (CreateDensityMatrices.check_state(b1, b_dist[i], 'b1') and
+                    CreateDensityMatrices.check_state(b2, b_dist[i], 'b2')):
+                b_states.append(b1)
+                b_states.append(b2)
+
 
         return a_states, b_states
 
