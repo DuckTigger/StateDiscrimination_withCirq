@@ -2,9 +2,12 @@ import unittest
 import numpy as np
 import cirq
 from typing import Counter
+import tensorflow as tf
+import copy
 
 from cirq_runner import CirqRunner
-
+from gate_dictionaries import GateDictionaries
+from test.test_model import TestLossFromState
 
 class TestCirqRunner(np.testing.TestCase):
 
@@ -105,4 +108,19 @@ class TestCirqRunner(np.testing.TestCase):
         probs2 = runner.calculate_probabilities(zero_state, circuit2)
         np.testing.assert_array_almost_equal(probs2, [0.25, 0.25, 0.25, 0.25], decimal=1)
 
+    def test_compare_prob_methods(self):
+        runner = CirqRunner(sim_repetitions=10000)
+        dicts = TestLossFromState.get_some_dicts()
+        for gate_dict in dicts:
+            gate_dict['qid'] = gate_dict['qid'] - 1
+            gate_dict['control_qid'] = gate_dict['control_qid'] - 1
+            gate_dict['theta'] = [tf.Variable(x) for x in gate_dict['theta']]
+        zero, _ = TestLossFromState.get_some_states()
+        zero_ = copy.copy(zero)
+        circuit_a = runner.create_full_circuit(dicts[0], dicts[1], dicts[2])
+        probs_a = runner.calculate_probabilities(zero, circuit_a)
+        probs_b = runner.calculate_probabilities_non_sampling(dicts[0], dicts[1], dicts[2], zero_)
+
+        np.testing.assert_almost_equal(np.sum(probs_a), 1)
+        np.testing.assert_array_almost_equal(probs_a, probs_b, decimal=4)
 

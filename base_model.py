@@ -62,6 +62,13 @@ class Model(tf.keras.Model):
         variables = gate_dict['theta'] + gate_dict_0['theta'] + gate_dict_1['theta']
         return variables
 
+    def get_gate_ids(self):
+        gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
+        gate_ids = gate_dict['gate_id'] + gate_dict_0['gate_id'] + gate_dict_1['gate_id']
+        gate_ids = gate_ids[np.where(gate_ids != 0)]
+        return gate_ids
+
+
     def state_to_prob(self, state: tf.Tensor) -> tf.Tensor:
         """
         Takes a single input state (in Tensor form) and uses the CirqRunner module to calculate the
@@ -70,8 +77,10 @@ class Model(tf.keras.Model):
         :return: prob: A tensor of the measurement probabilities.
         """
         input_state = state.numpy()
-        circuit = self.runner.create_full_circuit(self.gate_dict, self.gate_dict_0, self.gate_dict_1)
-        probs = self.runner.calculate_probabilities(input_state, circuit)
+        # circuit = self.runner.create_full_circuit(self.gate_dict, self.gate_dict_0, self.gate_dict_1)
+        # probs = self.runner.calculate_probabilities(input_state, circuit)
+        probs = self.runner.calculate_probabilities_non_sampling(self.gate_dict,
+                                                                 self.gate_dict_0, self.gate_dict_1, input_state)
         return tf.constant(probs)
 
     def probs_to_loss(self, probs: tf.Tensor, label: tf.Tensor) -> tf.Tensor:
@@ -112,7 +121,7 @@ class Model(tf.keras.Model):
         loss = self.probs_to_loss(probs, label)
         return loss
 
-    def variables_gradient(self, loss: tf.Tensor, state: tf.Tensor, label: tf.Tensor) -> tf.Tensor:
+    def variables_gradient(self, loss: tf.Tensor, state: tf.Tensor, label: tf.Tensor) -> List:
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.
@@ -133,4 +142,34 @@ class Model(tf.keras.Model):
         self.set_variables(variables)
         dy = [tf.subtract(x, loss) for x in losses]
         grads = [tf.divide([y], self.g_epsilon) for y in dy]
+        return grads
+
+    def varibles_gradient_exact(self, state: tf.Tensor, label: tf.Tensor) -> List:
+        """
+        Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
+        by g_epsilon.
+        :param loss: The current loss of the model
+        :param state: The state in
+        :param label: the label of that state
+        :return: grads: a list of tensors representing the gradients for each variable.
+        """
+        variables = self.get_variables()
+        grads = []
+        for i, var in enumerate(variables):
+            new_vars_plus = copy.copy(variables)
+            new_vars_minus = copy.copy(variables)
+
+            new_vars_plus[i] = tf.add(var, np.pi/4)
+            new_vars_minus[i] = tf.subtract(var, np.pi/4)
+
+            self.set_variables(new_vars_plus)
+            loss_plus = self.state_to_loss(state, label)
+
+            self.set_variables(new_vars_minus)
+            loss_minus = self.state_to_loss(state, label)
+            grad = tf.subtract(loss_plus, loss_minus)
+            grad = tf.reshape(grad, (1,))
+            grads.append(grad)
+
+        self.set_variables(variables)
         return grads

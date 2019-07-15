@@ -72,3 +72,34 @@ class TrainModel:
 
         self.checkpoint.save(file_prefix=self.checkpoint_prefix)
 
+    def train_step_new(self, state_in: tf.Tensor, label_in: tf.Tensor):
+        model = self.model
+        for state, label in zip(state_in, label_in):
+            loss = model.state_to_loss(state, label)
+            grads = model.varibles_gradient_exact(state, label)
+            variables = model.get_variables()
+            self.optimizer.apply_gradients(zip(grads, variables))
+        return loss
+
+    def train_new(self, **kwargs):
+        gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
+        self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
+        train, val, test = self.dataset.return_train_val_test(**kwargs)
+
+        with self.writer.as_default():
+            for epoch in range(self.max_epoch):
+                start = time.time()
+                for batch in train:
+                    loss = self.train_step_new(batch[0], batch[1])
+                    tf.summary.scalar('Training loss', loss, epoch)
+                    self.writer.flush()
+
+                if epoch % 10 == 0:
+                    self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+                    print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
+            self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+
+
+if __name__ == '__main__':
+    trainer = TrainModel(40., 40., batch_size=20, max_epoch=2500)
+    trainer.train_new(a_const=False, b_const=True)

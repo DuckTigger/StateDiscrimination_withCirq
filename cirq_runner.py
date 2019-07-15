@@ -1,7 +1,7 @@
 import cirq
 import numpy as np
 import copy
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Tuple
 
 
 class CirqRunner:
@@ -147,58 +147,56 @@ class CirqRunner:
         return out
 
     def prob_and_set(self, state: np.ndarray, measure_qubit: int, measurement: int):
-
-        e = np.array([[1,0], [0,1]])
+        e = np.array([[1,0], [0,1]]).astype(np.complex64)
         if measurement:
-            o = np.array([[0, 0], [0, 1]])
+            o = np.array([[0, 0], [0, 1]]).astype(np.complex64)
             l = [e for _ in range(len(self.qubits))]
             l[measure_qubit] = o
             m1 = self.kron_list(l)
             rho_out = m1 @ state @ m1.T
-            prob = np.trace(m1 @ m1 @ state)
+            prob = np.trace(m1.T @ m1 @ state)
         else:
-            z = np.array([[1, 0], [0, 0]])
+            z = np.array([[1, 0], [0, 0]]).astype(np.complex64)
             l = [e for _ in range(len(self.qubits))]
             l[measure_qubit] = z
             m0 = self.kron_list(l)
             rho_out = m0 @ state @ m0.T
-            prob = np.trace(m0 @ m0 @ state)
+            prob = np.trace(m0.T @ m0 @ state)
 
+        rho_out = rho_out / np.trace(rho_out)
         return prob, rho_out
 
-    def calculate_probabilities_non_samplling(self, gate_dict: Dict, gate_dict_0: Dict, gate_dict_1: Dict,
-                                              state: np.ndarray):
+    def probs_controlled_part(self, gate_dict: Dict, state_in: np.ndarray, prob: np.ndarray, sim: cirq.DensityMatrixSimulator) -> Tuple[float, float]:
+        if prob > 1e-8 and np.all(np.linalg.eigvalsh(state_in) > -1e-8):
+            circuit_0 = self.gate_dict_to_circuit(gate_dict)
+            rho_0 = sim.simulate(circuit_0, initial_state=state_in).final_density_matrix
+            prob_0, _ = self.prob_and_set(rho_0, 1, 0)
+            prob_1, _ = self.prob_and_set(rho_0, 1, 1)
+        else:
+            prob_0 = 0
+            prob_1 = 0
+        return prob_0, prob_1
+
+    def calculate_probabilities_non_sampling(self, gate_dict: Dict, gate_dict_0: Dict, gate_dict_1: Dict,
+                                              state: np.ndarray) -> List[float]:
+        # for d in gate_dict_0, gate_dict_1:
+        #     d['gate_id'] = np.append(d['gate_id'], 4)
         state_in = copy.copy(state)
         simulator = cirq.DensityMatrixSimulator()
         circuit_pre = self.gate_dict_to_circuit(gate_dict)
-        res_pre = simulator.simulate(circuit_pre, initial_state=state_in)
-        rho = res_pre.final_density_matrix
+        rho = simulator.simulate(circuit_pre, initial_state=state_in).final_density_matrix
 
         prob_0, state_0 = self.prob_and_set(rho, 0, 0)
         prob_1, state_1 = self.prob_and_set(rho, 0, 1)
 
-        if prob_0 > 1e-8:
-            circuit_0 = copy.copy(circuit_pre)
-            circuit_0.append(self.gate_dict_to_circuit(gate_dict_0))
-            rho_0 = simulator.simulate(circuit_0, initial_state=state_0).final_density_matrix
-            prob_00, _ = self.prob_and_set(rho_0, 1, 0)
-            prob_01, _ = self.prob_and_set(rho_0, 1, 1)
-        else:
-            prob_00 = 0
-            prob_01 = 0
-
-        if prob_1 > 1e-8:
-            circuit_1 = copy.copy(circuit_pre)
-            circuit_1.append(self.gate_dict_to_circuit(gate_dict_1))
-            rho_1 = simulator.simulate(circuit_1, initial_state=state_1).final_density_matrix
-            prob_10, _ = self.prob_and_set(rho_1, 1, 0)
-            prob_11, _ = self.prob_and_set(rho_1, 1, 1)
-        else:
-            prob_10 = 0
-            prob_11 = 0
+        prob_00, prob_01 = self.probs_controlled_part(gate_dict_0, state_0, prob_0, simulator)
+        prob_10, prob_11 = self.probs_controlled_part(gate_dict_1, state_1, prob_1, simulator)
 
         fin_00 = prob_0 * prob_00
         fin_01 = prob_0 * prob_01
         fin_10 = prob_1 * prob_10
         fin_11 = prob_1 * prob_11
-        return [fin_00, fin_01, fin_10, fin_11]
+
+        out = [fin_00, fin_01, fin_10, fin_11]
+        out = [x.astype(np.float64) for x in out]
+        return out

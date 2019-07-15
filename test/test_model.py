@@ -32,21 +32,21 @@ class TestLossFromState(tf.test.TestCase):
         }
 
         gate_dict_0 = {
-            'gate_id': np.array([1]),
+            'gate_id': np.array([1, 4, 4]),
             'theta': np.array([np.pi]),
             'theta_indices': np.array([0]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([2])
+            'qid': np.array([2, 3, 4])
         }
 
         gate_dict_1 = {
-            'gate_id': np.array([1]),
+            'gate_id': np.array([1, 4, 4]),
             'theta': np.array([np.pi]),
             'theta_indices': np.array([0]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([2])
+            'qid': np.array([2, 3, 4])
         }
         return gate_dict, gate_dict_0, gate_dict_1
 
@@ -152,4 +152,12 @@ class TestLossFromState(tf.test.TestCase):
         grads = model.variables_gradient(loss=tf.constant(1., dtype=tf.float64), state=tf.constant(zero_state, dtype=tf.complex64), label=(tf.constant(0, dtype=tf.float32)))
         print('Grads: {}\n Vars:{}'.format(grads, model.get_variables()))
 
+    def test_vars_ids(self):
+        runner = CirqRunner(sim_repetitions=100)
+        model = Model(tf.constant(1., dtype=tf.float64), tf.constant(1., dtype=tf.float64), runner)
+        gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_new_dicts_rand_vars()
+        model.set_all_dicts(gate_dict, gate_dict_0, gate_dict_1)
+        ids = model.get_gate_ids()
+        vars = model.get_variables()
+        np.testing.assert_equal(len(ids), len(vars))
 

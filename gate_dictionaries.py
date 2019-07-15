@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List
+from typing import List, Dict
 import tensorflow as tf
 
 
@@ -43,6 +43,21 @@ class GateDictionaries:
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
+    def build_new_dicts():
+        gate_dict = GateDictionaries.build_dict(gate_id=np.array([0, 0, 0, 0, 1, 1, 3, 3, 1, 1]),
+                                                control=np.array([4, 4, 3, 3]),
+                                                qid=np.array([1, 2, 1, 2, 1, 2, 1, 2, 1, 2]))
+
+        gate_dict_0 = GateDictionaries.build_dict(gate_id=np.array([0, 0, 1, 3, 1, 4]),
+                                                  control=np.array([4, 3]),
+                                                  qid=np.array([2, 2, 2, 2, 2, 1]))
+
+        gate_dict_1 = GateDictionaries.build_dict(gate_id=np.array([0, 0, 1, 3, 1, 4]),
+                                                  control=np.array([4, 3]),
+                                                  qid=np.array([2, 2, 2, 2, 2, 1]))
+        return gate_dict, gate_dict_0, gate_dict_1
+
+    @staticmethod
     def build_dict(gate_id: np.ndarray, control: np.ndarray, qid: np.ndarray, theta: np.ndarray = None):
         """
         Creates a dictionary from the parameters given easily creates the theta indices and control indices
@@ -62,7 +77,8 @@ class GateDictionaries:
         }
         return gate_dict
 
-    def build_three_dicts(self, gate_id: np.ndarray, qid: np.ndarray, control_qid: np.ndarray,theta: List = None):
+    @staticmethod
+    def build_three_dicts(gate_id: np.ndarray, qid: np.ndarray, control_qid: np.ndarray, theta: List = None):
         """
         Builds three nearly identical gate_dicts based oin the structure for the largest passed to gate_id,
         i.e. the dicts will be the same for all three dicts on qubits 2, 3, 4, but will onlly contain operations on
@@ -94,13 +110,14 @@ class GateDictionaries:
             theta1 = theta[rot_pre:rot_pre + rot_post]
             theta2 = theta[rot_pre + rot_post:rot_pre + 2*rot_post]
 
-        gate_dict = self.build_dict(gate_id, control_qid, qid, theta0)
-        gate_dict_0 = self.build_dict(gate_id_post, control_qid_post, qid_post, theta1)
-        gate_dict_1 = self.build_dict(gate_id_post, control_qid_post, qid_post, theta2)
+        gate_dict = GateDictionaries.build_dict(gate_id, control_qid, qid, theta0)
+        gate_dict_0 = GateDictionaries.build_dict(gate_id_post, control_qid_post, qid_post, theta1)
+        gate_dict_1 = GateDictionaries.build_dict(gate_id_post, control_qid_post, qid_post, theta2)
 
         return gate_dict, gate_dict_0, gate_dict_1
 
-    def return_standard_dicts(self, theta: List = None):
+    @staticmethod
+    def return_standard_dicts(theta: List = None):
         """
         Uses the dictionary creator to build the dictionaries hard coded above
         :param theta:
@@ -109,18 +126,19 @@ class GateDictionaries:
         gate_id = np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0])
         qid = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 1])
         control_qid = np.array([1, 2, 3, 4])
-        gate_dict, gate_dict_0, gate_dict_1 = self.build_three_dicts(gate_id, qid, control_qid, theta)
+        gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.build_three_dicts(gate_id, qid, control_qid, theta)
         return gate_dict, gate_dict_0, gate_dict_1
 
-    def return_short_dicts(self, theta=None):
+    @staticmethod
+    def return_short_dicts(theta: List = None):
         gate_id = np.array([1, 1, 1, 0])
         qid = np.array([1, 2, 3, 4])
         control_qid = np.array([2, 3])
-        gate_dict, gate_dict_0, gate_dict_1 = self.build_three_dicts(gate_id, qid, control_qid, theta)
+        gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.build_three_dicts(gate_id, qid, control_qid, theta)
         return gate_dict, gate_dict_0, gate_dict_1
 
-    def return_short_dicts_ran_vars(self):
-        gate_dict, gate_dict_0, gate_dict_1 = self.return_short_dicts()
+    @staticmethod
+    def fill_dicts_rand_vars(gate_dict: Dict, gate_dict_0: Dict, gate_dict_1: Dict):
         th0 = len(np.where(gate_dict['gate_id'] != 0)[0])
         th1 = len(np.where(gate_dict_0['gate_id'] != 0)[0])
         rand_th = [np.random.rand(1) * 4 * np.pi for _ in range(th0 + 2 * th1)]
@@ -131,21 +149,24 @@ class GateDictionaries:
         gate_dict_1['theta'] = [x for x in variables[th0 + th1:th0 + 2 * th1]]
         return gate_dict, gate_dict_0, gate_dict_1
 
-    def return_dicts_rand_vars(self):
+    @staticmethod
+    def return_short_dicts_ran_vars():
+        gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_short_dicts()
+        return GateDictionaries.fill_dicts_rand_vars(gate_dict, gate_dict_0, gate_dict_1)
+
+    @staticmethod
+    def return_new_dicts_rand_vars():
+        gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.build_new_dicts()
+        return GateDictionaries.fill_dicts_rand_vars(gate_dict, gate_dict_0, gate_dict_1)
+
+    @staticmethod
+    def return_dicts_rand_vars():
         """
         Uses the above function to fill three dictionaries with random thetas.
         :return:
         """
-        gate_dict, gate_dict_0, gate_dict_1 = self.return_standard_dicts()
-        th0 = len(np.where(gate_dict['gate_id'] != 0)[0])
-        th1 = len(np.where(gate_dict_0['gate_id'] != 0)[0])
-        rand_th = [np.random.rand(1) * 4*np.pi for _ in range(th0 + 2*th1)]
-        variables = [tf.Variable(x, dtype=tf.float64, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
-
-        gate_dict['theta'] = variables[:th0]
-        gate_dict_0['theta'] = variables[th0:th0 + th1]
-        gate_dict_1['theta'] = variables[th0 + th1:th0 + 2*th1]
-        return gate_dict, gate_dict_0, gate_dict_1
+        gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_standard_dicts()
+        return GateDictionaries.fill_dicts_rand_vars(gate_dict, gate_dict_0, gate_dict_1)
 
 
 def test():
