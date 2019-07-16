@@ -12,12 +12,13 @@ from generate_data import CreateDensityMatrices
 
 class TrainModel:
 
-    def __init__(self, cost_error: float, cost_incon: float,
+    def __init__(self, cost_error: float = 40., cost_incon: float = 10.,
                  file_loc: str = None,
-                 batch_size: int = 50, max_epoch: int = 1000,
+                 batch_size: int = 50, max_epoch: int = 2500,
                  learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
                  g_epsilon: float = 1e-6, no_qubits: int = 4,
-                 noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000):
+                 noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000,
+                 job_name=None, **kwargs):
 
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
         self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
@@ -26,6 +27,8 @@ class TrainModel:
         self.save_time = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
         self.checkpoint_prefix = None
         self.optimizer = tf.optimizers.Adam(learning_rate, beta1, beta2)
+        self.job_name = job_name
+        self.train, self.val, self.test = self.dataset.return_train_val_test(**kwargs)
 
         if sys.platform.startswith('win'):
             self.checkpoint, self.writer = self.setup_save(
@@ -34,7 +37,10 @@ class TrainModel:
             self.checkpoint, self.writer = self.setup_save("/home/zcapga1/Scratch/state_discrimination/training_out")
 
     def setup_save(self, save_dir: str) -> Tuple[tf.train.Checkpoint,  tf.summary.SummaryWriter]:
-        checkpoint_dir = os.path.join(save_dir, self.save_time)
+        if self.job_name is None:
+            checkpoint_dir = os.path.join(save_dir, self.save_time)
+        else:
+            checkpoint_dir = os.path.join(save_dir, self.job_name, self.save_time)
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
         self.checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
@@ -86,7 +92,8 @@ class TrainModel:
     def train_new(self, **kwargs):
         gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
         self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
-        train, val, test = self.dataset.return_train_val_test(**kwargs)
+        train, val, test = self.train, self.val, self.test
+        # train, val, test = self.dataset.return_train_val_test(**kwargs)
 
         with self.writer.as_default():
             for epoch in range(self.max_epoch):

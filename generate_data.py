@@ -70,26 +70,25 @@ class CreateDensityMatrices:
         return True
 
     @staticmethod
-    def create_from_distribution(total_rhos: int = 1000, prop_a: float = 1/3, b_const: bool = True, 
-                                 a_const: bool = False, lower: int = 0, upper: int = 1, mu_a: float = 0.5, 
+    def create_from_distribution(total_states: int = 1000, prop_a: float = 1 / 3, b_const: bool = True,
+                                 a_const: bool = False, lower: int = 0, upper: int = 1, mu_a: float = 0.5,
                                  sigma_a: float = 0.25, mu_b: float = 0.75, sigma_b: float = 0.125):
-        a_dist = truncnorm.rvs((lower-mu_a)/sigma_a, (upper-mu_a)/sigma_a, mu_a, sigma_a, size=int(total_rhos*prop_a)+2)
-        b_dist = truncnorm.rvs((lower-mu_b)/sigma_b, (upper-mu_b)/sigma_b, mu_b, sigma_b, size=int(total_rhos*(1-prop_a))+2)
+        a_dist = truncnorm.rvs((lower-mu_a) / sigma_a, (upper-mu_a) / sigma_a, mu_a, sigma_a, size=int(total_states * prop_a) + 2)
+        b_dist = truncnorm.rvs((lower-mu_b) / sigma_b, (upper-mu_b) / sigma_b, mu_b, sigma_b, size=int(total_states * (1 - prop_a)) + 2)
         a_states = []
         b_states = []
 
-        for i in range(int(total_rhos * prop_a)):
+        for i in range(int(total_states * prop_a)):
             a_out = CreateDensityMatrices.create_a(a_dist[i], a_const)
             if CreateDensityMatrices.check_state(a_out):
                 a_states.append(a_out)
 
-        for i in range(int(total_rhos * (1-prop_a))):
+        for i in range(int(total_states * (1 - prop_a))):
             b1, b2 = CreateDensityMatrices.create_b(b_dist[i], b_const)
             if (CreateDensityMatrices.check_state(b1) and
                     CreateDensityMatrices.check_state(b2)):
                 b_states.append(b1)
                 b_states.append(b2)
-
 
         return a_states, b_states
 
