@@ -53,8 +53,7 @@ class TrainModel:
         return loss
 
     def train(self, **kwargs):
-        # gate_dicts = GateDictionaries().return_dicts_rand_vars()
-        gate_dicts = GateDictionaries().return_short_dicts_ran_vars()
+        gate_dicts = GateDictionaries().return_dicts_rand_vars()
         self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
         train, val, test = self.dataset.return_train_val_test(**kwargs)
 
@@ -66,8 +65,6 @@ class TrainModel:
                 tf.summary.write('loss{}'.format(epoch), loss)
 
             if epoch % 10 == 0:
-                tf.summary.scalar('Training loss', loss, epoch)
-                tf.summary.write('loss{}'.format(epoch), loss)
                 self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                 print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
 

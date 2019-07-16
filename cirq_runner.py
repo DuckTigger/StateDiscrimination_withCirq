@@ -52,6 +52,8 @@ class CirqRunner:
         circuit = cirq.Circuit()
         for i in range(len(gate_dict['gate_id'])):
             circuit.append(self.read_dict(gate_dict, i), strategy=cirq.InsertStrategy.EARLIEST)
+            if self.noise_on:
+                cirq.generalized_amplitude_damp()
         return circuit
 
     def read_dict(self, gate_dict: Dict, index: int) -> cirq.Operation:
