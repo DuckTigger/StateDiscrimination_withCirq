@@ -3,6 +3,9 @@ import numpy as np
 import copy
 from typing import Dict, List, Union, Tuple
 
+from noise_model import TwoQubitNoiseModel, two_qubit_depolarize
+from generate_data import CreateDensityMatrices
+
 
 class CirqRunner:
     """
@@ -52,8 +55,6 @@ class CirqRunner:
         circuit = cirq.Circuit()
         for i in range(len(gate_dict['gate_id'])):
             circuit.append(self.read_dict(gate_dict, i), strategy=cirq.InsertStrategy.EARLIEST)
-            if self.noise_on:
-                cirq.generalized_amplitude_damp()
         return circuit
 
     def read_dict(self, gate_dict: Dict, index: int) -> cirq.Operation:
@@ -169,7 +170,7 @@ class CirqRunner:
         return prob, rho_out
 
     def probs_controlled_part(self, gate_dict: Dict, state_in: np.ndarray, prob: np.ndarray, sim: cirq.DensityMatrixSimulator) -> Tuple[float, float]:
-        if prob > 1e-8 and np.all(np.linalg.eigvalsh(state_in) > -1e-8):
+        if prob > 1e-8 and CreateDensityMatrices.check_state(state_in):
             circuit_0 = self.gate_dict_to_circuit(gate_dict)
             rho_0 = sim.simulate(circuit_0, initial_state=state_in).final_density_matrix
             prob_0, _ = self.prob_and_set(rho_0, 1, 0)
@@ -180,11 +181,13 @@ class CirqRunner:
         return prob_0, prob_1
 
     def calculate_probabilities_non_sampling(self, gate_dict: Dict, gate_dict_0: Dict, gate_dict_1: Dict,
-                                              state: np.ndarray) -> List[float]:
-        # for d in gate_dict_0, gate_dict_1:
-        #     d['gate_id'] = np.append(d['gate_id'], 4)
+                                             state: np.ndarray) -> List[float]:
         state_in = copy.copy(state)
-        simulator = cirq.DensityMatrixSimulator()
+        if self.noise_on:
+            simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4*self.noise_prob / 5),
+                                                                             two_qubit_depolarize(self.noise_prob)))
+        else:
+            simulator = cirq.DensityMatrixSimulator()
         circuit_pre = self.gate_dict_to_circuit(gate_dict)
         rho = simulator.simulate(circuit_pre, initial_state=state_in).final_density_matrix
 
