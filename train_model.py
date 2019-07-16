@@ -7,6 +7,7 @@ from base_model import Model
 from cirq_runner import CirqRunner
 from datasets import Datasets
 from gate_dictionaries import GateDictionaries
+from generate_data import CreateDensityMatrices
 
 
 class TrainModel:
@@ -72,14 +73,18 @@ class TrainModel:
 
         self.checkpoint.save(file_prefix=self.checkpoint_prefix)
 
-    def train_step_new(self, state_in: tf.Tensor, label_in: tf.Tensor):
+    def train_step_new(self, state_batch: tf.Tensor, label_batch: tf.Tensor):
         model = self.model
-        for state, label in zip(state_in, label_in):
-            loss = model.state_to_loss(state, label)
-            grads = model.varibles_gradient_exact(state, label)
-            variables = model.get_variables()
-            self.optimizer.apply_gradients(zip(grads, variables))
-        return loss
+        loss = []
+        for state, label in zip(state_batch, label_batch):
+            state = state.numpy()
+            if CreateDensityMatrices.check_state(state):
+                loss.append(model.state_to_loss(state, label))
+                grads = model.varibles_gradient_exact(state, label)
+                variables = model.get_variables()
+                self.optimizer.apply_gradients(zip(grads, variables))
+        loss_out = tf.reduce_mean(loss)
+        return loss_out
 
     def train_new(self, **kwargs):
         gate_dicts = GateDictionaries.return_new_dicts_rand_vars()

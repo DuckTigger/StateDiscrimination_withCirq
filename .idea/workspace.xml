@@ -4,11 +4,7 @@
     <list default="true" id="e79c8cfc-ac16-45aa-9c29-8d5e7ee083fa" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/base_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cirq_runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/cirq_runner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gate_dictionaries.py" beforeDir="false" afterPath="$PROJECT_DIR$/gate_dictionaries.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_cirq_runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_cirq_runner.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/test_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/test/test_train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/generate_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/generate_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,7 +20,7 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/gate_dictionaries.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="105">
+                <state relative-caret-position="660">
                   <caret line="46" column="59" selection-start-line="46" selection-start-column="59" selection-end-line="46" selection-end-column="59" />
                   <folding>
                     <element signature="e#0#18#0" expanded="true" />
@@ -36,7 +32,7 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/cirq_runner.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="228">
+                <state relative-caret-position="436">
                   <caret line="179" column="8" selection-start-line="181" selection-start-column="10" selection-end-line="182" selection-end-column="8" />
                   <folding>
                     <element signature="e#0#11#0" expanded="true" />
@@ -50,22 +46,10 @@
       <split-second>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/test/test_model.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="588">
-                  <caret line="161" column="50" selection-start-line="161" selection-start-column="50" selection-end-line="161" selection-end-column="50" />
-                  <folding>
-                    <element signature="e#0#23#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/test/test_train.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="315">
-                  <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="22" selection-end-column="54" />
+                <state relative-caret-position="330">
+                  <caret line="22" column="39" lean-forward="true" selection-start-line="22" selection-start-column="39" selection-end-line="22" selection-end-column="39" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -76,10 +60,22 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/base_model.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1487">
-                  <caret line="174" selection-start-line="174" selection-end-line="174" />
+                <state relative-caret-position="400">
+                  <caret line="143" column="55" selection-start-line="143" selection-start-column="55" selection-end-line="143" selection-end-column="55" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/generate_data.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="675">
+                  <caret line="45" column="59" selection-start-line="45" selection-start-column="59" selection-end-line="45" selection-end-column="59" />
+                  <folding>
+                    <element signature="e#0#18#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -88,8 +84,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/train_model.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="468">
-                  <caret line="80" column="34" selection-start-line="80" selection-start-column="34" selection-end-line="80" selection-end-column="34" />
+                <state relative-caret-position="152">
+                  <caret line="78" column="57" selection-start-line="78" selection-start-column="57" selection-end-line="78" selection-end-column="57" />
                   <folding>
                     <element signature="e#0#23#0" expanded="true" />
                   </folding>
@@ -100,7 +96,7 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/test/test_cirq_runner.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="497">
+                <state relative-caret-position="1665">
                   <caret line="120" column="65" selection-start-line="120" selection-start-column="65" selection-end-line="120" selection-end-column="65" />
                   <folding>
                     <element signature="e#0#15#0" expanded="true" />
@@ -141,23 +137,23 @@
         <option value="$PROJECT_DIR$/test/model.py" />
         <option value="$PROJECT_DIR$/loss_from_state.py" />
         <option value="$PROJECT_DIR$/test/test_loss_from_state.py" />
-        <option value="$PROJECT_DIR$/generate_data.py" />
         <option value="$PROJECT_DIR$/datasets.py" />
         <option value="$PROJECT_DIR$/test/test_cirq_runner.py" />
         <option value="$PROJECT_DIR$/test/test_model.py" />
         <option value="$PROJECT_DIR$/gate_dictionaries.py" />
-        <option value="$PROJECT_DIR$/base_model.py" />
         <option value="$PROJECT_DIR$/cirq_runner.py" />
         <option value="$PROJECT_DIR$/test/test_train.py" />
+        <option value="$PROJECT_DIR$/generate_data.py" />
+        <option value="$PROJECT_DIR$/base_model.py" />
         <option value="$PROJECT_DIR$/train_model.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-7" />
-    <option name="y" value="32" />
-    <option name="width" value="1932" />
-    <option name="height" value="1055" />
+    <option name="y" value="30" />
+    <option name="width" value="974" />
+    <option name="height" value="1057" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -308,21 +304,6 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.15 at 17h 53m 54s.xml">
-      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.15 at 18h 02m 59s.xml">
-      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.15 at 18h 03m 39s.xml">
-      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.15 at 18h 09m 22s.xml">
-      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.15 at 18h 11m 31s.xml">
-      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
-    </history-entry>
     <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.15 at 18h 12m 09s.xml">
       <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
     </history-entry>
@@ -338,12 +319,27 @@
     <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.15 at 18h 48m 21s.xml">
       <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
     </history-entry>
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.16 at 09h 55m 29s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.16 at 09h 59m 03s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.16 at 10h 04m 40s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.16 at 11h 23m 35s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Nosetests_for_test_train_TestTraining_test_new_training - 2019.07.16 at 11h 30m 30s.xml">
+      <configuration name="Nosetests for test_train.TestTraining.test_new_training" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="22" width="1936" height="1066" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14172813" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.13804004" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -388,11 +384,6 @@
           <url>file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/cirq/sim/density_matrix_utils.py</url>
           <line>53</line>
           <option name="timeStamp" value="44" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/base_model.py</url>
-          <line>174</line>
-          <option name="timeStamp" value="46" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -546,9 +537,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/model.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/test/model.py" />
     <entry file="file://$PROJECT_DIR$/data/sigma005_mu05_bconst.json">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -584,16 +573,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="259" selection-start-line="259" selection-end-line="259" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/generate_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="89" column="74" selection-start-line="89" selection-start-column="74" selection-end-line="89" selection-end-column="74" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -663,43 +642,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gate_dictionaries.py">
+    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/tensorflow/python/keras/optimizer_v2/optimizer_v2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="46" column="59" selection-start-line="46" selection-start-column="59" selection-end-line="46" selection-end-column="59" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cirq_runner.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="179" column="8" selection-start-line="181" selection-start-column="10" selection-end-line="182" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/test_train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="22" selection-end-column="54" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/base_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1487">
-          <caret line="174" selection-start-line="174" selection-end-line="174" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="1118">
+          <caret line="460" column="41" lean-forward="true" selection-start-line="460" selection-start-column="41" selection-end-line="460" selection-end-column="41" />
         </state>
       </provider>
     </entry>
@@ -713,9 +659,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/gate_dictionaries.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="660">
+          <caret line="46" column="59" selection-start-line="46" selection-start-column="59" selection-end-line="46" selection-end-column="59" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cirq_runner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="436">
+          <caret line="179" column="8" selection-start-line="181" selection-start-column="10" selection-end-line="182" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test/test_cirq_runner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="497">
+        <state relative-caret-position="1665">
           <caret line="120" column="65" selection-start-line="120" selection-start-column="65" selection-end-line="120" selection-end-column="65" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
@@ -723,17 +689,40 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Documents/PhD/envs/ML_compiler/env/Lib/site-packages/tensorflow/python/keras/optimizer_v2/optimizer_v2.py">
+    <entry file="file://$PROJECT_DIR$/base_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1118">
-          <caret line="460" column="41" lean-forward="true" selection-start-line="460" selection-start-column="41" selection-end-line="460" selection-end-column="41" />
+        <state relative-caret-position="400">
+          <caret line="143" column="55" selection-start-line="143" selection-start-column="55" selection-end-line="143" selection-end-column="55" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/generate_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="45" column="59" selection-start-line="45" selection-start-column="59" selection-end-line="45" selection-end-column="59" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test_train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" column="39" lean-forward="true" selection-start-line="22" selection-start-column="39" selection-end-line="22" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/train_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="80" column="34" selection-start-line="80" selection-start-column="34" selection-end-line="80" selection-end-column="34" />
+        <state relative-caret-position="152">
+          <caret line="78" column="57" selection-start-line="78" selection-start-column="57" selection-end-line="78" selection-end-column="57" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>

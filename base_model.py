@@ -4,6 +4,7 @@ import copy
 from typing import List
 
 from cirq_runner import CirqRunner
+from generate_data import CreateDensityMatrices
 
 
 class Model(tf.keras.Model):
@@ -68,19 +69,15 @@ class Model(tf.keras.Model):
         gate_ids = gate_ids[np.where(gate_ids != 0)]
         return gate_ids
 
-
-    def state_to_prob(self, state: tf.Tensor) -> tf.Tensor:
+    def state_to_prob(self, state: np.ndarray) -> tf.Tensor:
         """
         Takes a single input state (in Tensor form) and uses the CirqRunner module to calculate the
         probability of measurements 00, 01, 10, 11.
         :param state: A tensor representing the density matrix of the state to be discriminated.
         :return: prob: A tensor of the measurement probabilities.
         """
-        input_state = state.numpy()
-        # circuit = self.runner.create_full_circuit(self.gate_dict, self.gate_dict_0, self.gate_dict_1)
-        # probs = self.runner.calculate_probabilities(input_state, circuit)
         probs = self.runner.calculate_probabilities_non_sampling(self.gate_dict,
-                                                                 self.gate_dict_0, self.gate_dict_1, input_state)
+                                                                 self.gate_dict_0, self.gate_dict_1, state)
         return tf.constant(probs)
 
     def probs_to_loss(self, probs: tf.Tensor, label: tf.Tensor) -> tf.Tensor:
@@ -110,7 +107,7 @@ class Model(tf.keras.Model):
         loss = tf.reduce_sum([error, inconclusive])
         return loss
 
-    def state_to_loss(self, state: tf.Tensor, label: tf.Tensor) -> tf.Tensor:
+    def state_to_loss(self, state: np.ndarray, label: tf.Tensor) -> tf.Tensor:
         """
         Chains the two previous functions together to go from a state and label to the loss
         :param state: A tensor representing the incoming state
@@ -144,7 +141,7 @@ class Model(tf.keras.Model):
         grads = [tf.divide([y], self.g_epsilon) for y in dy]
         return grads
 
-    def varibles_gradient_exact(self, state: tf.Tensor, label: tf.Tensor) -> List:
+    def varibles_gradient_exact(self, state: np.ndarray, label: tf.Tensor) -> List:
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.

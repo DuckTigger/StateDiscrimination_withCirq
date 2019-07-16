@@ -44,7 +44,6 @@ class CreateDensityMatrices:
             rand_a = dist_choice
             psi_a = np.array([np.sqrt(1 - (rand_a ** 2)), 0, rand_a, 0]).astype(np.complex64)
         state = CreateDensityMatrices.state_from_vec(psi_a)
-        CreateDensityMatrices.check_state(state, dist_choice, 'a')
         return state
 
     @staticmethod
@@ -61,13 +60,12 @@ class CreateDensityMatrices:
         return state1, state2
 
     @staticmethod
-    def check_state(state, dist_choice, state_name):
+    def check_state(state):
         if not np.allclose(state, np.conj(state.T)):
-            raise ValueError('{} state is not Hermitian, dist_val = {}'.format(state_name, dist_choice))
+            return False
         if not np.allclose(np.trace(state), 1):
-            raise ValueError('{} state is Trace=1, dist_val = {}'.format(state_name, dist_choice))
+            return False
         if not np.all(np.linalg.eigvalsh(state) > -1e-8):
-            # raise ValueError('{} state is not Positive semidefinite, dist_val = {}'.format(state_name, dist_choice))
             return False
         return True
 
@@ -82,13 +80,13 @@ class CreateDensityMatrices:
 
         for i in range(int(total_rhos * prop_a)):
             a_out = CreateDensityMatrices.create_a(a_dist[i], a_const)
-            if CreateDensityMatrices.check_state(a_out, a_dist[i], 'a'):
+            if CreateDensityMatrices.check_state(a_out):
                 a_states.append(a_out)
 
         for i in range(int(total_rhos * (1-prop_a))):
             b1, b2 = CreateDensityMatrices.create_b(b_dist[i], b_const)
-            if (CreateDensityMatrices.check_state(b1, b_dist[i], 'b1') and
-                    CreateDensityMatrices.check_state(b2, b_dist[i], 'b2')):
+            if (CreateDensityMatrices.check_state(b1) and
+                    CreateDensityMatrices.check_state(b2)):
                 b_states.append(b1)
                 b_states.append(b2)
 
