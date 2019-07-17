@@ -62,7 +62,7 @@ class Datasets:
         labels_set = []
         for data_class in data['QClasses']:
             keys = ['test_states', 'train_states', 'validation_states']
-            states = [np.array(data_class[key], dtype=complex) for key in keys]
+            states = [np.array(data_class[key]).astype(np.complex64) for key in keys]
             states = [item for sublist in states for item in sublist]
             label = data_class['label']
             label_vec = np.full(fill_value=label, shape=np.shape(states)[0])

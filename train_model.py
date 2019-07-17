@@ -80,7 +80,7 @@ class TrainModel:
         model = self.model
         loss = []
         for state, label in zip(state_batch, label_batch):
-            state = state.numpy()
+            state = state.numpy().astype(np.complex64)
             if CreateDensityMatrices.check_state(state):
                 loss.append(model.state_to_loss(state, label))
                 grads = model.varibles_gradient_exact(state, label)
