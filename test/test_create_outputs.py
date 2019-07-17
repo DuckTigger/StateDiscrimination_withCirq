@@ -11,4 +11,4 @@ class TestCreatOutputs(np.testing.TestCase):
         trainer = TrainModel(batch_size=5, max_epoch=10)
         dicts = GateDictionaries.return_new_dicts_rand_vars()
         trainer.model.set_all_dicts(*dicts)
-        CreateOutputs.create_outputs(trainer.save_dir, trainer.model, trainer.test, trainer.runner)
+        CreateOutputs.create_outputs(trainer.save_dir, trainer.model, trainer.test_data, trainer.runner)

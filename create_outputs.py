@@ -2,6 +2,9 @@ import os
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
+import json
+from typing import Dict, Tuple
+from argparse import Namespace
 
 from cirq_runner import CirqRunner
 from base_model import Model
@@ -84,3 +87,21 @@ class CreateOutputs:
         CreateOutputs.create_bar_plot(save_loc, pure, mixed)
         CreateOutputs.save_angles(save_loc, model)
 
+    @staticmethod
+    def save_params_dicts(save_loc: str, namespace: Namespace, dicts: Tuple[Dict, Dict, Dict]):
+        for d in dicts:
+            for key, val in d.items():
+                if key == 'theta':
+                    d[key] = None
+                else:
+                    d[key] = d[key].tolist()
+
+        out = vars(namespace)
+        out['gate_dict'] = dicts[0]
+        out['gate_dict_0'] = dicts[1]
+        out['gate_dict_1'] = dicts[2]
+
+        if not os.path.exists(save_loc):
+            os.makedirs(save_loc)
+        with open(os.path.join(save_loc, 'saved_params.json'), 'w') as f:
+            json.dump(out, f)
