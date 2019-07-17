@@ -8,6 +8,7 @@ from cirq_runner import CirqRunner
 from datasets import Datasets
 from gate_dictionaries import GateDictionaries
 from generate_data import CreateDensityMatrices
+from create_outputs import CreateOutputs
 
 
 class TrainModel:
@@ -24,8 +25,10 @@ class TrainModel:
         self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
         self.model = Model(cost_error, cost_incon, self.runner, g_epsilon)
         self.max_epoch = max_epoch
+        self.batch_size = batch_size
         self.save_time = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
         self.checkpoint_prefix = None
+        self.save_dir = None
         self.optimizer = tf.optimizers.Adam(learning_rate, beta1, beta2)
         self.job_name = job_name
         self.train, self.val, self.test = self.dataset.return_train_val_test(**kwargs)
@@ -43,38 +46,11 @@ class TrainModel:
             checkpoint_dir = os.path.join(save_dir, self.job_name, self.save_time)
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
+        self.save_dir = checkpoint_dir
         self.checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
         checkpoint = tf.train.Checkpoint(optimizer=self.optimizer, model=self.model)
         writer = tf.summary.create_file_writer(checkpoint_dir)
         return checkpoint, writer
-
-    # @tf.function
-    def train_step(self, state_in: tf.Tensor, label_in: tf.Tensor):
-        model = self.model
-        for state, label in zip(state_in, label_in):
-            loss = model.state_to_loss(state, label)
-            grads = model.variables_gradient(loss, state, label)
-            variables = model.get_variables()
-            self.optimizer.apply_gradients(zip(grads, variables))
-        return loss
-
-    def train(self, **kwargs):
-        gate_dicts = GateDictionaries().return_dicts_rand_vars()
-        self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
-        train, val, test = self.dataset.return_train_val_test(**kwargs)
-
-        for epoch in range(self.max_epoch):
-            start = time.time()
-            for batch in train:
-                loss = self.train_step(batch[0], batch[1])
-                tf.summary.scalar('Training loss', loss, epoch)
-                tf.summary.write('loss{}'.format(epoch), loss)
-
-            if epoch % 10 == 0:
-                self.checkpoint.save(file_prefix=self.checkpoint_prefix)
-                print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
-
-        self.checkpoint.save(file_prefix=self.checkpoint_prefix)
 
     def train_step_new(self, state_batch: tf.Tensor, label_batch: tf.Tensor):
         model = self.model
@@ -93,20 +69,23 @@ class TrainModel:
         gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
         self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
         train, val, test = self.train, self.val, self.test
-        # train, val, test = self.dataset.return_train_val_test(**kwargs)
-
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
                 start = time.time()
-                for batch in train:
+                for i, batch in enumerate(train):
                     loss = self.train_step_new(batch[0], batch[1])
-                    tf.summary.scalar('Training loss', loss, epoch)
+                    step = (epoch * self.batch_size) + i
+                    tf.summary.scalar('Training loss', loss, step)
                     self.writer.flush()
 
                 if epoch % 10 == 0:
                     self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+                    intermediate_loc = os.path.join(self.save_dir, 'intermediate')
+                    CreateOutputs.create_outputs(intermediate_loc, self.model, test, self.runner)
                     print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
             self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+            outputs = os.path.join(self.save_dir, 'outputs')
+            CreateOutputs.create_outputs(outputs, self.model, test, self.runner)
 
 
 if __name__ == '__main__':
