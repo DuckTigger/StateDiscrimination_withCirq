@@ -21,9 +21,11 @@ class TwoQubitNoiseModel(cirq.NoiseModel):
     def noisy_operation(self,  operation: cirq.Operation):
         n_qubits = len(operation.qubits)
         if n_qubits == 1:
-            return self.single_qubit_noise_gate(operation.qubits[0])
+            return operation, self.single_qubit_noise_gate(operation.qubits[0])
         elif n_qubits == 2:
-            return self.two_qubit_noise_gate(operation.qubits[0], operation.qubits[1])
+            return operation, self.two_qubit_noise_gate(operation.qubits[0], operation.qubits[1])
+        else:
+            return operation, [self.single_qubit_noise_gate(q) for q in operation.qubits]
 
 
 @cirq.value.value_equality
