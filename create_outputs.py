@@ -22,8 +22,9 @@ class CreateOutputs:
                 state_in = state.numpy().astype(np.complex64)
                 if CreateDensityMatrices.check_state(state_in):
                     gate_dicts = model.return_gate_dicts()
-                    probs = runner.calculate_probabilities_non_sampling(gate_dicts[0], gate_dicts[1], gate_dicts[2],
+                    measurements = runner.calculate_probabilities_non_sampling(gate_dicts[0], gate_dicts[1], gate_dicts[2],
                                                                         state_in)
+                    probs = [measurements[0] + measurements[2], measurements[1], measurements[3]]
                     if label.numpy() == 0:
                         prob_pure.append(probs)
                     else:
