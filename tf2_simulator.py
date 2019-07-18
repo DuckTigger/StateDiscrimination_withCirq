@@ -16,7 +16,7 @@ import copy
 
 class QSimulator:
 
-    def __init__(self, n, amplitude_damping=0.1):
+    def __init__(self, n, noise_on: bool = False, noise_prob: float = 0.005):
         """
         Create a *QSimulator* operating on *n* qubits. Visually, the *n* qubits are ordered
         from left to right.
@@ -38,8 +38,29 @@ class QSimulator:
         """
 
         self._n = n
-        self._amplitude_damping = amplitude_damping
-        random.seed()
+        self.noise_on = noise_on
+        self.noise_prob = noise_prob
+
+    @property
+    def noise_prob(self):
+        return self.__noise_prob
+
+    @noise_prob.setter
+    def noise_prob(self, noise_prob):
+        if noise_prob > 1:
+            self.__noise_prob = 1
+        elif noise_prob <= 0:
+            self.__noise_prob = 0
+        else:
+            self.__noise_prob = noise_prob
+
+    @property
+    def noise_on(self):
+        return self.__noise_prob
+
+    @noise_on.setter
+    def noise_on(self, noise_on: bool):
+      self.__noise_on = noise_on
 
     @staticmethod
     def kronecker_product(mat1, mat2):
@@ -360,7 +381,7 @@ class QSimulator:
         measured1 = tf.case([(tf.greater(prob_1, randNum), measure1)], default=measure0)
         return measured1
 
-    def return_probabilites_0_1(self, rho_in, qid):
+    def return_prob_and_state(self, rho_in: tf.Tensor, qid: int, measurement: int):
         """
         Returns an array containing the probabilities of measuring |1> and |0>
         Does not change the density matrix
@@ -369,38 +390,21 @@ class QSimulator:
         :param full_rho: A flag if the matrix being passed
         :return: probs
         """
-        one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex128)
-        zero = tf.constant([[1, 0], [0, 0]], dtype=tf.complex128)
+        if measurement:
+            one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex128)
+            M1 = self.gate_matrix_1q(qid, one)
+            prob = tf.linalg.trace(tf.matmul(M1, tf.matmul(M1, rho_in), adjoint_a=True))
+            rho_out = tf.matmul(M1, tf.matmul(rho_in, M1, adjoint_b=True))
+        else:
+            zero = tf.constant([[1, 0], [0, 0]], dtype=tf.complex128)
+            M0 = self.gate_matrix_1q(qid, zero)
+            prob = tf.linalg.trace(tf.matmul(M0, tf.matmul(M0, rho_in), adjoint_a=True))
+            rho_out = tf.matmul(M0, tf.matmul(rho_in, M0, adjoint_b=True))
 
-        M1 = self.gate_matrix_1q(qid, one)
-        M0 = self.gate_matrix_1q(qid, zero)
-        prob_1 = tf.linalg.trace(tf.matmul(M1, tf.matmul(M1, rho_in), adjoint_a=True))
-        prob_0 = tf.linalg.trace(tf.matmul(M0, tf.matmul(M0, rho_in), adjoint_a=True))
+        prob = tf.reshape(tf.cast(tf.math.real(prob), dtype=tf.float64), [])
 
-        prob_1 = tf.reshape(tf.cast(tf.math.real(prob_1), dtype=tf.float64), [])
-        prob_0 = tf.reshape(tf.cast(tf.math.real(prob_0), dtype=tf.float64), [])
+        return prob, rho_out
 
-        return [prob_0, prob_1]
-
-    def return_joint_probabilities(self, rho_in, qid_0, qid_1):
-        one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex128)
-        zero = tf.constant([[1, 0], [0, 0]], dtype=tf.complex128)
-        M00 = self.two_qubit_independent_gate(qid_0, qid_1, zero, zero)
-        M01 = self.two_qubit_independent_gate(qid_0, qid_1, zero, one)
-        M10 = self.two_qubit_independent_gate(qid_0, qid_1, one, zero)
-        M11 = self.two_qubit_independent_gate(qid_0, qid_1, one, one)
-
-        p00 = tf.linalg.trace(tf.matmul(M00, rho_in))
-        p01 = tf.linalg.trace(tf.matmul(M01, rho_in))
-        p10 = tf.linalg.trace(tf.matmul(M10, rho_in))
-        p11 = tf.linalg.trace(tf.matmul(M11, rho_in))
-
-        p00 = tf.reshape(tf.cast(tf.math.real(p00), dtype=tf.float64), [])
-        p01 = tf.reshape(tf.cast(tf.math.real(p01), dtype=tf.float64), [])
-        p10 = tf.reshape(tf.cast(tf.math.real(p10), dtype=tf.float64), [])
-        p11 = tf.reshape(tf.cast(tf.math.real(p11), dtype=tf.float64), [])
-
-        return tf.stack([p00, p01, p10, p11])
 
     def _set_qubit_to_value(self, rho_in, state_to_set: int, qid):
         """
@@ -445,16 +449,14 @@ class QSimulator:
             rho_out = tf.add(rho_out, r)
         return rho_out
 
-    def amplitude_damping_kops(self, p=None):
+    @staticmethod
+    def amplitude_damping_kops(p):
         """
         Returns the Kraus operators for a depolarising channel which acts with probability p, on the quibit qid
         :param p:
         :param qid: The qubit to act upon
         :return: A list of Kraus operators which can be inserted into the apply Kraus ops function
         """
-        if p is None:
-            p = self._amplitude_damping
-
         k1 = tf.sqrt(tf.constant([[1, 0], [0, (1 - p)]], dtype=tf.complex128))
         k2 = tf.sqrt(tf.constant([[0, p], [0, 0]], dtype=tf.complex128))
         return [k1, k2]
@@ -469,22 +471,26 @@ class QSimulator:
         k2 = self.gate_matrix_1q(qid, kops[1])
         return [k1, k2]
 
-    def bit_flip_kops(self):
+    @staticmethod
+    def bit_flip_kops():
         k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex128))
         k2 = tf.sqrt(tf.constant([[0, 0.5], [0.5, 0]], dtype=tf.complex128))
         return [k1, k2]
 
-    def phase_flip_kops(self):
+    @staticmethod
+    def phase_flip_kops():
         k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex128))
         k2 = tf.sqrt(tf.constant([[0.5, 0], [0, -0.5 + 0 * 1j]], dtype=tf.complex128))
         return [k1, k2]
 
-    def bit_phase_flip_kops(self):
+    @staticmethod
+    def bit_phase_flip_kops():
         k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex128))
         k2 = tf.sqrt(tf.constant([[0, -0.5j], [0.5j, 0]], dtype=tf.complex128))
         return [k1, k2]
 
-    def depolarising_channel(self):
+    @staticmethod
+    def depolarising_channel():
         k1 = tf.constant([[1, 0], [0, 1]], dtype=tf.complex128)
         k2 = tf.constant([[0, 1], [1, 0]], dtype=tf.complex128)
         k3 = tf.constant([[0j, -1j], [1j, 0j]], dtype=tf.complex128)
@@ -501,7 +507,8 @@ class QSimulator:
         kops2q = [self.two_qubit_independent_gate(qid0, qid1, x, y) for x in kops for y in kops]
         return kops2q
 
-    def apply_kops(self, rho_in, noise_prob, kops_in):
+    @staticmethod
+    def apply_kops(rho_in, noise_prob, kops_in):
         kops = [tf.identity(x) for x in kops_in]
         n_of_ops = len(kops)
         for i in range(n_of_ops):
@@ -529,12 +536,17 @@ class QSimulator:
                 channel = tf.add(channel, tf.matmul(kops[i], kops[i], adjoint_a=True))
         return channel
 
-    def apply_gate_dict(self, gate_dict, rho_in, noise_on=False, noise_prob=0.1):
+    def apply_gate_dict(self, gate_dict, rho_in, noise_on=None, noise_prob=None):
         """
         Constructs onr gate matrix to be applied to the states.
         :param gate_dict: Defines the operations to be applied
         :return: A matrix which can be multiplied by states
         """
+
+        if noise_on is None:
+            noise_on = self.noise_on
+        if noise_prob is None:
+            noise_prob = self.noise_prob
 
         def gate_to_fn(gate_dict, index):
             label = gate_dict['gate_id'][index]

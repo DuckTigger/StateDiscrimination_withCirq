@@ -120,7 +120,7 @@ class CirqRunner:
         circuit.append(cirq.measure(self.qubits[1], key='m1'), strategy=cirq.InsertStrategy.NEW)
         return circuit
 
-    def calculate_probabilities(self, input_state: np.ndarray, circuit: cirq.Circuit) -> List[float]:
+    def calculate_probabilities_sampling(self, input_state: np.ndarray, circuit: cirq.Circuit) -> List[float]:
         """
         Simulates the given circuit and calculates the probabilities of measuring 00, 01, 10, or 11.
         :param circuit: The input circuit, should come from function above, so we have the correct measurement keys
@@ -180,8 +180,8 @@ class CirqRunner:
             prob_1 = 0
         return prob_0, prob_1
 
-    def calculate_probabilities_non_sampling(self, gate_dict: Dict, gate_dict_0: Dict, gate_dict_1: Dict,
-                                             state: np.ndarray) -> List[float]:
+    def calculate_probabilities(self, gate_dict: Dict, gate_dict_0: Dict, gate_dict_1: Dict,
+                                state: np.ndarray) -> List[float]:
         state_in = copy.copy(state)
         if self.noise_on:
             simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4*self.noise_prob / 5),

@@ -76,8 +76,8 @@ class Model(tf.keras.Model):
         :param state: A tensor representing the density matrix of the state to be discriminated.
         :return: prob: A tensor of the measurement probabilities.
         """
-        probs = self.runner.calculate_probabilities_non_sampling(self.gate_dict,
-                                                                 self.gate_dict_0, self.gate_dict_1, state)
+        probs = self.runner.calculate_probabilities(self.gate_dict,
+                                                    self.gate_dict_0, self.gate_dict_1, state)
         return tf.constant(probs)
 
     def probs_to_loss(self, probs: tf.Tensor, label: tf.Tensor) -> tf.Tensor:

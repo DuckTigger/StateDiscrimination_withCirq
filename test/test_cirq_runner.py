@@ -92,19 +92,19 @@ class TestCirqRunner(np.testing.TestCase):
         circuit.append(cirq.measure(qubits[0], key='m0'))
         circuit.append(cirq.Circuit.from_ops([cirq.X(x) for x in qubits]))
         circuit.append(cirq.measure(qubits[1], key='m1'))
-        probs0 = runner.calculate_probabilities(zero_state, circuit)
+        probs0 = runner.calculate_probabilities_sampling(zero_state, circuit)
         np.testing.assert_array_equal(probs0, [0, 0, 1, 0])
 
         one = np.array([[0, 0], [0, 1]])
         o_list = [one for _ in range(4)]
         one_state = self.kron_list(o_list).astype(np.complex64)
-        probs1 = runner.calculate_probabilities(one_state, circuit)
+        probs1 = runner.calculate_probabilities_sampling(one_state, circuit)
         np.testing.assert_array_equal(probs1, [0, 1, 0, 0])
 
         circuit2 = cirq.Circuit.from_ops([cirq.H(x) for x in qubits])
         circuit2.append(cirq.measure(qubits[0], key='m0'))
         circuit2.append(cirq.measure(qubits[1], key='m1'))
-        probs2 = runner.calculate_probabilities(zero_state, circuit2)
+        probs2 = runner.calculate_probabilities_sampling(zero_state, circuit2)
         np.testing.assert_array_almost_equal(probs2, [0.25, 0.25, 0.25, 0.25], decimal=1)
 
     def test_compare_prob_methods(self):
@@ -117,8 +117,8 @@ class TestCirqRunner(np.testing.TestCase):
         zero, _ = TestLossFromState.get_some_states()
         zero_ = copy.copy(zero)
         circuit_a = runner.create_full_circuit(dicts[0], dicts[1], dicts[2])
-        probs_a = runner.calculate_probabilities(zero, circuit_a)
-        probs_b = runner.calculate_probabilities_non_sampling(dicts[0], dicts[1], dicts[2], zero_)
+        probs_a = runner.calculate_probabilities_sampling(zero, circuit_a)
+        probs_b = runner.calculate_probabilities(dicts[0], dicts[1], dicts[2], zero_)
 
         np.testing.assert_almost_equal(np.sum(probs_a), 1)
         np.testing.assert_array_almost_equal(probs_a, probs_b, decimal=4)

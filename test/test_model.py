@@ -118,7 +118,7 @@ class TestLossFromState(tf.test.TestCase):
         probs = []
         loss = []
         for state, label in zip(states, labels):
-            p = model.runner.calculate_probabilities(state, circuit)
+            p = model.runner.calculate_probabilities_sampling(state, circuit)
             probs.append(p)
             l = model.probs_to_loss(p, label)
             loss.append(l)
