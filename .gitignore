@@ -6,3 +6,4 @@ __pycache__/
 *.e*
 *.o*
 data/new_*
+report.txt
