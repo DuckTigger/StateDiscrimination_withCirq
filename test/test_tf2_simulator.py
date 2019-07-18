@@ -1,10 +1,10 @@
-'''
+"""
     Quantum Machine Learning
     Copyright (C) 2018 Hongxiang Chen,Andrew Patterson - All Rights Reserved.
     Unauthorized copying of this file, via any medium is strictly prohibited.
     Written by Hongxiang Chen <h.chen.17@ucl.ac.uk>, Andrew Patterson, <a.patterson.10@ucl.ac.uk> 2018.
 
-'''
+"""
 
 # Tests the gates with noise module, refactoring from the gates test
 # the output should be checked against the correct outcome.
@@ -18,7 +18,7 @@ import itertools as iter
 import tensorflow as tf
 
 
-class test_noisy_gates(tf.test.TestCase):
+class TestNoisyGates(tf.test.TestCase):
 
     def test_convert_vector_to_matrix(self):
         tester = QSimulator(1)
@@ -57,7 +57,7 @@ class test_noisy_gates(tf.test.TestCase):
         
         rho_in = tf.constant(rho, dtype=tf.complex128)
         rho_out = tester.matrix_Y(rho_in, 0)
-        y_mat = np.array([[0, -1j], [1j, 0]])
+        y_mat = np.array([[0j, -1j], [1j, 0j]])
         expected = tf.constant(np.einsum('ij,jk->ik', y_mat, np.einsum('ij,jk->ik', rho, y_mat)),
                                dtype=tf.complex128)
 
@@ -93,7 +93,7 @@ class test_noisy_gates(tf.test.TestCase):
         expected = np.matmul(gate, np.matmul(rho, np.conj(gate.T)))
 
 
-        self.assertAllEqual(output, expected, 'Rx gate')
+        np.testing.assert_almost_equal(output.numpy(), expected)
 
         
         rho_in = tf.constant(rho, dtype=tf.complex128)
@@ -105,7 +105,7 @@ class test_noisy_gates(tf.test.TestCase):
         expected = np.matmul(gate, np.matmul(rho, np.conj(gate.T)))
 
 
-        self.assertAllEqual(output, expected, 'Ry gate')
+        np.testing.assert_almost_equal(output.numpy(), expected)
 
     
         rho_in = tf.constant(rho, dtype=tf.complex128)
@@ -117,7 +117,7 @@ class test_noisy_gates(tf.test.TestCase):
         expected = np.matmul(gate, np.matmul(rho, np.conj(gate.T)))
 
 
-        self.assertAllEqual(output, expected, 'Rz gate')
+        np.testing.assert_almost_equal(output.numpy(), expected)
 
     def test_single_qubit_gate(self):
         
@@ -221,7 +221,7 @@ class test_noisy_gates(tf.test.TestCase):
         measurement = tester.measure_rho(rho_in, 2)
 
         measured1 = measurement
-        self.assertTrue(measured1.any())
+        self.assertTrue(measured1.numpy())
 
     def test_return_probabilities(self):
         tester = QSimulator(1)
@@ -245,9 +245,7 @@ class test_noisy_gates(tf.test.TestCase):
         p0 = np.trace(np.matmul(zero, np.matmul(expected_mat, np.conj(zero.T))))
         p1 = np.trace(np.matmul(one, np.matmul(expected_mat, np.conj(one.T))))
         expected = tf.stack([tf.constant(p0, dtype=tf.complex128),tf.constant(p1, dtype=tf.complex128)])
-
-
-        self.assertAllEqual(expected, output)
+        np.testing.assert_almost_equal(expected.numpy(), output)
 
     def test_amp_damping_kops(self):
         
@@ -402,7 +400,7 @@ class test_noisy_gates(tf.test.TestCase):
             rho_out = np.sum(channel, axis=0)
             return rho_out
 
-        x_1 = gate_mat_1q(1, [[0,1], [1,0]])
+        x_1 = gate_mat_1q(0, [[0,1], [1,0]])
         cnot = np.array([[1,0,0,0], [0,1,0,0], [0,0,0,1], [0,0,1,0]])
 
         def action(state):
@@ -426,8 +424,9 @@ class test_noisy_gates(tf.test.TestCase):
 
         output_nonoise = tf.map_fn(lambda x: tester.apply_gate_dict(gate_dict, x, noise_on=True, noise_prob=0), rho_list)
 
-        self.assertAllClose(output, expected)
+
         self.assertAllClose(output_nonoise, expected_nonoise)
+        self.assertAllClose(output, expected)
 
     def test_kops_1q(self):
     

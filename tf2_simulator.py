@@ -108,7 +108,7 @@ class QSimulator:
                     rho_out: The density matrix (tf Tensor) once the X transformation has been applied
         """
 
-        y_mat = tf.constant([[0, -1j], [1j, 0]], dtype=tf.complex128)
+        y_mat = tf.constant([[0j, -1j], [1j, 0j]], dtype=tf.complex128)
         gate_mat = self.gate_matrix_1q(qid, y_mat)
         rho_out = self.apply_matrix_to_rho(rho_in, gate_mat)
         return rho_out
@@ -487,7 +487,7 @@ class QSimulator:
     def depolarising_channel(self):
         k1 = tf.constant([[1, 0], [0, 1]], dtype=tf.complex128)
         k2 = tf.constant([[0, 1], [1, 0]], dtype=tf.complex128)
-        k3 = tf.constant([[0, 0 + -1j], [0 + 1j, 0]], dtype=tf.complex128)
+        k3 = tf.constant([[0j, -1j], [1j, 0j]], dtype=tf.complex128)
         k4 = tf.constant([[1, 0], [0, -1]], dtype=tf.complex128)
         return [k1, k2, k3, k4]
 
