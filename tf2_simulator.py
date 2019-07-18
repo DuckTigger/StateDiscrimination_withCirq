@@ -515,7 +515,8 @@ class QSimulator:
                 rho_out = tf.add(rho_out, st)
         return rho_out
 
-    def kops_channel(self, noise_prob, kops_in):
+    @staticmethod
+    def kops_channel(noise_prob, kops_in):
         kops = [tf.identity(x) for x in kops_in]
         n_of_ops = len(kops)
         for i in range(n_of_ops):
