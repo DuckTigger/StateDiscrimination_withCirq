@@ -1,5 +1,6 @@
 import os
 import json
+import numpy as np
 from argparse import ArgumentParser
 from typing import Dict
 from train_model import TrainModel
@@ -23,14 +24,16 @@ class RestoreModel:
     def restore(model_loc: str) -> TrainModel:
         params = RestoreModel.load_params(model_loc)
         dicts = params.pop('gate_dict', None), params.pop('gate_dict_0', None), params.pop('gate_dict_1', None)
+        for d in dicts:
+            for key, value in d.items():
+                d[key] = np.array(d[key])
 
         if params['job_name'] is None:
             params['job_name'] = 'restored'
         else:
             params['job_name'] = params['job_name'] + '_restored'
 
-        trainer = TrainModel(restore_loc=model_loc, **params)
-        trainer.gate_dicts = dicts
+        trainer = TrainModel(restore_loc=model_loc, dicts=dicts, **params)
         return trainer
 
     @staticmethod
@@ -44,6 +47,10 @@ class RestoreModel:
         outputs = os.path.join(model_loc, 'restored_outputs')
         trainer.create_outputs(outputs)
 
+    @staticmethod
+    def fix_variable_shape(model_loc: str):
+        trainer = RestoreModel.restore(model_loc)
+        trainer.reshape_vars()
 
 def main():
 
@@ -54,10 +61,14 @@ def main():
                              'Should also have a correctly saved parameters file.')
     parser.add_argument('--create_outputs', action='store_true',
                         help='If called, just creates outputs from the saved model, does not continue training.')
+    parser.add_argument('--reshape_vars', action='store_true',
+                        help='If called, reshapes variables from (1,) to ().')
     args = parser.parse_args()
 
     if args.create_outputs:
         RestoreModel.restore_create_outputs(args.model_loc)
+    elif args.reshape_vars:
+        RestoreModel.fix_variable_shape(args.model_loc)
     else:
         RestoreModel.restore_and_train(args.model_loc)
 

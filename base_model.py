@@ -48,6 +48,10 @@ class Model(tf.keras.Model):
     def return_gate_dicts(self):
         return self.gate_dict, self.gate_dict_0, self.gate_dict_1
 
+    def no_of_variabes(self):
+        gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
+        return len(gate_dict['theta_indices']) + len(gate_dict_0['theta_indices']) + len(gate_dict_1['theta_indices'])
+
     def set_variables(self, variables: List[tf.Variable]):
         gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
         vars0 = len(gate_dict['theta_indices'])

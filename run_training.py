@@ -23,13 +23,15 @@ def main():
     parser.add_argument('--noise_prob', metavar='-p', type=float, nargs='?', default=0.05,
                         help='Probability of noise.')
     parser.add_argument('--learning_rate', metavar='-lr', type=float, nargs='?', default=0.001,
-                        help='Learning rate of the optimzer')
+                        help='Learning rate of the optimizer')
     parser.add_argument('--beta1', metavar='-b1', type=float, nargs='?', default=0.9,
                         help='beta1 of the optimizer.')
     parser.add_argument('--beta2', metavar='-b2', type=float, nargs='?', default=0.999,
                         help='beta2 of the optimizer.')
     parser.add_argument('--job_name', metavar='-j', type=str, nargs='?', default=None,
                         help='The job name, if given creates a subdirectory for this job.')
+    parser.add_argument('--dicts', nargs='?', default=None,
+                        help='A Tuple of the three gate dictionaries defining the circuit.')
 
     parser.add_argument('--prop_a', type=float, nargs='?', default=1/3,
                         help='Proportion of a type states.')
@@ -49,7 +51,7 @@ def main():
     args = parser.parse_args()
     trainer = TrainModel(**vars(args))
     trainer.save_inputs(args)
-    trainer.train_data()
+    trainer.train()
 
 
 if __name__ == '__main__':
