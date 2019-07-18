@@ -107,8 +107,6 @@ class TrainModel:
         return loss_out
 
     def train(self):
-        # gate_dicts = self.gate_dicts
-        # self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
         train, val, test = self.train_data, self.val_data, self.test_data
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
