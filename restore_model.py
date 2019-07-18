@@ -1,5 +1,6 @@
 import os
 import json
+import numpy as np
 from argparse import ArgumentParser
 from typing import Dict
 from train_model import TrainModel
@@ -23,14 +24,16 @@ class RestoreModel:
     def restore(model_loc: str) -> TrainModel:
         params = RestoreModel.load_params(model_loc)
         dicts = params.pop('gate_dict', None), params.pop('gate_dict_0', None), params.pop('gate_dict_1', None)
+        for d in dicts:
+            for key, value in d.items():
+                d[key] = np.array(d[key])
 
         if params['job_name'] is None:
             params['job_name'] = 'restored'
         else:
             params['job_name'] = params['job_name'] + '_restored'
 
-        trainer = TrainModel(restore_loc=model_loc, **params)
-        trainer.gate_dicts = dicts
+        trainer = TrainModel(restore_loc=model_loc, dicts=dicts, **params)
         return trainer
 
     @staticmethod

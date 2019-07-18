@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import datetime, time, sys, os
-from typing import Tuple
+from typing import Tuple, Dict
 from argparse import Namespace
 import copy
 
@@ -21,7 +21,8 @@ class TrainModel:
                  learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
                  g_epsilon: float = 1e-6, no_qubits: int = 4,
                  noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000,
-                 job_name: str =None, restore_loc: str = None, **kwargs):
+                 job_name: str = None, restore_loc: str = None, dicts: Tuple[Dict, Dict, Dict] = None,
+                 **kwargs):
 
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
         self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
@@ -35,7 +36,10 @@ class TrainModel:
         self.job_name = job_name
         self.restore = restore_loc
         self.train_data, self.val_data, self.test_data = self.dataset.return_train_val_test(**kwargs)
-        self.gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
+        if dicts is None:
+            self.gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
+        else:
+            self.gate_dicts = GateDictionaries.fill_dicts_rand_vars(*dicts)
 
         if sys.platform.startswith('win'):
             self.checkpoint, self.writer = self.setup_save(
@@ -53,6 +57,7 @@ class TrainModel:
 
     @gate_dicts.setter
     def gate_dicts(self, dicts):
+        self.model.set_all_dicts(*dicts)
         self.__gate_dicts = dicts
 
     def setup_save(self, save_dir: str) -> Tuple[tf.train.Checkpoint,  tf.summary.SummaryWriter]:
@@ -70,7 +75,8 @@ class TrainModel:
         writer = tf.summary.create_file_writer(checkpoint_dir)
 
         if self.restore is not None:
-            checkpoint.restore(self.restore)
+            ckpt_path = tf.train.latest_checkpoint(self.restore)
+            checkpoint.restore(ckpt_path)
         return checkpoint, writer
 
     def save_inputs(self, namespace: Namespace):
@@ -94,8 +100,8 @@ class TrainModel:
         return loss_out
 
     def train(self):
-        gate_dicts = self.gate_dicts
-        self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
+        # gate_dicts = self.gate_dicts
+        # self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
         train, val, test = self.train_data, self.val_data, self.test_data
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
