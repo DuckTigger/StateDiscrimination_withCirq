@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import tensorflow as tf
 
 
@@ -11,7 +11,7 @@ class GateDictionaries:
     @staticmethod
     def return_empty_dicts():
         """
-        The standard form of gate dictionaried used in the old scheme - modified slightly.
+        The standard form of gate dictionaries used in the old scheme - modified slightly.
         :return: The three gate dictionaries hard-coded here.
         """
         gate_dict = {
@@ -24,21 +24,21 @@ class GateDictionaries:
         }
 
         gate_dict_0 = {
-            'gate_id': np.array([1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
+            'gate_id': np.array([4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
             'theta': None,
-            'theta_indices': np.array([0, 1, 2, 3, 4, 5, 6, 7, 8]),
+            'theta_indices': np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
             'control_qid': np.array([2, 3, 4]),
-            'control_indices': np.array([9, 10, 11]),
-            'qid': np.array([2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
+            'control_indices': np.array([10, 11, 12]),
+            'qid': np.array([1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
         }
 
         gate_dict_1 = {
-            'gate_id': np.array([1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
+            'gate_id': np.array([4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
             'theta': None,
-            'theta_indices': np.array([0, 1, 2, 3, 4, 5, 6, 7, 8]),
+            'theta_indices': np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
             'control_qid': np.array([2, 3, 4]),
-            'control_indices': np.array([9, 10, 11]),
-            'qid': np.array([2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
+            'control_indices': np.array([10, 11, 12]),
+            'qid': np.array([1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
         }
         return gate_dict, gate_dict_0, gate_dict_1
 
@@ -70,7 +70,7 @@ class GateDictionaries:
         gate_dict = {
             'gate_id': gate_id,
             'theta': theta,
-            'theta_indices': np.where(gate_id != 0)[0],
+            'theta_indices': np.where((gate_id != 0) & (gate_id != 4) & (gate_id != 5))[0],
             'control_qid': control,
             'control_indices': np.where(gate_id == 0)[0],
             'qid': qid
@@ -138,26 +138,32 @@ class GateDictionaries:
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
-    def fill_dicts_rand_vars(gate_dict: Dict, gate_dict_0: Dict, gate_dict_1: Dict):
-        th0 = len(np.where(gate_dict['gate_id'] != 0)[0])
-        th1 = len(np.where(gate_dict_0['gate_id'] != 0)[0])
-        rand_th = [np.random.rand(1) * 4 * np.pi for _ in range(th0 + 2 * th1)]
+    def fill_dicts_rand_vars(dicts: Tuple[Dict, Dict, Dict]) -> Tuple[Dict, Dict, Dict]:
+        for d in dicts:
+            for key, val in d.items():
+                if type(val) is list:
+                    d[key] = np.array(d[key])
+
+        th0 = len(np.where(dicts[0]['gate_id'] != 0)[0])
+        th1 = len(np.where(dicts[1]['gate_id'] != 0)[0])
+        th2 = len(np.where(dicts[2]['gate_id'] != 0)[0])
+        rand_th = [np.random.rand(1) * 4 * np.pi for _ in range(th0 + th1 + th2)]
         variables = [tf.Variable(x, dtype=tf.float64, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
 
-        gate_dict['theta'] = [x for x in variables[:th0]]
-        gate_dict_0['theta'] = [x for x in variables[th0:th0 + th1]]
-        gate_dict_1['theta'] = [x for x in variables[th0 + th1:th0 + 2 * th1]]
-        return gate_dict, gate_dict_0, gate_dict_1
+        dicts[0]['theta'] = [x for x in variables[:th0]]
+        dicts[1]['theta'] = [x for x in variables[th0:th0 + th1]]
+        dicts[2]['theta'] = [x for x in variables[th0 + th1:th0 + th1 + th2]]
+        return dicts
 
     @staticmethod
     def return_short_dicts_ran_vars():
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_short_dicts()
-        return GateDictionaries.fill_dicts_rand_vars(gate_dict, gate_dict_0, gate_dict_1)
+        return GateDictionaries.fill_dicts_rand_vars((gate_dict, gate_dict_0, gate_dict_1))
 
     @staticmethod
     def return_new_dicts_rand_vars():
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.build_new_dicts()
-        return GateDictionaries.fill_dicts_rand_vars(gate_dict, gate_dict_0, gate_dict_1)
+        return GateDictionaries.fill_dicts_rand_vars((gate_dict, gate_dict_0, gate_dict_1))
 
     @staticmethod
     def return_dicts_rand_vars():
@@ -166,7 +172,7 @@ class GateDictionaries:
         :return:
         """
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_standard_dicts()
-        return GateDictionaries.fill_dicts_rand_vars(gate_dict, gate_dict_0, gate_dict_1)
+        return GateDictionaries.fill_dicts_rand_vars((gate_dict, gate_dict_0, gate_dict_1))
 
 
 def test():

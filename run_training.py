@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from train_model import TrainModel
+import pickle
 
 
 def main():
@@ -49,6 +50,11 @@ def main():
                         help='Std dev of b distribution.')
 
     args = parser.parse_args()
+
+    if type(args.dicts) == str:
+        with open(args.dicts, 'rb') as f:
+            args.dicts = pickle.load(f)
+
     trainer = TrainModel(**vars(args))
     trainer.save_inputs(args)
     trainer.train()

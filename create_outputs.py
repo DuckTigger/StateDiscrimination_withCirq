@@ -97,6 +97,7 @@ class CreateOutputs:
                     d[key] = d[key].tolist()
 
         out = vars(namespace)
+        out.pop('dicts', None)
         out['gate_dict'] = dicts[0]
         out['gate_dict_0'] = dicts[1]
         out['gate_dict_1'] = dicts[2]
