@@ -39,7 +39,7 @@ class TrainModel:
         if dicts is None:
             self.gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
         else:
-            self.gate_dicts = GateDictionaries.fill_dicts_rand_vars(*dicts)
+            self.gate_dicts = GateDictionaries.fill_dicts_rand_vars(dicts)
 
         if sys.platform.startswith('win'):
             self.checkpoint, self.writer = self.setup_save(
