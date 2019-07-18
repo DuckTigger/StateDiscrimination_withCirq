@@ -10,72 +10,13 @@
 
 import tensorflow as tf
 import numpy as np
-import random, math, copy
+import random
+import copy
 
 
 class QSimulator:
-    r"""
-        Now with noise, takes the original wavefunctions from QSimulator (state vectors)
-        and turns them into matrices, so that we can appply  the appropriate noise model to them.
-        Also now requires tensorflow
 
-        **Abbreviations:**
-
-        * *qid*: The qubit ID. This is used to identity which qubit we are acting
-          one.
-        * *cqid*: For two qubit gates which has one of its qubit as a control qubit,
-          this *cqid* refers to that control qubit.
-        * *conditionOn*: For the controlled gates, it may act when the controlled
-          qubit is in :math:*0* state (*conditionOn==0*, usually denoted as an
-          un-filled circle on circuit diagrams) or :math:*1* state (*conditionOn==1*,
-          denoted as a filled circle on circuit diagrams). This parameter specify this
-          operation.
-        * *iwf* or *wf*: The input wavefunction, as a *np.ndarray*.
-        * *iwfs* or *wfs*: The input wavefunctions, as a matrix whose columns are wavefunctions.
-
-        **Concepts:**
-
-        * Counting convention. This module exposes a conventional 1-based counting in all its public methods. For example,
-          the ground floor is counted as the first floor here, not the 0-th floor.
-
-        * *qubitId*: This refers to the position of qubit. In most textbooks, we
-          usually counts qubit from the left to the right.  For example, *|0100>* has
-          the second qubit in the state of :math:*1*. However, this convention is not
-          convenient for programming. In this class, we will use the opposite
-          convention (counting from the right to the left) internally, while treating
-          the input *qubitId* in the left to right convention.
-
-        * *many_wf* or *manywf*: Most methods here operates on a single vector of
-          wavefunctions. However, some functions can be trivially generalised so that
-          it operates concurrently on a matrix whose columns are wavefunctions. This
-          helps improve the operation speed and could be critical for machine
-          learning. However, not all methods has its equivalent *many_wf* cousins.
-
-        .. todo::
-
-            1. Implements *many_wf* version (if possible) for all public methods.
-            2. Avoid python function call overhead in many private methods.
-
-        """
-
-    @staticmethod
-    def _v_norm(wf: np.ndarray) -> float:
-        """
-        Returns the vector's 2-norm
-
-        Parameters
-        ----------
-        wf :
-            a vector
-
-        Returns
-        -------
-        2-norm : float
-
-        """
-        return math.sqrt(np.sum(np.square(np.abs(wf))))
-
-    def __init__(self, n, verbose=False, amplitude_damping=0.1):
+    def __init__(self, n, amplitude_damping=0.1):
         """
         Create a *QSimulator* operating on *n* qubits. Visually, the *n* qubits are ordered
         from left to right.
@@ -96,95 +37,21 @@ class QSimulator:
 
         """
 
-        self._verbose = verbose
         self._n = n
-        self._maxState = (1 << n) - 1  # maximum number of states, use 0-based numbering internally
         self._amplitude_damping = amplitude_damping
         random.seed()
-        tf.kron = tf.contrib.kfac.utils.kronecker_product
-        # The python random generator is based on mt19937. This
-        # seeded randomness will be used to generate both
-        # random_real[0,1) and random_int[1,n-1]
 
-    def _getInternalId(self, qid):
-        """
-        This functions converts the *right to left* convention to the *left to right* convention.
-        See notes for *qubitId* inside :class:*.QSimulator*.
+    @staticmethod
+    def kronecker_product(mat1, mat2):
+        """Computes the Kronecker product two matrices."""
+        m1, n1 = mat1.get_shape()
+        mat1_rsh = tf.reshape(mat1, [m1, 1, n1, 1])
+        m2, n2 = mat2.get_shape()
+        mat2_rsh = tf.reshape(mat2, [1, m2, 1, n2])
+        return tf.reshape(mat1_rsh * mat2_rsh, [m1 * m2, n1 * n2])
 
-
-        Parameters
-        --------------
-        qid
-
-        Returns
-        --------------
-        internal qubitId : int
-
-        """
-        assert qid > 0
-        assert qid <= self.get_qubit_number()
-
-        # For example, :math:*|1000>* has 1 on 1st qubit (1-based), but internally it is on (4-1=3)th qubit (0-based)
-        return self._n - qid
-
-    def _getExternalId(self, qid):
-        """
-        This functions converts the *left to right* convention to the *right to
-        left* convention.
-
-        Parameters
-        --------------
-        internal qid : int
-
-        Returns
-        --------------
-        external qubitId : int
-
-        """
-
-        # For example, :math:*|1000>* has 1 on 1st qubit (1-based), but internally it is on (4-1=3)th qubit (0-based)
-        return self._n - qid
-
-    def _check_wf_length(self, wf):
-        """This checkes the dimension of wavefunction.
-
-        Often, errors are caused by acting on (especially measuring) a function
-        whose length is not of the same dimension as assumed by this
-        *QSimulator*.
-
-        .. note::
-
-            This check uses *assert* and will be skipped in python's
-            optimisation mode.
-
-        Returns
-        --------
-        whether this input wavefunction has the same dimension : bool
-
-        """
-        assert len(wf) == self.getMaxstate()
-
-    def getMaxstate(self):
-        """Returns the dimension of the Hilbert space assumed by this *QSimulator*.
-
-        Returns
-        -------
-        Hilbert space dimension : int
-
-        """
-        return self._maxState + 1  # go 1-based to external environment
-
-    def get_qubit_number(self):
-        """Returns the number of qubits assumed by this *QSimulator*.
-
-        Returns
-        --------
-        the number of qubits : int
-
-        """
-        return self._n
-
-    def convert_vector_to_matrix(self, wf):
+    @staticmethod
+    def convert_vector_to_matrix(wf):
         """
 
         parameters
@@ -214,9 +81,6 @@ class QSimulator:
 
         gate_mat = self.gate_matrix_1q(qid, x_mat)
         rho_out = self.apply_matrix_to_rho(rho_in, gate_mat)
-
-        if self._verbose:
-            print("Density matrix after X gate:{:d}".format(rho_out))
         return rho_out
 
     def matrix_Z(self, rho_in, qid):
@@ -232,9 +96,6 @@ class QSimulator:
         z_mat = tf.constant([[1, 0], [0, -1]], dtype=tf.complex128)
         gate_mat = self.gate_matrix_1q(qid, z_mat)
         rho_out = self.apply_matrix_to_rho(rho_in, gate_mat)
-
-        if self._verbose:
-            print("Density matrix after Z gate:{:d}".format(rho_out))
         return rho_out
 
     def matrix_Y(self, rho_in, qid):
@@ -250,10 +111,6 @@ class QSimulator:
         y_mat = tf.constant([[0, -1j], [1j, 0]], dtype=tf.complex128)
         gate_mat = self.gate_matrix_1q(qid, y_mat)
         rho_out = self.apply_matrix_to_rho(rho_in, gate_mat)
-
-        if self._verbose:
-            print("Density matrix after Y gate:{:d}".format(rho_out))
-
         return rho_out
 
     def Rx(self, rho_in, theta, qid):
@@ -394,31 +251,31 @@ class QSimulator:
         full_matrix: The matrix lifted to the size of the whole Hilbert space
         """
         ops = [tf.eye(2, dtype=tf.complex128) for i in range(self._n)]
-        ops[qid - 1] = gate_matrix
+        ops[qid] = gate_matrix
         for i in range(len(ops)):
             if i == 0:
                 out = ops[i]
             else:
-                out = tf.kron(out, ops[i])
+                out = self.kronecker_product(out, ops[i])
         full_matrix = out
         return full_matrix
 
     def two_qubit_independent_gate(self, qid_0, qid_1, mat_0, mat_1):
         ops = [tf.eye(2, dtype=tf.complex128) for i in range(self._n)]
-        ops[qid_0 - 1] = mat_0
-        ops[qid_1 - 1] = mat_1
+        ops[qid_0] = mat_0
+        ops[qid_1] = mat_1
         for i in range(len(ops)):
             if i == 0:
                 out = ops[i]
             else:
-                out = tf.kron(out, ops[i])
+                out = self.kronecker_product(out, ops[i])
         full_matrix = out
         return full_matrix
 
     def control_not_gate_mat(self, qid_control, qid_target):
         n = self._n - 1
-        control = qid_control - 1
-        target = qid_target - 1
+        control = qid_control
+        target = qid_target
         indices = list(range(2 ** self._n))
         reordered = copy.copy(indices)
 
@@ -456,7 +313,7 @@ class QSimulator:
 
         no_of_qubits = self._n
         indices = np.array(range(2 * no_of_qubits))
-        qubit_index = qid - 1
+        qubit_index = qid
         second_axis = no_of_qubits + qubit_index
         other_indices = np.delete(indices, [qubit_index, second_axis], axis=0)
         reordering = np.append([qubit_index, second_axis], other_indices)
@@ -503,7 +360,7 @@ class QSimulator:
         measured1 = tf.case([(tf.greater(prob_1, randNum), measure1)], default=measure0)
         return measured1
 
-    def return_probabilites_0_1(self, rho_in, qid, is_reduced_dm=True):
+    def return_probabilites_0_1(self, rho_in, qid):
         """
         Returns an array containing the probabilities of measuring |1> and |0>
         Does not change the density matrix
@@ -581,9 +438,6 @@ class QSimulator:
         :param kraus_operators: A list of operators (Tensors) to apply to the density matrix, will check if they are valid
         :return: rho_out:
         """
-
-        # self._check_kraus_ops(kraus_ops, rho_in)
-
         dims = tf.shape(input=rho_in)
         rho_out = tf.zeros(dims, dtype=tf.complex128)
         for k in kraus_ops:

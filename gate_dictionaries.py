@@ -18,43 +18,43 @@ class GateDictionaries:
             'gate_id': np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-            'control_qid': np.array([1, 2, 3, 4]),
+            'control_qid': np.array([0, 1, 2, 3]),
             'control_indices': np.array([12, 13, 14, 15]),
-            'qid': np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 1])
+            'qid': np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 0])
         }
 
         gate_dict_0 = {
             'gate_id': np.array([4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
-            'control_qid': np.array([2, 3, 4]),
+            'control_qid': np.array([1, 2, 3]),
             'control_indices': np.array([10, 11, 12]),
-            'qid': np.array([1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
+            'qid': np.array([0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3, 1])
         }
 
         gate_dict_1 = {
             'gate_id': np.array([4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
-            'control_qid': np.array([2, 3, 4]),
+            'control_qid': np.array([1, 2, 3]),
             'control_indices': np.array([10, 11, 12]),
-            'qid': np.array([1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
+            'qid': np.array([0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3, 1])
         }
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
     def build_new_dicts():
-        gate_dict = GateDictionaries.build_dict(gate_id=np.array([0, 0, 0, 0, 1, 1, 3, 3, 1, 1]),
-                                                control=np.array([4, 4, 3, 3]),
-                                                qid=np.array([1, 2, 1, 2, 1, 2, 1, 2, 1, 2]))
 
+        gate_dict = GateDictionaries.build_dict(gate_id=np.array([0, 0, 0, 0, 1, 1, 3, 3, 1, 1]),
+                                                control=np.array([3, 3, 2, 2]),
+                                                qid=np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1]))
         gate_dict_0 = GateDictionaries.build_dict(gate_id=np.array([0, 0, 1, 3, 1, 4]),
-                                                  control=np.array([4, 3]),
-                                                  qid=np.array([2, 2, 2, 2, 2, 1]))
+                                                  control=np.array([3, 2]),
+                                                  qid=np.array([1, 1, 1, 1, 1, 0]))
 
         gate_dict_1 = GateDictionaries.build_dict(gate_id=np.array([0, 0, 1, 3, 1, 4]),
-                                                  control=np.array([4, 3]),
-                                                  qid=np.array([2, 2, 2, 2, 2, 1]))
+                                                  control=np.array([3, 2]),
+                                                  qid=np.array([1, 1, 1, 1, 1, 0]))
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
@@ -124,16 +124,16 @@ class GateDictionaries:
         :return:
         """
         gate_id = np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0])
-        qid = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 1])
-        control_qid = np.array([1, 2, 3, 4])
+        qid = np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 0])
+        control_qid = np.array([0, 1, 2, 3])
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.build_three_dicts(gate_id, qid, control_qid, theta)
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
     def return_short_dicts(theta: List = None):
         gate_id = np.array([1, 1, 1, 0])
-        qid = np.array([1, 2, 3, 4])
-        control_qid = np.array([2, 3])
+        qid = np.array([0, 1, 2, 3])
+        control_qid = np.array([1, 2])
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.build_three_dicts(gate_id, qid, control_qid, theta)
         return gate_dict, gate_dict_0, gate_dict_1
 
