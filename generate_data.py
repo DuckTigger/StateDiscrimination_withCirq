@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import truncnorm
 import os
 import json
+from typing import Tuple, List
 
 
 class CreateDensityMatrices:
@@ -72,7 +73,7 @@ class CreateDensityMatrices:
     @staticmethod
     def create_from_distribution(total_states: int = 1000, prop_a: float = 1 / 3, b_const: bool = True,
                                  a_const: bool = False, lower: int = 0, upper: int = 1, mu_a: float = 0.5,
-                                 sigma_a: float = 0.25, mu_b: float = 0.75, sigma_b: float = 0.125):
+                                 sigma_a: float = 0.25, mu_b: float = 0.75, sigma_b: float = 0.125) -> Tuple[List, List]:
         a_dist = truncnorm.rvs((lower-mu_a) / sigma_a, (upper-mu_a) / sigma_a, mu_a, sigma_a, size=int(total_states * prop_a) + 2)
         b_dist = truncnorm.rvs((lower-mu_b) / sigma_b, (upper-mu_b) / sigma_b, mu_b, sigma_b, size=int(total_states * (1 - prop_a)) + 2)
         a_states = []
@@ -92,6 +93,25 @@ class CreateDensityMatrices:
 
         return a_states, b_states
 
+    @staticmethod
+    def save_to_file(file_name: str, total_states: int = 50000, prop_a: float = 1 / 3, b_const: bool = True,
+                     a_const: bool = False, lower: int = 0, upper: int = 1,
+                     mu_a: float = 0.5, sigma_a: float = 0.25, mu_b: float = 0.75,
+                     sigma_b: float = 0.125) -> None:
+        a_states, b_states = CreateDensityMatrices.create_from_distribution(total_states, prop_a, b_const,
+                                                                            a_const, lower, upper, mu_a,
+                                                                            sigma_a, mu_b, sigma_b)
+        file_name = 'new_' + file_name
+        out = dict()
+        # Cast to real as atm we don't have complex values in incoming states
+        # TODO:fix for future, add real and imag parts as separate lists
+        a_states = [np.real(x).tolist() for x in a_states]
+        b_states = [np.real(x).tolist() for x in b_states]
+        out['0'] = a_states
+        out['1'] = b_states
+        with open(os.path.join(os.path.dirname(__file__), 'data', file_name), 'w') as f:
+            json.dump(out, f)
+
 
 if __name__ == '__main__':
-    CreateDensityMatrices.create_from_distribution(b_const=False)
+    CreateDensityMatrices.save_to_file('mua05_sigmaa025_constb.json')

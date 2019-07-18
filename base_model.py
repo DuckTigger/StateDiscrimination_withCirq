@@ -4,7 +4,6 @@ import copy
 from typing import List
 
 from cirq_runner import CirqRunner
-from generate_data import CreateDensityMatrices
 
 
 class Model(tf.keras.Model):
@@ -145,7 +144,7 @@ class Model(tf.keras.Model):
         grads = [tf.divide([y], self.g_epsilon) for y in dy]
         return grads
 
-    def varibles_gradient_exact(self, state: np.ndarray, label: tf.Tensor) -> List:
+    def variables_gradient_exact(self, state: np.ndarray, label: tf.Tensor) -> List:
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.

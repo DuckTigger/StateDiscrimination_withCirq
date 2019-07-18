@@ -31,7 +31,7 @@ class Datasets:
 
     def generate_datasets(self, prop_a: float = 1/3, b_const: bool = True,
                           a_const: bool = False, lower: int = 0, upper: int = 1,
-                          mu_a: float = 0.5,sigma_a: float = 0.25, mu_b: float = 0.75,
+                          mu_a: float = 0.5, sigma_a: float = 0.25, mu_b: float = 0.75,
                           sigma_b: float = 0.125) -> Tuple[tf.data.Dataset, int]:
         """
         Generates datasets, uses the same form as the dataset from file loader to keep things consistent.
@@ -51,6 +51,27 @@ class Datasets:
         return dataset, len(labels_set)
 
     def read_from_file(self) -> Tuple[tf.data.Dataset, int]:
+        if 'new_' in self.f_name:
+            return self.read_from_file_new()
+        else:
+            return self.read_from_file_old()
+
+    def read_from_file_new(self) -> Tuple[tf.data.Dataset, int]:
+        with open(os.path.join(os.path.dirname(__file__), "data", self.f_name)) as f:
+            data = json.load(f)
+
+        states_set = []
+        labels_set = []
+        for key, val in data.items():
+            states = [np.array(v).astype(np.complex64) for v in val]
+            states_set.extend(states)
+            label = int(key)
+            label_vec = np.full(fill_value=label, shape=np.shape(states)[0])
+            labels_set.extend(label_vec)
+        dataset = tf.data.Dataset.from_tensor_slices((states_set, labels_set))
+        return dataset, len(labels_set)
+
+    def read_from_file_old(self) -> Tuple[tf.data.Dataset, int]:
         """
         Reads a data file from this package, created by the old scheme.
         :return: datset: the dataset in the file, and its length

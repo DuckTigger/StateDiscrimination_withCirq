@@ -5,3 +5,4 @@
 __pycache__/
 *.e*
 *.o*
+data/new_*

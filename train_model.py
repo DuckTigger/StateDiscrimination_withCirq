@@ -100,13 +100,15 @@ class TrainModel:
             state = state.numpy().astype(np.complex64)
             if CreateDensityMatrices.check_state(state):
                 loss.append(model.state_to_loss(state, label))
-                grads = model.varibles_gradient_exact(state, label)
+                grads = model.variables_gradient_exact(state, label)
                 variables = model.get_variables()
                 self.optimizer.apply_gradients(zip(grads, variables))
         loss_out = tf.reduce_mean(loss)
         return loss_out
 
     def train(self):
+        # gate_dicts = self.gate_dicts
+        # self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
         train, val, test = self.train_data, self.val_data, self.test_data
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
@@ -115,10 +117,10 @@ class TrainModel:
                     loss = self.train_step(batch[0], batch[1])
                     step = (epoch * self.batch_size) + i
                     tf.summary.scalar('Training loss', loss, step)
+                    self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                     self.writer.flush()
 
                 if epoch % 10 == 0:
-                    self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                     intermediate_loc = os.path.join(self.save_dir, 'intermediate')
                     self.create_outputs(intermediate_loc)
                     print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))

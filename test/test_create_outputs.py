@@ -5,7 +5,7 @@ from create_outputs import CreateOutputs
 from gate_dictionaries import GateDictionaries
 
 
-class TestCreatOutputs(np.testing.TestCase):
+class TestCreateOutputs(np.testing.TestCase):
 
     def test_create_outputs(self):
         trainer = TrainModel(batch_size=5, max_epoch=10)
