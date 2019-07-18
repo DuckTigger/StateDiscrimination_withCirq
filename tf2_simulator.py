@@ -82,7 +82,7 @@ class QSimulator:
         """
 
         ket = copy.copy(wf)
-        ket = tf.constant(ket, dtype=tf.complex128)
+        ket = tf.constant(ket, dtype=tf.complex64)
         bra = tf.transpose(a=ket)
         rho = tf.einsum('i,j->ij', ket, bra)
 
@@ -98,7 +98,7 @@ class QSimulator:
             rho_out: The density matrix (tf object) once the X transformation has been applied
         """
 
-        x_mat = tf.constant([[0, 1], [1, 0]], dtype=tf.complex128)
+        x_mat = tf.constant([[0, 1], [1, 0]], dtype=tf.complex64)
 
         gate_mat = self.gate_matrix_1q(qid, x_mat)
         rho_out = self.apply_matrix_to_rho(rho_in, gate_mat)
@@ -114,7 +114,7 @@ class QSimulator:
                     rho_out: The density matrix (tf object) once the X transformation has been applied
         """
 
-        z_mat = tf.constant([[1, 0], [0, -1]], dtype=tf.complex128)
+        z_mat = tf.constant([[1, 0], [0, -1]], dtype=tf.complex64)
         gate_mat = self.gate_matrix_1q(qid, z_mat)
         rho_out = self.apply_matrix_to_rho(rho_in, gate_mat)
         return rho_out
@@ -129,7 +129,7 @@ class QSimulator:
                     rho_out: The density matrix (tf Tensor) once the X transformation has been applied
         """
 
-        y_mat = tf.constant([[0j, -1j], [1j, 0j]], dtype=tf.complex128)
+        y_mat = tf.constant([[0j, -1j], [1j, 0j]], dtype=tf.complex64)
         gate_mat = self.gate_matrix_1q(qid, y_mat)
         rho_out = self.apply_matrix_to_rho(rho_in, gate_mat)
         return rho_out
@@ -143,7 +143,7 @@ class QSimulator:
         :return: rho_out: The resultant density matrix
         """
 
-        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex128)
+        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex64)
         cos = tf.cos(theta)
         sin = tf.multiply(tf.sin(theta), -1j)
         c1 = tf.stack([cos, sin])
@@ -163,7 +163,7 @@ class QSimulator:
         :return: rho_out: The resultant density matrix
         """
 
-        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex128)
+        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex64)
         cos = tf.cos(theta)
         sin = tf.sin(theta)
         c1 = tf.stack([cos, -sin])
@@ -182,7 +182,7 @@ class QSimulator:
         :param theta: The angle to rotate round the z axis by
         :return: rho_out: The resultant density matrix
         """
-        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex128)
+        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex64)
         e_plus = tf.exp(tf.multiply(theta, 1j))
         e_minus = tf.math.conj(e_plus)
         c1 = tf.stack([e_minus, 0])
@@ -202,7 +202,7 @@ class QSimulator:
         :return: rho_out: The resultant density matrix
         """
 
-        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex128)
+        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex64)
         cos = tf.cos(theta)
         sin = tf.multiply(tf.sin(theta), -1j)
         c1 = tf.stack([cos, sin])
@@ -221,7 +221,7 @@ class QSimulator:
         :return: rho_out: The resultant density matrix
         """
 
-        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex128)
+        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex64)
         cos = tf.cos(theta)
         sin = tf.sin(theta)
         c1 = tf.stack([cos, -sin])
@@ -239,7 +239,7 @@ class QSimulator:
         :param theta: The angle to rotate round the z axis by
         :return: rho_out: The resultant density matrix
         """
-        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex128)
+        theta = tf.cast(tf.divide(theta, 2.), dtype=tf.complex64)
         e_plus = tf.exp(tf.multiply(theta, 1j))
         e_minus = tf.math.conj(e_plus)
         c1 = tf.stack([e_minus, 0])
@@ -253,7 +253,7 @@ class QSimulator:
         """"
         Creates a Hadamard gate for the given qubit
         """
-        H = tf.constant([[1 / np.sqrt(2), 1 / np.sqrt(2)], [1 / np.sqrt(2), -1 / np.sqrt(2)]], dtype=tf.complex128)
+        H = tf.constant([[1 / np.sqrt(2), 1 / np.sqrt(2)], [1 / np.sqrt(2), -1 / np.sqrt(2)]], dtype=tf.complex64)
         gate_mat = self.gate_matrix_1q(qid, H)
 
         return gate_mat
@@ -271,7 +271,7 @@ class QSimulator:
         :return:
         full_matrix: The matrix lifted to the size of the whole Hilbert space
         """
-        ops = [tf.eye(2, dtype=tf.complex128) for i in range(self._n)]
+        ops = [tf.eye(2, dtype=tf.complex64) for i in range(self._n)]
         ops[qid] = gate_matrix
         for i in range(len(ops)):
             if i == 0:
@@ -282,7 +282,7 @@ class QSimulator:
         return full_matrix
 
     def two_qubit_independent_gate(self, qid_0, qid_1, mat_0, mat_1):
-        ops = [tf.eye(2, dtype=tf.complex128) for i in range(self._n)]
+        ops = [tf.eye(2, dtype=tf.complex64) for i in range(self._n)]
         ops[qid_0] = mat_0
         ops[qid_1] = mat_1
         for i in range(len(ops)):
@@ -306,7 +306,7 @@ class QSimulator:
             if indices[i] & check_con == check_con:
                 reordered[i] = indices[i] ^ xor_tar
 
-        iden = tf.eye(2 ** self._n, dtype=tf.complex128)
+        iden = tf.eye(2 ** self._n, dtype=tf.complex64)
         cnot = tf.gather(iden, reordered)
         return cnot
 
@@ -358,11 +358,11 @@ class QSimulator:
         :return: measured1: bool, whether a 1 was measured on that qubit
         """
         # Initially we will only deal with the computational basis, option to add more bases later
-        # measure_one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex128)
+        # measure_one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex64)
         # rho_reduced = self.partial_trace(rho_in, qid)
         # prob_1 = tf.cast(tf.real(tf.trace(tf.matmul(M1, tf.matmul(rho_in, M1, adjoint_b=True)))), dtype=tf.float32)
 
-        one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex128)
+        one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex64)
         M1 = self.gate_matrix_1q(qid, one)
 
         prob_1 = tf.linalg.trace(tf.matmul(M1, tf.matmul(M1, rho_in), adjoint_a=True))
@@ -371,11 +371,11 @@ class QSimulator:
         randNum = tf.random.uniform([], 0, 1, dtype=tf.float32)
 
         def measure1():
-            measured1 = tf.constant(1, dtype=tf.complex128)
+            measured1 = tf.constant(1, dtype=tf.complex64)
             return measured1
 
         def measure0():
-            measured1 = tf.constant(0, dtype=tf.complex128)
+            measured1 = tf.constant(0, dtype=tf.complex64)
             return measured1
 
         measured1 = tf.case([(tf.greater(prob_1, randNum), measure1)], default=measure0)
@@ -391,12 +391,12 @@ class QSimulator:
         :return: probs
         """
         if measurement:
-            one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex128)
+            one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex64)
             M1 = self.gate_matrix_1q(qid, one)
             prob = tf.linalg.trace(tf.matmul(M1, tf.matmul(M1, rho_in), adjoint_a=True))
             rho_out = tf.matmul(M1, tf.matmul(rho_in, M1, adjoint_b=True))
         else:
-            zero = tf.constant([[1, 0], [0, 0]], dtype=tf.complex128)
+            zero = tf.constant([[1, 0], [0, 0]], dtype=tf.complex64)
             M0 = self.gate_matrix_1q(qid, zero)
             prob = tf.linalg.trace(tf.matmul(M0, tf.matmul(M0, rho_in), adjoint_a=True))
             rho_out = tf.matmul(M0, tf.matmul(rho_in, M0, adjoint_b=True))
@@ -415,21 +415,21 @@ class QSimulator:
         :param qid: the qubit to be changed
         :return:
         """
-        measure_zero = tf.constant([[1, 0], [0, 0]], dtype=tf.complex128)
-        measure_one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex128)
-        null_state = tf.zeros(tf.shape(input=rho_in), dtype=tf.complex128)
+        measure_zero = tf.constant([[1, 0], [0, 0]], dtype=tf.complex64)
+        measure_one = tf.constant([[0, 0], [0, 1]], dtype=tf.complex64)
+        null_state = tf.zeros(tf.shape(input=rho_in), dtype=tf.complex64)
 
         if state_to_set:
             M1 = self.gate_matrix_1q(qid, measure_one)
             rho_out = tf.matmul(M1, tf.matmul(rho_in, M1, adjoint_b=True))
             prob_1 = tf.linalg.trace(tf.matmul(M1, tf.matmul(M1, rho_in), adjoint_a=True))
-            rho_out = tf.cond(pred=tf.equal(prob_1, tf.constant(0, dtype=tf.complex128)), true_fn=lambda: null_state,
+            rho_out = tf.cond(pred=tf.equal(prob_1, tf.constant(0, dtype=tf.complex64)), true_fn=lambda: null_state,
                               false_fn=lambda: tf.divide(rho_out, prob_1))
         elif state_to_set == 0:
             M0 = self.gate_matrix_1q(qid, measure_zero)
             rho_out = tf.matmul(M0, tf.matmul(rho_in, M0, adjoint_b=True))
             prob_0 = tf.linalg.trace(tf.matmul(M0, tf.matmul(M0, rho_in), adjoint_a=True))
-            rho_out = tf.cond(pred=tf.equal(prob_0, tf.constant(0, dtype=tf.complex128)), true_fn=lambda: null_state,
+            rho_out = tf.cond(pred=tf.equal(prob_0, tf.constant(0, dtype=tf.complex64)), true_fn=lambda: null_state,
                               false_fn=lambda: tf.divide(rho_out, prob_0))
         else:
             raise ValueError('The value to set the qubit to is incorrect')
@@ -443,7 +443,7 @@ class QSimulator:
         :return: rho_out:
         """
         dims = tf.shape(input=rho_in)
-        rho_out = tf.zeros(dims, dtype=tf.complex128)
+        rho_out = tf.zeros(dims, dtype=tf.complex64)
         for k in kraus_ops:
             r = tf.matmul(k, tf.matmul(rho_in, k, adjoint_b=True))
             rho_out = tf.add(rho_out, r)
@@ -457,8 +457,8 @@ class QSimulator:
         :param qid: The qubit to act upon
         :return: A list of Kraus operators which can be inserted into the apply Kraus ops function
         """
-        k1 = tf.sqrt(tf.constant([[1, 0], [0, (1 - p)]], dtype=tf.complex128))
-        k2 = tf.sqrt(tf.constant([[0, p], [0, 0]], dtype=tf.complex128))
+        k1 = tf.sqrt(tf.constant([[1, 0], [0, (1 - p)]], dtype=tf.complex64))
+        k2 = tf.sqrt(tf.constant([[0, p], [0, 0]], dtype=tf.complex64))
         return [k1, k2]
 
     def two_qubit_kops(self, qid_0, qid_1, kops_1, kops_2):
@@ -473,28 +473,28 @@ class QSimulator:
 
     @staticmethod
     def bit_flip_kops():
-        k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex128))
-        k2 = tf.sqrt(tf.constant([[0, 0.5], [0.5, 0]], dtype=tf.complex128))
+        k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex64))
+        k2 = tf.sqrt(tf.constant([[0, 0.5], [0.5, 0]], dtype=tf.complex64))
         return [k1, k2]
 
     @staticmethod
     def phase_flip_kops():
-        k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex128))
-        k2 = tf.sqrt(tf.constant([[0.5, 0], [0, -0.5 + 0 * 1j]], dtype=tf.complex128))
+        k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex64))
+        k2 = tf.sqrt(tf.constant([[0.5, 0], [0, -0.5 + 0 * 1j]], dtype=tf.complex64))
         return [k1, k2]
 
     @staticmethod
     def bit_phase_flip_kops():
-        k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex128))
-        k2 = tf.sqrt(tf.constant([[0, -0.5j], [0.5j, 0]], dtype=tf.complex128))
+        k1 = tf.sqrt(tf.constant([[0.5, 0], [0, 0.5]], dtype=tf.complex64))
+        k2 = tf.sqrt(tf.constant([[0, -0.5j], [0.5j, 0]], dtype=tf.complex64))
         return [k1, k2]
 
     @staticmethod
     def depolarising_channel():
-        k1 = tf.constant([[1, 0], [0, 1]], dtype=tf.complex128)
-        k2 = tf.constant([[0, 1], [1, 0]], dtype=tf.complex128)
-        k3 = tf.constant([[0j, -1j], [1j, 0j]], dtype=tf.complex128)
-        k4 = tf.constant([[1, 0], [0, -1]], dtype=tf.complex128)
+        k1 = tf.constant([[1, 0], [0, 1]], dtype=tf.complex64)
+        k2 = tf.constant([[0, 1], [1, 0]], dtype=tf.complex64)
+        k3 = tf.constant([[0j, -1j], [1j, 0j]], dtype=tf.complex64)
+        k4 = tf.constant([[1, 0], [0, -1]], dtype=tf.complex64)
         return [k1, k2, k3, k4]
 
     def depolarising_kops_1q(self, qid):
@@ -514,10 +514,10 @@ class QSimulator:
         for i in range(n_of_ops):
             if i == 0:
                 kops[i] = tf.multiply(
-                    tf.cast(np.sqrt(1 - (((n_of_ops - 1) * noise_prob) / n_of_ops)), dtype=tf.complex128), kops[i])
+                    tf.cast(np.sqrt(1 - (((n_of_ops - 1) * noise_prob) / n_of_ops)), dtype=tf.complex64), kops[i])
                 rho_out = tf.matmul(kops[i], tf.matmul(rho_in, kops[i]))
             else:
-                kops[i] = tf.multiply(tf.cast(np.sqrt(noise_prob / n_of_ops), dtype=tf.complex128), kops[i])
+                kops[i] = tf.multiply(tf.cast(np.sqrt(noise_prob / n_of_ops), dtype=tf.complex64), kops[i])
                 st = tf.matmul(kops[i], tf.matmul(rho_in, kops[i]))
                 rho_out = tf.add(rho_out, st)
         return rho_out
@@ -529,10 +529,10 @@ class QSimulator:
         for i in range(n_of_ops):
             if i == 0:
                 kops[i] = tf.multiply(
-                    tf.constant(np.sqrt(1 - (((n_of_ops - 1) * noise_prob) / n_of_ops)), dtype=tf.complex128), kops[i])
+                    tf.constant(np.sqrt(1 - (((n_of_ops - 1) * noise_prob) / n_of_ops)), dtype=tf.complex64), kops[i])
                 channel = tf.matmul(kops[i], kops[i], adjoint_a=True)
             else:
-                kops[i] = tf.multiply(tf.constant(np.sqrt(noise_prob / n_of_ops), dtype=tf.complex128), kops[i])
+                kops[i] = tf.multiply(tf.constant(np.sqrt(noise_prob / n_of_ops), dtype=tf.complex64), kops[i])
                 channel = tf.add(channel, tf.matmul(kops[i], kops[i], adjoint_a=True))
         return channel
 
@@ -573,7 +573,7 @@ class QSimulator:
                 return self.Rz_mat(theta, target)
             if label == 4:
                 n = self._n
-                return tf.eye(2 ** n, dtype=tf.complex128)
+                return tf.eye(2 ** n, dtype=tf.complex64)
             if label == 5:
                 target = gate_dict['qid'][index]
                 return self.hadamard_mat(target)
@@ -581,7 +581,7 @@ class QSimulator:
         for i in range(len(gate_dict['qid'])):
             if noise_on:
                 if i == 0:
-                    rho_out = tf.matmul(rho_in, tf.eye(2 ** self._n, dtype=tf.complex128))
+                    rho_out = tf.matmul(rho_in, tf.eye(2 ** self._n, dtype=tf.complex64))
                 qid = gate_dict['qid'][i]
 
                 if gate_dict['gate_id'][i] == 0:
@@ -596,20 +596,20 @@ class QSimulator:
                 rho_out = tf.matmul(mat_i, tf.matmul(rho_out, mat_i, adjoint_b=True))
                 rho_out = self.apply_kops(rho_out, noise_prob_run, kops)
                 norm = tf.linalg.trace(rho_out)
-                null_state = tf.zeros(tf.shape(input=rho_in), dtype=tf.complex128)
-                rho_out = tf.cond(pred=tf.equal(norm, tf.constant(0, dtype=tf.complex128)), true_fn=lambda: null_state,
+                null_state = tf.zeros(tf.shape(input=rho_in), dtype=tf.complex64)
+                rho_out = tf.cond(pred=tf.equal(norm, tf.constant(0, dtype=tf.complex64)), true_fn=lambda: null_state,
                                   false_fn=lambda: tf.divide(rho_out, norm))
 
             else:
                 if i == 0:
-                    rho_out = tf.matmul(rho_in, tf.eye(2 ** self._n, dtype=tf.complex128))
+                    rho_out = tf.matmul(rho_in, tf.eye(2 ** self._n, dtype=tf.complex64))
 
                 mat_i = gate_to_fn(gate_dict, i)
-                mat_i = tf.cast(mat_i, dtype=tf.complex128)
+                mat_i = tf.cast(mat_i, dtype=tf.complex64)
                 rho_out = tf.matmul(mat_i, tf.matmul(rho_out, mat_i, adjoint_b=True))
                 norm = tf.linalg.trace(rho_out)
-                null_state = tf.zeros(tf.shape(input=rho_in), dtype=tf.complex128)
-                rho_out = tf.cond(pred=tf.equal(norm, tf.constant(0, dtype=tf.complex128)), true_fn=lambda: null_state,
+                null_state = tf.zeros(tf.shape(input=rho_in), dtype=tf.complex64)
+                rho_out = tf.cond(pred=tf.equal(norm, tf.constant(0, dtype=tf.complex64)), true_fn=lambda: null_state,
                                   false_fn=lambda: tf.divide(rho_out, norm))
 
         return rho_out

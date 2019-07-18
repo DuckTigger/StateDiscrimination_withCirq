@@ -15,8 +15,8 @@ class TF2SimulatorRunner:
 
     def __init__(self, no_qubits: int = 4, noise_on: bool = False, noise_prob: float = 0.1):
         self.no_qubits = no_qubits
-        self.noise_prob = noise_prob
         self.simulator = QSimulator(no_qubits, noise_on, noise_prob)
+        self.noise_prob = noise_prob
 
     @property
     def noise_prob(self):
