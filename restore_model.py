@@ -52,6 +52,7 @@ class RestoreModel:
         trainer = RestoreModel.restore(model_loc)
         trainer.reshape_vars()
 
+
 def main():
 
     parser = ArgumentParser(description='Restores the model from a given location, '

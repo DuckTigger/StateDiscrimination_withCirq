@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple
 import tensorflow as tf
 import os
 import json
