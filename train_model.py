@@ -34,7 +34,7 @@ class TrainModel:
         self.save_dir = None
         self.optimizer = tf.optimizers.Adam(learning_rate, beta1, beta2)
         self.job_name = job_name
-        self.restore = restore_loc
+        self.restore_loc = restore_loc
         self.train_data, self.val_data, self.test_data = self.dataset.return_train_val_test(**kwargs)
         if dicts is None:
             self.gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
@@ -74,10 +74,17 @@ class TrainModel:
         checkpoint = tf.train.Checkpoint(optimizer=self.optimizer, model=self.model)
         writer = tf.summary.create_file_writer(checkpoint_dir)
 
-        if self.restore is not None:
-            ckpt_path = tf.train.latest_checkpoint(self.restore)
+        if self.restore_loc is not None:
+            ckpt_path = tf.train.latest_checkpoint(self.restore_loc)
             checkpoint.restore(ckpt_path)
         return checkpoint, writer
+
+    def reshape_vars(self):
+        self.checkpoint_prefix = os.path.join(self.restore_loc, 'ckpt')
+        var = self.model.get_variables()
+        var = [tf.reshape(x, ()) for x in var]
+        self.model.set_variables(var)
+        self.checkpoint.save(file_prefix=self.checkpoint_prefix)
 
     def save_inputs(self, namespace: Namespace):
         dict_copy = copy.deepcopy(self.gate_dicts)

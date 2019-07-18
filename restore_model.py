@@ -47,6 +47,10 @@ class RestoreModel:
         outputs = os.path.join(model_loc, 'restored_outputs')
         trainer.create_outputs(outputs)
 
+    @staticmethod
+    def fix_variable_shape(model_loc: str):
+        trainer = RestoreModel.restore(model_loc)
+        trainer.reshape_vars()
 
 def main():
 
@@ -57,10 +61,14 @@ def main():
                              'Should also have a correctly saved parameters file.')
     parser.add_argument('--create_outputs', action='store_true',
                         help='If called, just creates outputs from the saved model, does not continue training.')
+    parser.add_argument('--reshape_vars', action='store_true',
+                        help='If called, reshapes variables from (1,) to ().')
     args = parser.parse_args()
 
     if args.create_outputs:
         RestoreModel.restore_create_outputs(args.model_loc)
+    elif args.reshape_vars:
+        RestoreModel.fix_variable_shape(args.model_loc)
     else:
         RestoreModel.restore_and_train(args.model_loc)
 
