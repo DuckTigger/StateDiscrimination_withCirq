@@ -33,9 +33,6 @@ class Model(tf.keras.Model):
         self.set_gate_dict(gate_dict_1, 1)
 
     def set_gate_dict(self, gate_dict, measurement_outcome=None):
-        # Convert between the old style of gate_dicts
-        gate_dict['qid'] = gate_dict['qid'] - 1
-        gate_dict['control_qid'] = gate_dict['control_qid'] - 1
         if measurement_outcome is None:
             self.gate_dict = gate_dict
         else:
