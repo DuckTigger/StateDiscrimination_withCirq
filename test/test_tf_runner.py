@@ -4,7 +4,7 @@ from typing import Counter
 import tensorflow as tf
 import copy
 
-from cirq_runner import CirqRunner
+from tf2_simulator_runner import TF2SimulatorRunner
 from test.test_model import TestLossFromState
 
 
@@ -17,11 +17,11 @@ class TestCirqRunner(np.testing.TestCase):
             'gate_id': np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-            'control_qid': np.array([0, 1, 2, 3]),
+            'control_qid': np.array([1, 2, 3, 4]),
             'control_indices': np.array([12, 13, 14, 15]),
-            'qid': np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 0])
+            'qid': np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 1])
         }
-        theta = [tf.Variable(np.random.rand() * 4*np.pi) for _ in range(len(gate_dict['theta_indices']))]
+        theta = [np.random.rand() * 4*np.pi for _ in range(len(gate_dict['theta_indices']))]
         gate_dict['theta'] = theta
         circuit = runner.gate_dict_to_circuit(gate_dict)
         simulator = cirq.Simulator()
@@ -36,33 +36,33 @@ class TestCirqRunner(np.testing.TestCase):
             'gate_id': np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-            'control_qid': np.array([0, 1, 2, 3]),
+            'control_qid': np.array([1, 2, 3, 4]),
             'control_indices': np.array([12, 13, 14, 15]),
-            'qid': np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 0])
+            'qid': np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 1])
         }
-        theta = [tf.Variable(np.random.rand() * 4 * np.pi) for _ in range(len(gate_dict['theta_indices']))]
+        theta = [np.random.rand() * 4 * np.pi for _ in range(len(gate_dict['theta_indices']))]
         gate_dict['theta'] = theta
 
         gate_dict_0 = {
             'gate_id': np.array([1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-            'control_qid': np.array([1, 2, 3]),
+            'control_qid': np.array([2, 3, 4]),
             'control_indices': np.array([9, 10, 11]),
-            'qid': np.array([1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3, 1])
+            'qid': np.array([2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
         }
-        theta0 = [tf.Variable(np.random.rand() * 4 * np.pi) for _ in range(len(gate_dict_0['theta_indices']))]
+        theta0 = [np.random.rand() * 4 * np.pi for _ in range(len(gate_dict_0['theta_indices']))]
         gate_dict_0['theta'] = theta0
 
         gate_dict_1 = {
             'gate_id': np.array([1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-            'control_qid': np.array([1, 2, 3]),
+            'control_qid': np.array([2, 3, 4]),
             'control_indices': np.array([9, 10, 11]),
-            'qid': np.array([1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3, 1])
+            'qid': np.array([2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
         }
-        theta1 = [tf.Variable(np.random.rand() * 4 * np.pi) for _ in range(len(gate_dict_1['theta_indices']))]
+        theta1 = [np.random.rand() * 4 * np.pi for _ in range(len(gate_dict_1['theta_indices']))]
         gate_dict_1['theta'] = theta1
 
         circuit = runner.create_full_circuit(gate_dict, gate_dict_0, gate_dict_1)
@@ -111,18 +111,13 @@ class TestCirqRunner(np.testing.TestCase):
         runner = CirqRunner(sim_repetitions=10000)
         dicts = TestLossFromState.get_some_dicts()
         for gate_dict in dicts:
+            gate_dict['qid'] = gate_dict['qid'] - 1
+            gate_dict['control_qid'] = gate_dict['control_qid'] - 1
             gate_dict['theta'] = [tf.Variable(x) for x in gate_dict['theta']]
         zero, _ = TestLossFromState.get_some_states()
         zero_ = copy.copy(zero)
         circuit_a = runner.create_full_circuit(dicts[0], dicts[1], dicts[2])
         probs_a = runner.calculate_probabilities_sampling(zero, circuit_a)
-        for d in dicts:
-            for key, val in d.items():
-                if key == 'gate_id':
-                    d[key] = np.append(d[key], 4)
-                elif key == 'qid':
-                    d[key] = np.append(d[key], 0)
-
         probs_b = runner.calculate_probabilities(dicts[0], dicts[1], dicts[2], zero_)
 
         np.testing.assert_almost_equal(np.sum(probs_a), 1)

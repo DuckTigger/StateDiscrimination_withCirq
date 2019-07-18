@@ -27,7 +27,7 @@ class TestLossFromState(tf.test.TestCase):
             'theta_indices': np.array([0, 1]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([1, 2, 3, 4])
+            'qid': np.array([0, 1, 2, 3])
         }
 
         gate_dict_0 = {
@@ -36,7 +36,7 @@ class TestLossFromState(tf.test.TestCase):
             'theta_indices': np.array([0]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([2, 3, 4])
+            'qid': np.array([1, 2, 3])
         }
 
         gate_dict_1 = {
@@ -45,7 +45,7 @@ class TestLossFromState(tf.test.TestCase):
             'theta_indices': np.array([0]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([2, 3, 4])
+            'qid': np.array([1, 2, 3])
         }
         return gate_dict, gate_dict_0, gate_dict_1
 
