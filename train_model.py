@@ -2,12 +2,15 @@ import tensorflow as tf
 import numpy as np
 import datetime, time, sys, os
 from typing import Tuple
+from argparse import Namespace
+import copy
 
 from base_model import Model
 from cirq_runner import CirqRunner
 from datasets import Datasets
 from gate_dictionaries import GateDictionaries
 from generate_data import CreateDensityMatrices
+from create_outputs import CreateOutputs
 
 
 class TrainModel:
@@ -18,17 +21,21 @@ class TrainModel:
                  learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
                  g_epsilon: float = 1e-6, no_qubits: int = 4,
                  noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000,
-                 job_name=None, **kwargs):
+                 job_name: str =None, restore_loc: str = None, **kwargs):
 
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
         self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
         self.model = Model(cost_error, cost_incon, self.runner, g_epsilon)
         self.max_epoch = max_epoch
+        self.batch_size = batch_size
         self.save_time = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
         self.checkpoint_prefix = None
+        self.save_dir = None
         self.optimizer = tf.optimizers.Adam(learning_rate, beta1, beta2)
         self.job_name = job_name
-        self.train, self.val, self.test = self.dataset.return_train_val_test(**kwargs)
+        self.restore = restore_loc
+        self.train_data, self.val_data, self.test_data = self.dataset.return_train_val_test(**kwargs)
+        self.gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
 
         if sys.platform.startswith('win'):
             self.checkpoint, self.writer = self.setup_save(
@@ -36,47 +43,44 @@ class TrainModel:
         else:
             self.checkpoint, self.writer = self.setup_save("/home/zcapga1/Scratch/state_discrimination/training_out")
 
+    @property
+    def gate_dicts(self):
+        return self.__gate_dicts
+
+    @gate_dicts.getter
+    def gate_dicts(self):
+        return self.__gate_dicts
+
+    @gate_dicts.setter
+    def gate_dicts(self, dicts):
+        self.__gate_dicts = dicts
+
     def setup_save(self, save_dir: str) -> Tuple[tf.train.Checkpoint,  tf.summary.SummaryWriter]:
         if self.job_name is None:
             checkpoint_dir = os.path.join(save_dir, self.save_time)
         else:
             checkpoint_dir = os.path.join(save_dir, self.job_name, self.save_time)
+
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
+
+        self.save_dir = checkpoint_dir
         self.checkpoint_prefix = os.path.join(checkpoint_dir, 'ckpt')
         checkpoint = tf.train.Checkpoint(optimizer=self.optimizer, model=self.model)
         writer = tf.summary.create_file_writer(checkpoint_dir)
+
+        if self.restore is not None:
+            checkpoint.restore(self.restore)
         return checkpoint, writer
 
-    # @tf.function
-    def train_step(self, state_in: tf.Tensor, label_in: tf.Tensor):
-        model = self.model
-        for state, label in zip(state_in, label_in):
-            loss = model.state_to_loss(state, label)
-            grads = model.variables_gradient(loss, state, label)
-            variables = model.get_variables()
-            self.optimizer.apply_gradients(zip(grads, variables))
-        return loss
+    def save_inputs(self, namespace: Namespace):
+        dict_copy = copy.deepcopy(self.gate_dicts)
+        CreateOutputs.save_params_dicts(self.save_dir, namespace, dict_copy)
 
-    def train(self, **kwargs):
-        gate_dicts = GateDictionaries().return_dicts_rand_vars()
-        self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
-        train, val, test = self.dataset.return_train_val_test(**kwargs)
+    def create_outputs(self, location: str):
+        CreateOutputs.create_outputs(location, self.model, self.test_data, self.runner)
 
-        for epoch in range(self.max_epoch):
-            start = time.time()
-            for batch in train:
-                loss = self.train_step(batch[0], batch[1])
-                tf.summary.scalar('Training loss', loss, epoch)
-                tf.summary.write('loss{}'.format(epoch), loss)
-
-            if epoch % 10 == 0:
-                self.checkpoint.save(file_prefix=self.checkpoint_prefix)
-                print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
-
-        self.checkpoint.save(file_prefix=self.checkpoint_prefix)
-
-    def train_step_new(self, state_batch: tf.Tensor, label_batch: tf.Tensor):
+    def train_step(self, state_batch: tf.Tensor, label_batch: tf.Tensor):
         model = self.model
         loss = []
         for state, label in zip(state_batch, label_batch):
@@ -89,26 +93,29 @@ class TrainModel:
         loss_out = tf.reduce_mean(loss)
         return loss_out
 
-    def train_new(self, **kwargs):
-        gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
+    def train(self):
+        gate_dicts = self.gate_dicts
         self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
-        train, val, test = self.train, self.val, self.test
-        # train, val, test = self.dataset.return_train_val_test(**kwargs)
-
+        train, val, test = self.train_data, self.val_data, self.test_data
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
                 start = time.time()
-                for batch in train:
-                    loss = self.train_step_new(batch[0], batch[1])
-                    tf.summary.scalar('Training loss', loss, epoch)
+                for i, batch in enumerate(train):
+                    loss = self.train_step(batch[0], batch[1])
+                    step = (epoch * self.batch_size) + i
+                    tf.summary.scalar('Training loss', loss, step)
                     self.writer.flush()
 
                 if epoch % 10 == 0:
                     self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+                    intermediate_loc = os.path.join(self.save_dir, 'intermediate')
+                    self.create_outputs(intermediate_loc)
                     print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
             self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+            outputs = os.path.join(self.save_dir, 'outputs')
+            self.create_outputs(outputs)
 
 
 if __name__ == '__main__':
-    trainer = TrainModel(40., 40., batch_size=20, max_epoch=2500)
-    trainer.train_new(a_const=False, b_const=True)
+    trainer = TrainModel(40., 40., batch_size=20, max_epoch=2500, a_const=False, b_const=True)
+    trainer.train()

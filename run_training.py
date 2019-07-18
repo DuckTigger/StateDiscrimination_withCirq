@@ -48,7 +48,8 @@ def main():
 
     args = parser.parse_args()
     trainer = TrainModel(**vars(args))
-    trainer.train_new()
+    trainer.save_inputs(args)
+    trainer.train_data()
 
 
 if __name__ == '__main__':
