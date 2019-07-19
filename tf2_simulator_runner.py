@@ -36,14 +36,15 @@ class TF2SimulatorRunner:
     def check_density_mat_tf(state: tf.Tensor):
         if not tf.reduce_all(tf.equal(state, tf.math.conj(tf.transpose(state)))):
             return False
-        if not tf.greater_equal(tf.linalg.trace(state), 1 + 1e-4) and not tf.less_equal(tf.linalg.trace(state), 1 - 1e-4):
+        if tf.greater_equal(tf.cast(tf.linalg.trace(state), dtype=tf.float32), tf.constant(1 + 1e-2, dtype=tf.float32))\
+                or tf.less_equal(tf.cast(tf.linalg.trace(state), dtype=tf.float32), tf.constant(1 - 1e-2, dtype=tf.float32)):
             return False
-        if not tf.reduce_all(tf.greater_equal(tf.linalg.eigvalsh(state), -1e-8)):
+        if not tf.reduce_all(tf.greater_equal(tf.cast(tf.linalg.eigvalsh(state), dtype=tf.float32), tf.constant(-1e-8, dtype=tf.float32))):
             return False
         return True
 
     def probs_controlled_part(self, gate_dict: Dict, state_in: tf.Tensor, prob):
-        if tf.greater_equal(prob, -1e-8) and self.check_density_mat_tf(state_in):
+        if tf.greater_equal(tf.cast(prob, dtype=tf.float32), tf.constant(-1e-8, dtype=tf.float32)) and self.check_density_mat_tf(state_in):
             state_out = self.simulator.apply_gate_dict(gate_dict, state_in)
             prob_0, _ = self.simulator.return_prob_and_state(state_out, qid=1, measurement=0)
             prob_1, _ = self.simulator.return_prob_and_state(state_out, qid=1, measurement=1)
@@ -61,6 +62,10 @@ class TF2SimulatorRunner:
         prob_0_0, prob_0_1 = self.probs_controlled_part(dicts[1], state_0, prob_0)
         prob_1_0, prob_1_1 = self.probs_controlled_part(dicts[2], state_1, prob_1)
 
-        probs_out = [tf.multiply(i, j) for i, j in it.product((prob_0, prob_1),
-                                                              (prob_0_0, prob_0_1, prob_1_0, prob_1_1))]
-        return probs_out
+        fin_00 = prob_0 * prob_0_0
+        fin_01 = prob_0 * prob_0_1
+        fin_10 = prob_1 * prob_1_0
+        fin_11 = prob_1 * prob_1_1
+
+        out = [fin_00, fin_01, fin_10, fin_11]
+        return out

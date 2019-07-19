@@ -395,16 +395,17 @@ class QSimulator:
             M1 = self.gate_matrix_1q(qid, one)
             prob = tf.linalg.trace(tf.matmul(M1, tf.matmul(M1, rho_in), adjoint_a=True))
             rho_out = tf.matmul(M1, tf.matmul(rho_in, M1, adjoint_b=True))
+            rho_out = tf.divide(rho_out, tf.linalg.trace(rho_out))
         else:
             zero = tf.constant([[1, 0], [0, 0]], dtype=tf.complex64)
             M0 = self.gate_matrix_1q(qid, zero)
             prob = tf.linalg.trace(tf.matmul(M0, tf.matmul(M0, rho_in), adjoint_a=True))
             rho_out = tf.matmul(M0, tf.matmul(rho_in, M0, adjoint_b=True))
+            rho_out = tf.divide(rho_out, tf.linalg.trace(rho_out))
 
         prob = tf.reshape(tf.cast(tf.math.real(prob), dtype=tf.float64), [])
 
         return prob, rho_out
-
 
     def _set_qubit_to_value(self, rho_in, state_to_set: int, qid):
         """

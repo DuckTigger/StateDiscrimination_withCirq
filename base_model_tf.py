@@ -63,7 +63,7 @@ class ModelTF(tf.keras.Model):
 
     def get_gate_ids(self):
         gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
-        gate_ids = gate_dict['gate_id'] + gate_dict_0['gate_id'] + gate_dict_1['gate_id']
+        gate_ids = np.append(np.append(gate_dict['gate_id'], gate_dict_0['gate_id']), gate_dict_1['gate_id'])
         gate_ids = gate_ids[np.where(gate_ids != 0)]
         return gate_ids
 
@@ -102,7 +102,7 @@ class ModelTF(tf.keras.Model):
         loss = tf.reduce_sum([error, inconclusive])
         return loss
 
-    def variables_gradient_exact(self, state: np.ndarray, label: tf.Tensor) -> List:
+    def variables_gradient_exact(self, state: tf.Tensor, label: tf.Tensor) -> List:
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.
@@ -120,12 +120,11 @@ class ModelTF(tf.keras.Model):
             new_vars_minus[i] = tf.subtract(var, np.pi/4)
 
             self.set_variables(new_vars_plus)
-            loss_plus = self.state_to_loss(state, label)
+            loss_plus = self.loss_fn(state, label)
 
             self.set_variables(new_vars_minus)
-            loss_minus = self.state_to_loss(state, label)
+            loss_minus = self.loss_fn(state, label)
             grad = tf.subtract(loss_plus, loss_minus)
-            grad = tf.reshape(grad, (1,))
             grads.append(grad)
 
         self.set_variables(variables)

@@ -65,7 +65,7 @@ class Model(tf.keras.Model):
 
     def get_gate_ids(self):
         gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
-        gate_ids = gate_dict['gate_id'] + gate_dict_0['gate_id'] + gate_dict_1['gate_id']
+        gate_ids = np.append(np.append(gate_dict['gate_id'], gate_dict_0['gate_id']), gate_dict_1['gate_id'])
         gate_ids = gate_ids[np.where(gate_ids != 0)]
         return gate_ids
 
