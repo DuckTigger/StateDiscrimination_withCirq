@@ -164,7 +164,6 @@ class Model(tf.keras.Model):
             self.set_variables(new_vars_minus)
             loss_minus = self.state_to_loss(state, label)
             grad = tf.subtract(loss_plus, loss_minus)
-            grad = tf.reshape(grad, (1,))
             grads.append(grad)
 
         self.set_variables(variables)
