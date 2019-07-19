@@ -10,7 +10,6 @@ from gate_dictionaries import GateDictionaries
 
 class TestLossFromState(tf.test.TestCase):
 
-
     @staticmethod
     def kron_list(l):
         for i in range(len(l)):
@@ -149,7 +148,8 @@ class TestLossFromState(tf.test.TestCase):
         model.set_all_dicts(gate_dict, gate_dict_0, gate_dict_1)
         print('Vars before: {}'.format(model.get_variables()))
         zero_state, oozz_state = self.get_some_states()
-        grads = model.variables_gradient(loss=tf.constant(1., dtype=tf.float64), state=tf.constant(zero_state, dtype=tf.complex64), label=(tf.constant(0, dtype=tf.float32)))
+        grads = model.variables_gradient(loss=tf.constant(1., dtype=tf.float64),
+                                         state=tf.constant(zero_state, dtype=tf.complex64), label=(tf.constant(0, dtype=tf.float32)))
         print('Grads: {}\n Vars:{}'.format(grads, model.get_variables()))
 
     def test_vars_ids(self):
@@ -158,6 +158,6 @@ class TestLossFromState(tf.test.TestCase):
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_new_dicts_rand_vars()
         model.set_all_dicts(gate_dict, gate_dict_0, gate_dict_1)
         ids = model.get_gate_ids()
-        vars = model.get_variables()
-        np.testing.assert_equal(len(ids), len(vars))
+        var = model.get_variables()
+        np.testing.assert_equal(len(ids), len(var))
 

@@ -34,7 +34,6 @@ class CreateDensityMatrices:
     def create_a(dist_choice, a_const=False):
         """
         Creates constant a states or randmoised ones, and appends it to the state list, out
-        :param out: The output state list
         :param dist_choice: the random number from the distribution
         :param a_const:
         :return:
@@ -72,10 +71,13 @@ class CreateDensityMatrices:
 
     @staticmethod
     def create_from_distribution(total_states: int = 1000, prop_a: float = 1 / 3, b_const: bool = True,
-                                 a_const: bool = False, lower: int = 0, upper: int = 1, mu_a: float = 0.5,
-                                 sigma_a: float = 0.25, mu_b: float = 0.75, sigma_b: float = 0.125) -> Tuple[List, List]:
-        a_dist = truncnorm.rvs((lower-mu_a) / sigma_a, (upper-mu_a) / sigma_a, mu_a, sigma_a, size=int(total_states * prop_a) + 2)
-        b_dist = truncnorm.rvs((lower-mu_b) / sigma_b, (upper-mu_b) / sigma_b, mu_b, sigma_b, size=int(total_states * (1 - prop_a)) + 2)
+                                 a_const: bool = False, lower: int = 0, upper: int = 1,
+                                 mu_a: float = 0.5, sigma_a: float = 0.25,
+                                 mu_b: float = 0.75, sigma_b: float = 0.125) -> Tuple[List, List]:
+        a_dist = truncnorm.rvs((lower-mu_a) / sigma_a, (upper-mu_a) / sigma_a, mu_a, sigma_a,
+                               size=int(total_states * prop_a) + 2)
+        b_dist = truncnorm.rvs((lower-mu_b) / sigma_b, (upper-mu_b) / sigma_b, mu_b, sigma_b,
+                               size=int(total_states * (1 - prop_a)) + 2)
         a_states = []
         b_states = []
 

@@ -1,16 +1,20 @@
-import tensorflow as tf
-import numpy as np
-import datetime, time, sys, os
-from typing import Tuple, Dict
-from argparse import Namespace
 import copy
+import datetime
+import os
+import sys
+import time
+from argparse import Namespace
+from typing import Tuple, Dict
+
+import numpy as np
+import tensorflow as tf
 
 from base_model import Model
 from cirq_runner import CirqRunner
+from create_outputs import CreateOutputs
 from datasets import Datasets
 from gate_dictionaries import GateDictionaries
 from generate_data import CreateDensityMatrices
-from create_outputs import CreateOutputs
 
 
 class TrainModel:

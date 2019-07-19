@@ -121,7 +121,7 @@ class Model(tf.keras.Model):
         loss = self.probs_to_loss(probs, label)
         return loss
 
-    def variables_gradient(self, loss: tf.Tensor, state: tf.Tensor, label: tf.Tensor) -> List:
+    def variables_gradient(self, loss: tf.Tensor, state: np.ndarray, label: tf.Tensor) -> List:
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.
@@ -148,7 +148,6 @@ class Model(tf.keras.Model):
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.
-        :param loss: The current loss of the model
         :param state: The state in
         :param label: the label of that state
         :return: grads: a list of tensors representing the gradients for each variable.

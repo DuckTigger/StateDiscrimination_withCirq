@@ -1,4 +1,3 @@
-import unittest
 import numpy as np
 import cirq
 from typing import Counter
@@ -6,8 +5,8 @@ import tensorflow as tf
 import copy
 
 from cirq_runner import CirqRunner
-from gate_dictionaries import GateDictionaries
 from test.test_model import TestLossFromState
+
 
 class TestCirqRunner(np.testing.TestCase):
 
@@ -71,8 +70,8 @@ class TestCirqRunner(np.testing.TestCase):
         result = simulator.simulate(circuit)
         m0 = int(result.measurements['m0'])
         m1 = int(result.measurements['m1'])
-        self.assertIn(m0, [0,1])
-        self.assertIn(m1, [0,1])
+        self.assertIn(m0, [0, 1])
+        self.assertIn(m1, [0, 1])
 
     @staticmethod
     def kron_list(l):
@@ -86,7 +85,7 @@ class TestCirqRunner(np.testing.TestCase):
     def test_calculate_probabilities(self):
         runner = CirqRunner(sim_repetitions=100)
         qubits = runner.qubits
-        zero = np.array([[1,0], [0,0]])
+        zero = np.array([[1, 0], [0, 0]])
         z_list = [zero for _ in range(4)]
         zero_state = self.kron_list(z_list).astype(np.complex64)
         circuit = cirq.Circuit.from_ops([cirq.X(x) for x in qubits])
@@ -96,7 +95,7 @@ class TestCirqRunner(np.testing.TestCase):
         probs0 = runner.calculate_probabilities(zero_state, circuit)
         np.testing.assert_array_equal(probs0, [0, 0, 1, 0])
 
-        one = np.array([[0,0], [0,1]])
+        one = np.array([[0, 0], [0, 1]])
         o_list = [one for _ in range(4)]
         one_state = self.kron_list(o_list).astype(np.complex64)
         probs1 = runner.calculate_probabilities(one_state, circuit)

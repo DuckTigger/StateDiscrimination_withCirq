@@ -11,7 +11,6 @@ class CirqRunner:
     """
     A class to interface the tensorflow model with Cirq.
     Takes the gate dictionaries defined in the rest of the program and returns probabilities of the results
-    TODO: Add noise
     """
     def __init__(self, no_qubits: int = 4, noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 10):
         self.noise_prob = noise_prob
@@ -94,7 +93,7 @@ class CirqRunner:
 
     @staticmethod
     def yield_controlled_circuit(input_circuit: cirq.Circuit,
-                                control_qubit: Union[cirq.GridQubit, cirq.NamedQubit, cirq.LineQubit]):
+                                 control_qubit: Union[cirq.GridQubit, cirq.NamedQubit, cirq.LineQubit]):
         for moment in input_circuit:
             for operation in moment:
                 yield operation.controlled_by(control_qubit)
@@ -150,7 +149,7 @@ class CirqRunner:
         return out
 
     def prob_and_set(self, state: np.ndarray, measure_qubit: int, measurement: int):
-        e = np.array([[1,0], [0,1]]).astype(np.complex64)
+        e = np.array([[1, 0], [0, 1]]).astype(np.complex64)
         if measurement:
             o = np.array([[0, 0], [0, 1]]).astype(np.complex64)
             l = [e for _ in range(len(self.qubits))]
@@ -169,7 +168,8 @@ class CirqRunner:
         rho_out = rho_out / np.trace(rho_out)
         return prob, rho_out
 
-    def probs_controlled_part(self, gate_dict: Dict, state_in: np.ndarray, prob: np.ndarray, sim: cirq.DensityMatrixSimulator) -> Tuple[float, float]:
+    def probs_controlled_part(self, gate_dict: Dict, state_in: np.ndarray, prob: np.ndarray,
+                              sim: cirq.DensityMatrixSimulator) -> Tuple[float, float]:
         if prob > 1e-8 and CreateDensityMatrices.check_state(state_in):
             circuit_0 = self.gate_dict_to_circuit(gate_dict)
             rho_0 = sim.simulate(circuit_0, initial_state=state_in).final_density_matrix

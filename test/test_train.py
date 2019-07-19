@@ -1,12 +1,7 @@
 import tensorflow as tf
-import numpy as np
-import cirq
-import copy
 
-from base_model import Model
-from cirq_runner import CirqRunner
-from train_model import TrainModel
 from generate_data import CreateDensityMatrices
+from train_model import TrainModel
 
 
 class TestTraining(tf.test.TestCase):
