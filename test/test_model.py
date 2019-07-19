@@ -23,7 +23,7 @@ class TestLossFromState(tf.test.TestCase):
     def get_some_dicts():
         gate_dict = {
             'gate_id': np.array([1, 1, 4, 4]),
-            'theta': np.array([np.pi, np.pi]),
+            'theta': tf.Variable([np.pi, np.pi]),
             'theta_indices': np.array([0, 1]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
@@ -31,21 +31,21 @@ class TestLossFromState(tf.test.TestCase):
         }
 
         gate_dict_0 = {
-            'gate_id': np.array([1, 4, 4]),
-            'theta': np.array([np.pi]),
+            'gate_id': np.array([1, 4, 4, 4]),
+            'theta': tf.Variable([np.pi]),
             'theta_indices': np.array([0]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([1, 2, 3])
+            'qid': np.array([1, 2, 3, 0])
         }
 
         gate_dict_1 = {
-            'gate_id': np.array([1, 4, 4]),
-            'theta': np.array([np.pi]),
+            'gate_id': np.array([1, 4, 4, 4]),
+            'theta': tf.Variable([np.pi]),
             'theta_indices': np.array([0]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([1, 2, 3])
+            'qid': np.array([1, 2, 3, 0])
         }
         return gate_dict, gate_dict_0, gate_dict_1
 
@@ -86,6 +86,7 @@ class TestLossFromState(tf.test.TestCase):
         labels = tf.stack([z_lab, o_lab])
         loss = []
         for state, label in zip(states, labels):
+            state = state.numpy()
             prob = loss_calc.state_to_prob(state)
             print(prob)
             loss_i = loss_calc.state_to_loss(state, label)
