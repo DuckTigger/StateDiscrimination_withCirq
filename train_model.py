@@ -83,13 +83,6 @@ class TrainModel:
             checkpoint.restore(ckpt_path)
         return checkpoint, writer
 
-    def reshape_vars(self):
-        self.checkpoint_prefix = os.path.join(self.restore_loc, 'ckpt')
-        var = self.model.get_variables()
-        var = [tf.reshape(x, ()) for x in var]
-        self.model.set_variables(var)
-        self.checkpoint.save(file_prefix=self.checkpoint_prefix)
-
     def save_inputs(self, namespace: Namespace):
         dict_copy = copy.deepcopy(self.gate_dicts)
         CreateOutputs.save_params_dicts(self.save_dir, namespace, dict_copy)

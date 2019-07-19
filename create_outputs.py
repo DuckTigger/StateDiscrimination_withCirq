@@ -3,10 +3,11 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 import json
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 from argparse import Namespace
 
 from cirq_runner import CirqRunner
+from tf2_simulator_runner import TF2SimulatorRunner
 from base_model import Model
 from generate_data import CreateDensityMatrices
 
@@ -80,7 +81,8 @@ class CreateOutputs:
         np.save(os.path.join(save_loc, 'final_angles.npy'), variables)
 
     @staticmethod
-    def create_outputs(save_loc: str, model: Model, test_data: tf.data.Dataset, runner: CirqRunner):
+    def create_outputs(save_loc: str, model: Model, test_data: tf.data.Dataset,
+                       runner: Union[CirqRunner, TF2SimulatorRunner]):
         if not os.path.exists(save_loc):
             os.makedirs(save_loc)
         pure, mixed = CreateOutputs.get_final_probabilities(model, test_data, runner)

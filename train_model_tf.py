@@ -9,28 +9,26 @@ from typing import Tuple, Dict
 import numpy as np
 import tensorflow as tf
 
-from base_model import Model
-from cirq_runner import CirqRunner
+from base_model_tf import ModelTF
+from tf2_simulator_runner import TF2SimulatorRunner
 from create_outputs import CreateOutputs
 from datasets import Datasets
 from gate_dictionaries import GateDictionaries
 from generate_data import CreateDensityMatrices
 
 
-class TrainModel:
+class TrainModelTF:
 
     def __init__(self, cost_error: float = 40., cost_incon: float = 10.,
                  file_loc: str = None,
                  batch_size: int = 50, max_epoch: int = 2500,
-                 learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
-                 g_epsilon: float = 1e-6, no_qubits: int = 4,
-                 noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000,
-                 job_name: str = None, restore_loc: str = None, dicts: Tuple[Dict, Dict, Dict] = None,
-                 **kwargs):
+                 learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999, no_qubits: int = 4,
+                 noise_on: bool = False, noise_prob: float = 0.1, job_name: str = None, restore_loc: str = None,
+                 dicts: Tuple[Dict, Dict, Dict] = None, **kwargs):
 
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
-        self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
-        self.model = Model(cost_error, cost_incon, self.runner, g_epsilon)
+        self.runner = TF2SimulatorRunner(no_qubits, noise_on, noise_prob)
+        self.model = ModelTF(cost_error, cost_incon, self.runner)
         self.max_epoch = max_epoch
         self.batch_size = batch_size
         self.save_time = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
@@ -97,22 +95,17 @@ class TrainModel:
     def create_outputs(self, location: str):
         CreateOutputs.create_outputs(location, self.model, self.test_data, self.runner)
 
-    def train_step(self, state_batch: tf.Tensor, label_batch: tf.Tensor):
+    @tf.function
+    def train_step(self, state: tf.Tensor, label: tf.Tensor):
         model = self.model
-        loss = []
-        for state, label in zip(state_batch, label_batch):
-            state = state.numpy().astype(np.complex64)
-            if CreateDensityMatrices.check_state(state):
-                loss.append(model.state_to_loss(state, label))
-                grads = model.variables_gradient_exact(state, label)
-                variables = model.get_variables()
-                self.optimizer.apply_gradients(zip(grads, variables))
+        loss = tf.map_fn(lambda x: model.loss_fn(x[0], x[1]), (state, label))
+        grads = tf.map_fn(lambda x: model.variables_gradient_exact(x[0], x[1]), (state, label))
+        variables = model.get_variables()
+        self.optimizer.apply_gradients(zip(grads, variables))
         loss_out = tf.reduce_mean(loss)
         return loss_out
 
     def train(self):
-        # gate_dicts = self.gate_dicts
-        # self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
         train, val, test = self.train_data, self.val_data, self.test_data
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
@@ -134,5 +127,5 @@ class TrainModel:
 
 
 if __name__ == '__main__':
-    trainer = TrainModel(40., 40., batch_size=20, max_epoch=2500, a_const=False, b_const=True)
+    trainer = TrainModelTF(40., 40., batch_size=20, max_epoch=2500, a_const=False, b_const=True)
     trainer.train()
