@@ -4,7 +4,7 @@ import os
 import sys
 import time
 from argparse import Namespace
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
 
 import numpy as np
 import tensorflow as tf
@@ -96,24 +96,30 @@ class TrainModelTF:
         CreateOutputs.create_outputs(location, self.model, self.test_data, self.runner)
 
     @tf.function
-    def train_step(self, state: tf.Tensor, label: tf.Tensor):
+    def train_step(self, state: tf.Tensor, label: tf.Tensor, loss_in: tf.Tensor, grads_in):
         model = self.model
-        loss = tf.map_fn(lambda x: model.loss_fn(x[0], x[1]), (state, label))
-        grads = tf.map_fn(lambda x: model.variables_gradient_exact(x[0], x[1]), (state, label))
-        variables = model.get_variables()
-        self.optimizer.apply_gradients(zip(grads, variables))
+        with tf.GradientTape() as tape:
+            state, label, loss = tf.map_fn(lambda x: model.loss_fn(x[0], x[1], x[2]), (state, label, loss_in))
+            # variables = model.get_variables()
+            # grads = tape.gradient(loss, variables)
+            grads, state, label, loss = tf.map_fn(lambda x: model.variables_gradient_exact(x[0], x[1], x[2], x[3]),
+                                                  (grads_in, state, label, loss))
         loss_out = tf.reduce_mean(loss)
-        return loss_out
+        grads_out = tf.reduce_sum(grads)  # Here we use batch gradient descent
+        return loss_out, grads_out
 
     def train(self):
+        loss_in = tf.fill((self.batch_size, ), tf.constant(0.))
+        grads_in = tf.stack(np.full((self.batch_size, len(self.model.get_variables())), 0.).astype(np.float32))
         train, val, test = self.train_data, self.val_data, self.test_data
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
                 start = time.time()
                 for i, batch in enumerate(train):
-                    loss = self.train_step(batch[0], batch[1])
+                    loss_out, grads_out = self.train_step(batch[0], batch[1], loss_in, grads_in)
+                    self.optimizer.apply_gradients(zip(grads_out, self.model.get_variables()))
                     step = (epoch * self.batch_size) + i
-                    tf.summary.scalar('Training loss', loss, step)
+                    tf.summary.scalar('Training loss', loss_out, step)
                     self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                     self.writer.flush()
 

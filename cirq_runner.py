@@ -180,7 +180,7 @@ class CirqRunner:
             prob_1 = 0
         return prob_0, prob_1
 
-    def calculate_probabilities(self, gate_dict: Dict, gate_dict_0: Dict, gate_dict_1: Dict,
+    def calculate_probabilities(self, gate_dicts: Tuple[Dict, Dict, Dict],
                                 state: np.ndarray) -> List[float]:
         state_in = copy.copy(state)
         if self.noise_on:
@@ -188,14 +188,14 @@ class CirqRunner:
                                                                              two_qubit_depolarize(self.noise_prob)))
         else:
             simulator = cirq.DensityMatrixSimulator()
-        circuit_pre = self.gate_dict_to_circuit(gate_dict)
+        circuit_pre = self.gate_dict_to_circuit(gate_dicts[0])
         rho = simulator.simulate(circuit_pre, initial_state=state_in).final_density_matrix
 
         prob_0, state_0 = self.prob_and_set(rho, 0, 0)
         prob_1, state_1 = self.prob_and_set(rho, 0, 1)
 
-        prob_00, prob_01 = self.probs_controlled_part(gate_dict_0, state_0, prob_0, simulator)
-        prob_10, prob_11 = self.probs_controlled_part(gate_dict_1, state_1, prob_1, simulator)
+        prob_00, prob_01 = self.probs_controlled_part(gate_dicts[1], state_0, prob_0, simulator)
+        prob_10, prob_11 = self.probs_controlled_part(gate_dicts[2], state_1, prob_1, simulator)
 
         fin_00 = prob_0 * prob_00
         fin_01 = prob_0 * prob_01

@@ -150,7 +150,7 @@ class GateDictionaries:
         th1 = len(np.where(dicts[1]['gate_id'] != 0)[0])
         th2 = len(np.where(dicts[2]['gate_id'] != 0)[0])
         rand_th = [np.random.rand() * 4 * np.pi for _ in range(th0 + th1 + th2)]
-        variables = [tf.Variable(x, dtype=tf.float64, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
+        variables = [tf.Variable(x, dtype=tf.float32, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
 
         dicts[0]['theta'] = [x for x in variables[:th0]]
         dicts[1]['theta'] = [x for x in variables[th0:th0 + th1]]

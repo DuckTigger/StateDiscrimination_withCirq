@@ -18,7 +18,7 @@ class CreateOutputs:
         pass
 
     @staticmethod
-    def get_final_probabilities(model: Model, test_data: tf.data.Dataset, runner: CirqRunner):
+    def get_final_probabilities(model: Model, test_data: tf.data.Dataset, runner: Union[CirqRunner, TF2SimulatorRunner]):
         prob_pure = []
         prob_mixed = []
         for batch in test_data:
@@ -26,8 +26,7 @@ class CreateOutputs:
                 state_in = state.numpy().astype(np.complex64)
                 if CreateDensityMatrices.check_state(state_in):
                     gate_dicts = model.return_gate_dicts()
-                    measurements = runner.calculate_probabilities(gate_dicts[0],
-                                                                  gate_dicts[1], gate_dicts[2], state_in)
+                    measurements = runner.calculate_probabilities(gate_dicts, state_in)
                     probs = [measurements[0] + measurements[2], measurements[1], measurements[3]]
                     if label.numpy() == 0:
                         prob_pure.append(probs)

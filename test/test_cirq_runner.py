@@ -123,7 +123,7 @@ class TestCirqRunner(np.testing.TestCase):
                 elif key == 'qid':
                     d[key] = np.append(d[key], 0)
 
-        probs_b = runner.calculate_probabilities(dicts[0], dicts[1], dicts[2], zero_)
+        probs_b = runner.calculate_probabilities((dicts[0], dicts[1], dicts[2]), zero_)
 
         np.testing.assert_almost_equal(np.sum(probs_a), 1)
         np.testing.assert_array_almost_equal(probs_a, probs_b, decimal=4)

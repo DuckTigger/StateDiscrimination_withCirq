@@ -10,7 +10,7 @@ from gate_dictionaries import GateDictionaries
 from test.test_model import TestLossFromState
 
 
-class TestCirqRunner(np.testing.TestCase):
+class TestTFRunner(np.testing.TestCase):
 
     @staticmethod
     def kron_list(l):
@@ -83,7 +83,7 @@ class TestCirqRunner(np.testing.TestCase):
                 elif key == 'qid':
                     d[key] = np.append(d[key], 0)
 
-        probs_b = c_runner.calculate_probabilities(dicts[0], dicts[1], dicts[2], zero_)
+        probs_b = c_runner.calculate_probabilities((dicts[0], dicts[1], dicts[2]), zero_)
         probs_c = tf_runner.calculate_probabilities(dicts, zero__)
         np.testing.assert_almost_equal(np.sum(probs_a), 1)
         np.testing.assert_almost_equal(np.sum(probs_c), 1)

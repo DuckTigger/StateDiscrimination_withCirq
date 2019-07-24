@@ -403,7 +403,7 @@ class QSimulator:
             rho_out = tf.matmul(M0, tf.matmul(rho_in, M0, adjoint_b=True))
             rho_out = tf.divide(rho_out, tf.linalg.trace(rho_out))
 
-        prob = tf.reshape(tf.cast(tf.math.real(prob), dtype=tf.float64), [])
+        prob = tf.reshape(tf.cast(tf.math.real(prob), dtype=tf.float32), [])
 
         return prob, rho_out
 

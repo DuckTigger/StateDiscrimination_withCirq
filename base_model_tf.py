@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import copy
-from typing import List
+from typing import List, Tuple
 
 from tf2_simulator_runner import TF2SimulatorRunner
 
@@ -11,8 +11,8 @@ class ModelTF(tf.keras.Model):
     def __init__(self, cost_error: float, cost_incon: float, runner: TF2SimulatorRunner):
         super().__init__()
         self.runner = runner
-        self.cost_error = tf.constant(cost_error, dtype=tf.float64)
-        self.cost_incon = tf.constant(cost_incon, dtype=tf.float64)
+        self.cost_error = tf.constant(cost_error, dtype=tf.float32)
+        self.cost_incon = tf.constant(cost_incon, dtype=tf.float32)
         self.gate_dict = None
         self.gate_dict_0 = None
         self.gate_dict_1 = None
@@ -68,7 +68,8 @@ class ModelTF(tf.keras.Model):
         return gate_ids
 
     # @tf.custom_gradient
-    def loss_fn(self, state_in: tf.Tensor, label: tf.Tensor) -> tf.Tensor:
+    def loss_fn(self, state_in: tf.Tensor, label: tf.Tensor,
+                loss_in: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         """
         Takes a tensor of a circuit's measurement probabilities and returns the loss for this circuit, given the label
         of the input state.
@@ -93,16 +94,27 @@ class ModelTF(tf.keras.Model):
             lambda: dont_convert(label))
 
         loss = self.loss(probs, label)
-        return loss
+
+        def grad(dy):
+            dy = dy + np.pi/4
+            probs_plus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
+            dy = dy - (2*np.pi / 4)
+            probs_minus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
+            loss_plus = self.loss(probs_plus, label)
+            loss_minus = self.loss(probs_minus, label)
+            return loss_plus - loss_minus
+
+        return state_in, label, loss
 
     def loss(self, probs: tf.Tensor, label: tf.Tensor):
         success = tf.reduce_sum(tf.gather(probs, label))
         inconclusive = tf.multiply(tf.gather(probs, 3), self.cost_incon)
-        error = tf.multiply(tf.subtract(1, tf.add(success, inconclusive)), self.cost_error)
+        error = tf.multiply(tf.subtract(1., tf.add(success, inconclusive)), self.cost_error)
         loss = tf.reduce_sum([error, inconclusive])
         return loss
 
-    def variables_gradient_exact(self, state: tf.Tensor, label: tf.Tensor) -> List:
+    def variables_gradient_exact(self, grads_in, state: tf.Tensor, label: tf.Tensor,
+                                 loss: tf.Tensor) -> Tuple[List, tf.Tensor, tf.Tensor, tf.Tensor]:
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.
@@ -120,12 +132,13 @@ class ModelTF(tf.keras.Model):
             new_vars_minus[i] = tf.subtract(var, np.pi/4)
 
             self.set_variables(new_vars_plus)
-            loss_plus = self.loss_fn(state, label)
+            state_out, label, loss_plus = self.loss_fn(state, label, loss)
 
             self.set_variables(new_vars_minus)
-            loss_minus = self.loss_fn(state, label)
+            state_out, label, loss_minus = self.loss_fn(state, label, loss)
             grad = tf.subtract(loss_plus, loss_minus)
             grads.append(grad)
 
         self.set_variables(variables)
-        return grads
+        grads = tf.stack(grads)
+        return grads, state, label, loss
