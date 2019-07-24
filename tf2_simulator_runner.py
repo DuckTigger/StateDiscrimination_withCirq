@@ -61,12 +61,10 @@ class TF2SimulatorRunner:
             zero = tf.constant(0., dtype=tf.float32)
             return zero, zero
 
-        # probs = tf.cond(tf.logical_and(
-        #                 tf.greater_equal(tf.cast(prob, dtype=tf.float32), tf.constant(-1e-8, dtype=tf.float32)),
-        #                 self.check_density_mat_tf(state_in)
-        #                 ), lambda: true_fn(state_in), lambda: false_fn(state_in))
-        probs = tf.cond(tf.greater_equal(tf.cast(prob, dtype=tf.float32), tf.constant(-1e-8, dtype=tf.float32))
-                        , lambda: true_fn(state_in), lambda: false_fn(state_in))
+        probs = tf.cond(tf.logical_and(
+                        tf.greater_equal(tf.cast(prob, dtype=tf.float32), tf.constant(-1e-8, dtype=tf.float32)),
+                        self.check_density_mat_tf(state_in)
+                        ), lambda: true_fn(state_in), lambda: false_fn(state_in))
         return probs
 
     def calculate_probabilities(self, dicts: Tuple[Dict, Dict, Dict], state: tf.Tensor):

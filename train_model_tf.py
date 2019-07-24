@@ -96,14 +96,13 @@ class TrainModelTF:
         CreateOutputs.create_outputs(location, self.model, self.test_data, self.runner)
 
     @tf.function
-    def train_step(self, state: tf.Tensor, label: tf.Tensor, loss_in: tf.Tensor, grads_in):
+    def train_step(self, batch: tf.data.Dataset):
         model = self.model
-        with tf.GradientTape() as tape:
-            state, label, loss = tf.map_fn(lambda x: model.loss_fn(x[0], x[1], x[2]), (state, label, loss_in))
-            # variables = model.get_variables()
-            # grads = tape.gradient(loss, variables)
-            grads, state, label, loss = tf.map_fn(lambda x: model.variables_gradient_exact(x[0], x[1], x[2], x[3]),
-                                                  (grads_in, state, label, loss))
+        loss_in = tf.fill((self.batch_size,), tf.constant(0.))
+        grads_in = tf.stack(np.full((self.batch_size, len(self.model.get_variables())), 0.).astype(np.float32))
+        batch_out, loss = tf.map_fn(lambda x: model.loss_fn(x[0], x[1]), (batch, loss_in))
+        grads, batch_out, loss = tf.map_fn(lambda x: model.variables_gradient_exact(x[0], x[1], x[2]),
+                                              (grads_in, batch, loss_in))
         loss_out = tf.reduce_mean(loss)
         grads_out = tf.reduce_sum(grads)  # Here we use batch gradient descent
         return loss_out, grads_out
@@ -116,7 +115,8 @@ class TrainModelTF:
             for epoch in range(self.max_epoch):
                 start = time.time()
                 for i, batch in enumerate(train):
-                    loss_out, grads_out = self.train_step(batch[0], batch[1], loss_in, grads_in)
+
+                    loss_out, grads_out = self.train_step(batch)
                     self.optimizer.apply_gradients(zip(grads_out, self.model.get_variables()))
                     step = (epoch * self.batch_size) + i
                     tf.summary.scalar('Training loss', loss_out, step)
