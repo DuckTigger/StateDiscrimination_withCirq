@@ -69,7 +69,7 @@ class ModelTF(tf.keras.Model):
 
     # @tf.custom_gradient
     def loss_fn(self, batch: tf.Tensor,
-                loss_in: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
+                loss_in: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Takes a tensor of a circuit's measurement probabilities and returns the loss for this circuit, given the label
         of the input state.
@@ -114,7 +114,7 @@ class ModelTF(tf.keras.Model):
         return loss
 
     def variables_gradient_exact(self, grads_in, batch: tf.Tensor,
-                                 loss: tf.Tensor) -> Tuple[List, tf.Tensor, tf.Tensor, tf.Tensor]:
+                                 loss: tf.Tensor) -> Tuple[List, tf.Tensor, tf.Tensor]:
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.

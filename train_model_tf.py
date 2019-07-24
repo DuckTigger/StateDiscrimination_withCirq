@@ -115,8 +115,8 @@ class TrainModelTF:
             for epoch in range(self.max_epoch):
                 start = time.time()
                 for i, batch in enumerate(train):
-
                     loss_out, grads_out = self.train_step(batch)
+                    tf.print(grads_out)
                     self.optimizer.apply_gradients(zip(grads_out, self.model.get_variables()))
                     step = (epoch * self.batch_size) + i
                     tf.summary.scalar('Training loss', loss_out, step)

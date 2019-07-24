@@ -6,6 +6,7 @@ import copy
 
 from cirq_runner import CirqRunner
 from test.test_model import TestLossFromState
+from gate_dictionaries import GateDictionaries
 
 
 class TestCirqRunner(np.testing.TestCase):
@@ -128,3 +129,18 @@ class TestCirqRunner(np.testing.TestCase):
         np.testing.assert_almost_equal(np.sum(probs_a), 1)
         np.testing.assert_array_almost_equal(probs_a, probs_b, decimal=4)
 
+    def test_calculate_energy(self):
+        runner = CirqRunner(no_qubits=2)
+        gate_dict = GateDictionaries.build_dict(np.array([2, 2, 0, 2]), np.array([0]), np.array([0, 1, 1, 1]),
+                                                np.array([1.5708, -2.16167, 0]))
+        gate_dict['theta'] = [tf.Variable(x) for x in gate_dict['theta']]
+        energy = runner.calculate_energy(4., 0.74536, gate_dict)
+        np.testing.assert_almost_equal(energy, -1.79505)
+
+    def test_calculate_energy_sampling(self):
+        runner = CirqRunner(no_qubits=2, sim_repetitions=10000)
+        gate_dict = GateDictionaries.build_dict(np.array([2, 2, 0, 2]), np.array([0]), np.array([0, 1, 1, 1]),
+                                                np.array([1.5708, -2.16167, 0]))
+        gate_dict['theta'] = [tf.Variable(x) for x in gate_dict['theta']]
+        energy = runner.calculate_energy_sampling(4., 0.74536, gate_dict)
+        np.testing.assert_almost_equal(energy, -1.79505)

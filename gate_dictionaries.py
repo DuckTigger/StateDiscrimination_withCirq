@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 import tensorflow as tf
 
 
@@ -58,7 +58,7 @@ class GateDictionaries:
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
-    def build_dict(gate_id: np.ndarray, control: np.ndarray, qid: np.ndarray, theta: np.ndarray = None):
+    def build_dict(gate_id: Union[np.ndarray, List], control: Union[np.ndarray, List], qid: Union[np.ndarray, List], theta: Union[np.ndarray, List] = None):
         """
         Creates a dictionary from the parameters given easily creates the theta indices and control indices
         :param gate_id:
@@ -67,6 +67,9 @@ class GateDictionaries:
         :param theta:
         :return:
         """
+        for key, val in locals().items():
+            if not type(val) == np.ndarray or val is not None:
+                val = np.array(val)
         gate_dict = {
             'gate_id': gate_id,
             'theta': theta,

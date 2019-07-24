@@ -14,8 +14,6 @@ class ModelTF(tf.keras.Model):
         self.cost_error = tf.constant(cost_error, dtype=tf.float32)
         self.cost_incon = tf.constant(cost_incon, dtype=tf.float32)
         self.gate_dict = None
-        self.gate_dict_0 = None
-        self.gate_dict_1 = None
 
     @property
     def runner(self):
@@ -27,43 +25,30 @@ class ModelTF(tf.keras.Model):
 
     def set_all_dicts(self, gate_dict, gate_dict_0, gate_dict_1):
         self.set_gate_dict(gate_dict)
-        self.set_gate_dict(gate_dict_0, 0)
-        self.set_gate_dict(gate_dict_1, 1)
 
-    def set_gate_dict(self, gate_dict, measurement_outcome=None):
-        if measurement_outcome is None:
-            self.gate_dict = gate_dict
-        else:
-            if measurement_outcome:
-                self.gate_dict_1 = gate_dict
-            else:
-                self.gate_dict_0 = gate_dict
+    def set_gate_dict(self, gate_dict):
+        self.gate_dict = gate_dict
 
     def return_gate_dicts(self):
-        return self.gate_dict, self.gate_dict_0, self.gate_dict_1
+        return self.gate_dict
 
     def no_of_variabes(self):
-        gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
-        return len(gate_dict['theta_indices']) + len(gate_dict_0['theta_indices']) + len(gate_dict_1['theta_indices'])
+        gate_dict = self.return_gate_dicts()
+        return len(gate_dict['theta_indices'])
 
     def set_variables(self, variables: List[tf.Variable]):
-        gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
+        gate_dict = self.return_gate_dicts()
         vars0 = len(gate_dict['theta_indices'])
-        vars1 = len(gate_dict_0['theta_indices']) + vars0
-        vars2 = len(gate_dict_1['theta_indices']) + vars1
-
         self.gate_dict['theta'] = [x for x in variables[:vars0]]
-        self.gate_dict_0['theta'] = [x for x in variables[vars0:vars1]]
-        self.gate_dict_1['theta'] = [x for x in variables[vars1:vars2]]
 
     def get_variables(self):
-        gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
-        variables = gate_dict['theta'] + gate_dict_0['theta'] + gate_dict_1['theta']
+        gate_dict = self.return_gate_dicts()
+        variables = gate_dict['theta']
         return variables
 
     def get_gate_ids(self):
-        gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
-        gate_ids = np.append(np.append(gate_dict['gate_id'], gate_dict_0['gate_id']), gate_dict_1['gate_id'])
+        gate_dict = self.return_gate_dicts()
+        gate_ids = gate_dict['gate_id']
         gate_ids = gate_ids[np.where(gate_ids != 0)]
         return gate_ids
 
@@ -79,32 +64,8 @@ class ModelTF(tf.keras.Model):
         :return: loss: a tensor representing the loss associated with this state
         """
         state_in, label = batch[0], batch[1]
-        probs = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
-
-        def convert_label(label):
-            label = tf.constant([0, 2], dtype=tf.int32, name='pure_labels')
-            return label
-
-        def dont_convert(label):
-            return tf.cast(label, tf.int32, name='mixed_label')
-
-        label = tf.cond(tf.equal(
-            tf.cast(label, tf.int32), 0),
-            lambda: convert_label(label),
-            lambda: dont_convert(label))
-
-        loss = self.loss(probs, label)
-
-        def grad(dy):
-            dy = dy + np.pi/4
-            probs_plus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
-            dy = dy - (2*np.pi / 4)
-            probs_minus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
-            loss_plus = self.loss(probs_plus, label)
-            loss_minus = self.loss(probs_minus, label)
-            return loss_plus - loss_minus
-
-        return batch, loss
+        energy = self.runner.calculate_energy(self.return_gate_dicts(), state_in)
+        return batch, energy
 
     def loss(self, probs: tf.Tensor, label: tf.Tensor):
         success = tf.reduce_sum(tf.gather(probs, label))
