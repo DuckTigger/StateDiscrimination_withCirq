@@ -19,5 +19,5 @@ class TestTraining(tf.test.TestCase):
 class TestTrainingTF(tf.test.TestCase):
 
     def test_training(self):
-        trainer = TrainModelTF(40., 40., batch_size=20, max_epoch=2, a_const=False, b_const=True)
+        trainer = TrainModelTF(1., 1., batch_size=20, max_epoch=2, a_const=False, b_const=True)
         trainer.train()

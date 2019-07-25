@@ -49,8 +49,8 @@ class ModelTF(tf.keras.Model):
     def set_variables(self, variables: List[tf.Variable]):
         gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
         vars0 = len(gate_dict['theta_indices'])
-        vars1 = len(gate_dict_0['theta_indices']) + vars0
-        vars2 = len(gate_dict_1['theta_indices']) + vars1
+        vars1 = len(gate_dict_0['theta_indices']) + vars0 + 1
+        vars2 = len(gate_dict_1['theta_indices']) + vars1 + 1
 
         self.gate_dict['theta'] = [x for x in variables[:vars0]]
         self.gate_dict_0['theta'] = [x for x in variables[vars0:vars1]]
@@ -94,22 +94,23 @@ class ModelTF(tf.keras.Model):
             lambda: dont_convert(label))
 
         loss = self.loss(probs, label)
-
-        def grad(dy):
-            dy = dy + np.pi/4
-            probs_plus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
-            dy = dy - (2*np.pi / 4)
-            probs_minus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
-            loss_plus = self.loss(probs_plus, label)
-            loss_minus = self.loss(probs_minus, label)
-            return loss_plus - loss_minus
+        #
+        # def grad(dy):
+        #     dy = dy + np.pi/4
+        #     probs_plus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
+        #     dy = dy - (2*np.pi / 4)
+        #     probs_minus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
+        #     loss_plus = self.loss(probs_plus, label)
+        #     loss_minus = self.loss(probs_minus, label)
+        #     return loss_plus - loss_minus
 
         return batch, loss
 
     def loss(self, probs: tf.Tensor, label: tf.Tensor):
         success = tf.reduce_sum(tf.gather(probs, label))
-        inconclusive = tf.multiply(tf.gather(probs, 3), self.cost_incon)
+        inconclusive = tf.gather(probs, 3)
         error = tf.multiply(tf.subtract(1., tf.add(success, inconclusive)), self.cost_error)
+        inconclusive = tf.multiply(inconclusive, self.cost_incon)
         loss = tf.reduce_sum([error, inconclusive])
         return loss
 
@@ -141,5 +142,4 @@ class ModelTF(tf.keras.Model):
 
         self.set_variables(variables)
         grads = tf.stack(grads)
-        tf.print(tf.shape(grads))
         return grads, batch, loss

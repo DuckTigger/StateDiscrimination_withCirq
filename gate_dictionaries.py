@@ -186,6 +186,15 @@ class GateDictionaries:
         gate_dict['theta'] = [tf.Variable(x, dtype=tf.float32) for x in gate_dict['theta']]
         return gate_dict
 
+    @staticmethod
+    def return_energy_dict_rand():
+        gate_dict = GateDictionaries.return_energy_min_dict()
+        var_len = len(gate_dict['theta_indices'])
+        rand_th = [np.random.rand() * 4 * np.pi for _ in range(var_len)]
+        variables = [tf.Variable(x, dtype=tf.float32, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
+        gate_dict['theta'] = variables
+        return gate_dict
+
 
 def test():
     gatedicts = GateDictionaries()

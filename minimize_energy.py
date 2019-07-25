@@ -13,7 +13,7 @@ class MinimizeEnergy():
         self.u = u
         self.v = v
         self.runner = CirqRunner(no_qubits=2, sim_repetitions=1000)
-        self.gate_dict = GateDictionaries.return_energy_min_dict()
+        self.gate_dict = GateDictionaries.return_energy_dict_rand()
         self.max_epoch = max_epoch
         self.model = MinimizeEnergyModel(u, v)
         self.optimizer = tf.optimizers.Adam()
