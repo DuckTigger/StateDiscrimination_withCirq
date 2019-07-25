@@ -1,20 +1,18 @@
 import tensorflow as tf
 import numpy as np
 import copy
-from typing import List, Union
+from typing import List, Tuple
 
-from cirq_runner import CirqRunner
+from tf2_simulator_runner import TF2SimulatorRunner
 
 
-class Model(tf.keras.Model):
+class ModelTF(tf.keras.Model):
 
-    def __init__(self, cost_error: float, cost_incon: float, runner: CirqRunner,
-                 g_epsilon: float = 1e-6):
+    def __init__(self, cost_error: float, cost_incon: float, runner: TF2SimulatorRunner):
         super().__init__()
         self.runner = runner
-        self.cost_error = tf.constant(cost_error, dtype=tf.float64)
-        self.cost_incon = tf.constant(cost_incon, dtype=tf.float64)
-        self.g_epsilon = tf.constant(g_epsilon, dtype=tf.float64)
+        self.cost_error = tf.constant(cost_error, dtype=tf.float32)
+        self.cost_incon = tf.constant(cost_incon, dtype=tf.float32)
         self.gate_dict = None
         self.gate_dict_0 = None
         self.gate_dict_1 = None
@@ -24,7 +22,7 @@ class Model(tf.keras.Model):
         return self.__runner
 
     @runner.setter
-    def runner(self, runner: CirqRunner):
+    def runner(self, runner: TF2SimulatorRunner):
         self.__runner = runner
 
     def set_all_dicts(self, gate_dict, gate_dict_0, gate_dict_1):
@@ -51,8 +49,8 @@ class Model(tf.keras.Model):
     def set_variables(self, variables: List[tf.Variable]):
         gate_dict, gate_dict_0, gate_dict_1 = self.return_gate_dicts()
         vars0 = len(gate_dict['theta_indices'])
-        vars1 = len(gate_dict_0['theta_indices']) + vars0
-        vars2 = len(gate_dict_1['theta_indices']) + vars1
+        vars1 = len(gate_dict_0['theta_indices']) + vars0 + 1
+        vars2 = len(gate_dict_1['theta_indices']) + vars1 + 1
 
         self.gate_dict['theta'] = [x for x in variables[:vars0]]
         self.gate_dict_0['theta'] = [x for x in variables[vars0:vars1]]
@@ -69,18 +67,9 @@ class Model(tf.keras.Model):
         gate_ids = gate_ids[np.where(gate_ids != 0)]
         return gate_ids
 
-    def state_to_prob(self, state: np.ndarray) -> tf.Tensor:
-        """
-        Takes a single input state (in Tensor form) and uses the CirqRunner module to calculate the
-        probability of measurements 00, 01, 10, 11.
-        :param state: A tensor representing the density matrix of the state to be discriminated.
-        :return: prob: A tensor of the measurement probabilities.
-        """
-        probs = self.runner.calculate_probabilities((self.gate_dict,
-                                                    self.gate_dict_0, self.gate_dict_1), state)
-        return tf.constant(probs)
-
-    def probs_to_loss(self, probs: tf.Tensor, label: tf.Tensor) -> tf.Tensor:
+    # @tf.custom_gradient
+    def loss_fn(self, batch: tf.Tensor,
+                loss_in: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Takes a tensor of a circuit's measurement probabilities and returns the loss for this circuit, given the label
         of the input state.
@@ -89,6 +78,9 @@ class Model(tf.keras.Model):
         below.
         :return: loss: a tensor representing the loss associated with this state
         """
+        state_in, label = batch[0], batch[1]
+        probs = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
+
         def convert_label(label):
             label = tf.constant([0, 2], dtype=tf.int32, name='pure_labels')
             return label
@@ -101,47 +93,29 @@ class Model(tf.keras.Model):
             lambda: convert_label(label),
             lambda: dont_convert(label))
 
+        loss = self.loss(probs, label)
+        #
+        # def grad(dy):
+        #     dy = dy + np.pi/4
+        #     probs_plus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
+        #     dy = dy - (2*np.pi / 4)
+        #     probs_minus = self.runner.calculate_probabilities(self.return_gate_dicts(), state_in)
+        #     loss_plus = self.loss(probs_plus, label)
+        #     loss_minus = self.loss(probs_minus, label)
+        #     return loss_plus - loss_minus
+
+        return batch, loss
+
+    def loss(self, probs: tf.Tensor, label: tf.Tensor):
         success = tf.reduce_sum(tf.gather(probs, label))
-        inconclusive = tf.multiply(tf.gather(probs, 3), self.cost_incon)
-        error = tf.multiply(tf.subtract(1, tf.add(success, inconclusive)), self.cost_error)
+        inconclusive = tf.gather(probs, 3)
+        error = tf.multiply(tf.subtract(1., tf.add(success, inconclusive)), self.cost_error)
+        inconclusive = tf.multiply(inconclusive, self.cost_incon)
         loss = tf.reduce_sum([error, inconclusive])
         return loss
 
-    def state_to_loss(self, state: np.ndarray, label: tf.Tensor) -> tf.Tensor:
-        """
-        Chains the two previous functions together to go from a state and label to the loss
-        :param state: A tensor representing the incoming state
-        :param label: The label of this state (0, 1): pure or mixed
-        :return: loss: The loss for this state
-        """
-        probs = self.state_to_prob(state)
-        loss = self.probs_to_loss(probs, label)
-        return loss
-
-    def variables_gradient(self, loss: tf.Tensor, state: np.ndarray, label: tf.Tensor) -> List:
-        """
-        Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
-        by g_epsilon.
-        :param loss: The current loss of the model
-        :param state: The state in
-        :param label: the label of that state
-        :return: grads: a list of tensors representing the gradients for each variable.
-        """
-        variables = self.get_variables()
-        losses = []
-        for i, var in enumerate(variables):
-            new_vars = copy.copy(variables)
-            new_vars[i] = tf.add(var, self.g_epsilon)
-            self.set_variables(new_vars)
-            new_loss = self.state_to_loss(state, label)
-            losses.append(new_loss)
-
-        self.set_variables(variables)
-        dy = [tf.subtract(x, loss) for x in losses]
-        grads = [tf.divide([y], self.g_epsilon) for y in dy]
-        return grads
-
-    def variables_gradient_exact(self, state: np.ndarray, label: tf.Tensor) -> List:
+    def variables_gradient_exact(self, grads_in, batch: tf.Tensor,
+                                 loss: tf.Tensor) -> Tuple[List, tf.Tensor, tf.Tensor]:
         """
         Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
         by g_epsilon.
@@ -159,12 +133,13 @@ class Model(tf.keras.Model):
             new_vars_minus[i] = tf.subtract(var, np.pi/4)
 
             self.set_variables(new_vars_plus)
-            loss_plus = self.state_to_loss(state, label)
+            batch_out, loss_plus = self.loss_fn(batch, loss)
 
             self.set_variables(new_vars_minus)
-            loss_minus = self.state_to_loss(state, label)
+            batch_out, loss_minus = self.loss_fn(batch, loss)
             grad = tf.subtract(loss_plus, loss_minus)
             grads.append(grad)
 
         self.set_variables(variables)
-        return grads
+        grads = tf.stack(grads)
+        return grads, batch, loss

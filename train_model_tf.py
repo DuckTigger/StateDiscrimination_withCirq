@@ -4,33 +4,31 @@ import os
 import sys
 import time
 from argparse import Namespace
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
 
 import numpy as np
 import tensorflow as tf
 
-from base_model import Model
-from cirq_runner import CirqRunner
+from base_model_tf import ModelTF
+from tf2_simulator_runner import TF2SimulatorRunner
 from create_outputs import CreateOutputs
 from datasets import Datasets
 from gate_dictionaries import GateDictionaries
 from generate_data import CreateDensityMatrices
 
 
-class TrainModel:
+class TrainModelTF:
 
     def __init__(self, cost_error: float = 40., cost_incon: float = 10.,
                  file_loc: str = None,
                  batch_size: int = 50, max_epoch: int = 2500,
-                 learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
-                 g_epsilon: float = 1e-6, no_qubits: int = 4,
-                 noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000,
-                 job_name: str = None, restore_loc: str = None, dicts: Tuple[Dict, Dict, Dict] = None,
-                 **kwargs):
+                 learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999, no_qubits: int = 4,
+                 noise_on: bool = False, noise_prob: float = 0.1, job_name: str = None, restore_loc: str = None,
+                 dicts: Tuple[Dict, Dict, Dict] = None, **kwargs):
 
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
-        self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
-        self.model = Model(cost_error, cost_incon, self.runner, g_epsilon)
+        self.runner = TF2SimulatorRunner(no_qubits, noise_on, noise_prob)
+        self.model = ModelTF(cost_error, cost_incon, self.runner)
         self.max_epoch = max_epoch
         self.batch_size = batch_size
         self.save_time = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
@@ -83,6 +81,13 @@ class TrainModel:
             checkpoint.restore(ckpt_path)
         return checkpoint, writer
 
+    def reshape_vars(self):
+        self.checkpoint_prefix = os.path.join(self.restore_loc, 'ckpt')
+        var = self.model.get_variables()
+        var = [tf.reshape(x, ()) for x in var]
+        self.model.set_variables(var)
+        self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+
     def save_inputs(self, namespace: Namespace):
         dict_copy = copy.deepcopy(self.gate_dicts)
         CreateOutputs.save_params_dicts(self.save_dir, namespace, dict_copy)
@@ -90,30 +95,28 @@ class TrainModel:
     def create_outputs(self, location: str):
         CreateOutputs.create_outputs(location, self.model, self.test_data, self.runner)
 
-    def train_step(self, state_batch: tf.Tensor, label_batch: tf.Tensor):
+    @tf.function
+    def train_step(self, batch: tf.data.Dataset):
         model = self.model
-        loss = []
-        for state, label in zip(state_batch, label_batch):
-            state = state.numpy().astype(np.complex64)
-            if CreateDensityMatrices.check_state(state):
-                loss.append(model.state_to_loss(state, label))
-                grads = model.variables_gradient_exact(state, label)
-                variables = model.get_variables()
-                self.optimizer.apply_gradients(zip(grads, variables))
+        loss_in = tf.fill((self.batch_size,), tf.constant(0.))
+        grads_in = tf.stack(np.full((self.batch_size, len(self.model.get_variables())), 0.).astype(np.float32))
+        batch_out, loss = tf.map_fn(lambda x: model.loss_fn(x[0], x[1]), (batch, loss_in))
+        grads, batch_out, _ = tf.map_fn(lambda x: model.variables_gradient_exact(x[0], x[1], x[2]),
+                                              (grads_in, batch, loss_in))
         loss_out = tf.reduce_mean(loss)
-        return loss_out
+        return loss_out, grads
 
     def train(self):
-        # gate_dicts = self.gate_dicts
-        # self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
         train, val, test = self.train_data, self.val_data, self.test_data
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
                 start = time.time()
                 for i, batch in enumerate(train):
-                    loss = self.train_step(batch[0], batch[1])
+                    loss_out, grads_out = self.train_step(batch)
+                    grads_out = tf.reduce_sum(grads_out, 0)
+                    self.optimizer.apply_gradients(zip(grads_out, self.model.get_variables()))
                     step = (epoch * self.batch_size) + i
-                    tf.summary.scalar('Training loss', loss, step)
+                    tf.summary.scalar('Training loss', loss_out, step)
                     self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                     self.writer.flush()
 
@@ -127,5 +130,5 @@ class TrainModel:
 
 
 if __name__ == '__main__':
-    trainer = TrainModel(40., 40., batch_size=20, max_epoch=2500, a_const=False, b_const=True)
+    trainer = TrainModelTF(40., 40., batch_size=20, max_epoch=2500, a_const=False, b_const=True)
     trainer.train()

@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Union
 import tensorflow as tf
 
 
@@ -18,47 +18,47 @@ class GateDictionaries:
             'gate_id': np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-            'control_qid': np.array([1, 2, 3, 4]),
+            'control_qid': np.array([0, 1, 2, 3]),
             'control_indices': np.array([12, 13, 14, 15]),
-            'qid': np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 1])
+            'qid': np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 0])
         }
 
         gate_dict_0 = {
             'gate_id': np.array([4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
-            'control_qid': np.array([2, 3, 4]),
+            'control_qid': np.array([1, 2, 3]),
             'control_indices': np.array([10, 11, 12]),
-            'qid': np.array([1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
+            'qid': np.array([0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3, 1])
         }
 
         gate_dict_1 = {
             'gate_id': np.array([4, 1, 1, 1, 2, 2, 2, 3, 3, 3, 0, 0, 0]),
             'theta': None,
             'theta_indices': np.array([1, 2, 3, 4, 5, 6, 7, 8, 9]),
-            'control_qid': np.array([2, 3, 4]),
+            'control_qid': np.array([1, 2, 3]),
             'control_indices': np.array([10, 11, 12]),
-            'qid': np.array([1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 3, 4, 2])
+            'qid': np.array([0, 1, 2, 3, 1, 2, 3, 1, 2, 3, 2, 3, 1])
         }
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
     def build_new_dicts():
-        gate_dict = GateDictionaries.build_dict(gate_id=np.array([0, 0, 0, 0, 1, 1, 3, 3, 1, 1]),
-                                                control=np.array([4, 4, 3, 3]),
-                                                qid=np.array([1, 2, 1, 2, 1, 2, 1, 2, 1, 2]))
 
+        gate_dict = GateDictionaries.build_dict(gate_id=np.array([0, 0, 0, 0, 1, 1, 3, 3, 1, 1]),
+                                                control=np.array([3, 3, 2, 2]),
+                                                qid=np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1]))
         gate_dict_0 = GateDictionaries.build_dict(gate_id=np.array([0, 0, 1, 3, 1, 4]),
-                                                  control=np.array([4, 3]),
-                                                  qid=np.array([2, 2, 2, 2, 2, 1]))
+                                                  control=np.array([3, 2]),
+                                                  qid=np.array([1, 1, 1, 1, 1, 0]))
 
         gate_dict_1 = GateDictionaries.build_dict(gate_id=np.array([0, 0, 1, 3, 1, 4]),
-                                                  control=np.array([4, 3]),
-                                                  qid=np.array([2, 2, 2, 2, 2, 1]))
+                                                  control=np.array([3, 2]),
+                                                  qid=np.array([1, 1, 1, 1, 1, 0]))
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
-    def build_dict(gate_id: np.ndarray, control: np.ndarray, qid: np.ndarray, theta: np.ndarray = None):
+    def build_dict(gate_id: Union[np.ndarray, List], control: Union[np.ndarray, List], qid: Union[np.ndarray, List], theta: Union[np.ndarray, List] = None):
         """
         Creates a dictionary from the parameters given easily creates the theta indices and control indices
         :param gate_id:
@@ -67,6 +67,9 @@ class GateDictionaries:
         :param theta:
         :return:
         """
+        for key, val in locals().items():
+            if not type(val) == np.ndarray or val is not None:
+                val = np.array(val)
         gate_dict = {
             'gate_id': gate_id,
             'theta': theta,
@@ -91,13 +94,15 @@ class GateDictionaries:
         """
 
         control_indices = np.where(gate_id == 0)[0]
-        rm_control = control_indices[np.where(control_qid == 1)]
+        rm_control = control_indices[np.where(control_qid == 0)]
         qid_rm_ctrl = np.delete(qid, rm_control)
         gate_id_rm_ctrl = np.delete(gate_id, rm_control)
         # Hack to return the removed CNOT
-        qid_post = np.append(qid_rm_ctrl[np.where(qid_rm_ctrl != 1)], 2)
-        gate_id_post = np.append(gate_id_rm_ctrl[np.where(qid_rm_ctrl != 1)], 0)
-        control_qid_post = control_qid[np.where(control_qid != 1)]
+        qid_post = np.append(qid_rm_ctrl[np.where(qid_rm_ctrl != 0)], 3)
+        qid_post = np.append(qid_post, 0)
+        gate_id_post = np.append(gate_id_rm_ctrl[np.where(qid_rm_ctrl != 0)], 0)
+        gate_id_post = np.append(gate_id_post, 4)
+        control_qid_post = control_qid[np.where(control_qid != 0)]
 
         if theta is None:
             theta0 = None
@@ -124,16 +129,16 @@ class GateDictionaries:
         :return:
         """
         gate_id = np.array([1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 0, 0, 0, 0])
-        qid = np.array([1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 2, 3, 4, 1])
-        control_qid = np.array([1, 2, 3, 4])
+        qid = np.array([0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 1, 2, 3, 0])
+        control_qid = np.array([0, 1, 2, 3])
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.build_three_dicts(gate_id, qid, control_qid, theta)
         return gate_dict, gate_dict_0, gate_dict_1
 
     @staticmethod
     def return_short_dicts(theta: List = None):
         gate_id = np.array([1, 1, 1, 0])
-        qid = np.array([1, 2, 3, 4])
-        control_qid = np.array([2, 3])
+        qid = np.array([0, 1, 2, 3])
+        control_qid = np.array([0, 1])
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.build_three_dicts(gate_id, qid, control_qid, theta)
         return gate_dict, gate_dict_0, gate_dict_1
 
@@ -147,8 +152,8 @@ class GateDictionaries:
         th0 = len(np.where(dicts[0]['gate_id'] != 0)[0])
         th1 = len(np.where(dicts[1]['gate_id'] != 0)[0])
         th2 = len(np.where(dicts[2]['gate_id'] != 0)[0])
-        rand_th = [np.random.rand(1) * 4 * np.pi for _ in range(th0 + th1 + th2)]
-        variables = [tf.Variable(x, dtype=tf.float64, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
+        rand_th = [np.random.rand() * 4 * np.pi for _ in range(th0 + th1 + th2)]
+        variables = [tf.Variable(x, dtype=tf.float32, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
 
         dicts[0]['theta'] = [x for x in variables[:th0]]
         dicts[1]['theta'] = [x for x in variables[th0:th0 + th1]]
@@ -173,6 +178,22 @@ class GateDictionaries:
         """
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_standard_dicts()
         return GateDictionaries.fill_dicts_rand_vars((gate_dict, gate_dict_0, gate_dict_1))
+
+    @staticmethod
+    def return_energy_min_dict():
+        gate_dict = GateDictionaries.build_dict(np.array([2, 2, 0, 2]), np.array([0]), np.array([0, 1, 1, 1]),
+                                                np.array([1.5708, -2.16167, 0]))
+        gate_dict['theta'] = [tf.Variable(x, dtype=tf.float32) for x in gate_dict['theta']]
+        return gate_dict
+
+    @staticmethod
+    def return_energy_dict_rand():
+        gate_dict = GateDictionaries.return_energy_min_dict()
+        var_len = len(gate_dict['theta_indices'])
+        rand_th = [np.random.rand() * 4 * np.pi for _ in range(var_len)]
+        variables = [tf.Variable(x, dtype=tf.float32, name='theta_{}'.format(i)) for i, x in enumerate(rand_th)]
+        gate_dict['theta'] = variables
+        return gate_dict
 
 
 def test():

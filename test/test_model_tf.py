@@ -1,14 +1,13 @@
 import tensorflow as tf
 import numpy as np
-import cirq
 import copy
 
-from base_model import Model
-from cirq_runner import CirqRunner
+from base_model_tf import ModelTF
+from tf2_simulator_runner import TF2SimulatorRunner
 from gate_dictionaries import GateDictionaries
 
 
-class TestLossFromState(tf.test.TestCase):
+class TestLossFromStateTF(tf.test.TestCase):
 
     @staticmethod
     def kron_list(l):
@@ -23,7 +22,7 @@ class TestLossFromState(tf.test.TestCase):
     def get_some_dicts():
         gate_dict = {
             'gate_id': np.array([1, 1, 4, 4]),
-            'theta': tf.Variable([np.pi, np.pi]),
+            'theta': np.array([np.pi, np.pi]),
             'theta_indices': np.array([0, 1]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
@@ -31,21 +30,21 @@ class TestLossFromState(tf.test.TestCase):
         }
 
         gate_dict_0 = {
-            'gate_id': np.array([1, 4, 4, 4]),
-            'theta': tf.Variable([np.pi]),
+            'gate_id': np.array([1, 4, 4]),
+            'theta': np.array([np.pi]),
             'theta_indices': np.array([0]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([1, 2, 3, 0])
+            'qid': np.array([1, 2, 3])
         }
 
         gate_dict_1 = {
-            'gate_id': np.array([1, 4, 4, 4]),
-            'theta': tf.Variable([np.pi]),
+            'gate_id': np.array([1, 4, 4]),
+            'theta': np.array([np.pi]),
             'theta_indices': np.array([0]),
             'control_qid': np.array([]),
             'control_indices': np.array([]),
-            'qid': np.array([1, 2, 3, 0])
+            'qid': np.array([1, 2, 3])
         }
         return gate_dict, gate_dict_0, gate_dict_1
 
@@ -57,8 +56,8 @@ class TestLossFromState(tf.test.TestCase):
         oozz = copy.copy(z_list)
         oozz[0] = one
         oozz[1] = one
-        zero_state = TestLossFromState.kron_list(z_list).astype(np.complex64)
-        oozz_state = TestLossFromState.kron_list(oozz).astype(np.complex64)
+        zero_state = TestLossFromStateTF.kron_list(z_list).astype(np.complex64)
+        oozz_state = TestLossFromStateTF.kron_list(oozz).astype(np.complex64)
         return zero_state, oozz_state
 
     def test_perfect_discrimination(self):
@@ -79,56 +78,21 @@ class TestLossFromState(tf.test.TestCase):
 
         gate_dict, gate_dict_0, gate_dict_1 = self.get_some_dicts()
 
-        runner = CirqRunner(sim_repetitions=100)
-        loss_calc = Model(1., 1., runner)
+        runner = TF2SimulatorRunner()
+        loss_calc = ModelTF(1., 1., runner)
         loss_calc.set_all_dicts(gate_dict, gate_dict_0, gate_dict_1)
         states = tf.stack([zero_state, oozz_state])
         labels = tf.stack([z_lab, o_lab])
         loss = []
         for state, label in zip(states, labels):
-            state = state.numpy()
-            prob = loss_calc.state_to_prob(state)
-            print(prob)
-            loss_i = loss_calc.state_to_loss(state, label)
+            loss_i = loss_calc.loss_fn(state, label)
             loss.append(loss_i)
         loss = [tf.cast(x, tf.float32) for x in loss]
-        self.assertAlmostEqual(tf.reduce_mean(loss).numpy(), 0)
-
-    def test_with_circuit(self):
-        zero_state, oozz_state = self.get_some_states()
-        z_lab = tf.constant(0, dtype=tf.complex64)
-        o_lab = tf.constant(1, dtype=tf.complex64)
-        labels = tf.stack([z_lab, o_lab])
-
-        runner = CirqRunner(sim_repetitions=100)
-        model = Model(1., 1., runner)
-        qubits = model.runner.get_qubits()
-        circuit = cirq.Circuit.from_ops([cirq.X(x) for x in qubits])
-        circuit_0 = cirq.Circuit.from_ops(cirq.X(qubits[1]))
-        circuit_1 = cirq.Circuit.from_ops(cirq.X(qubits[1]))
-        controlled_0 = model.runner.yield_controlled_circuit(circuit_0, qubits[0])
-        controlled_1 = model.runner.yield_controlled_circuit(circuit_1, qubits[0])
-
-        circuit.append(cirq.measure(qubits[0], key='m0'), strategy=cirq.InsertStrategy.NEW)
-        circuit.append(controlled_1)
-        circuit.append(cirq.X(qubits[0]))
-        circuit.append(controlled_0)
-        circuit.append(cirq.measure(qubits[1], key='m1'), strategy=cirq.InsertStrategy.NEW)
-
-        states = [zero_state, oozz_state]
-        probs = []
-        loss = []
-        for state, label in zip(states, labels):
-            p = model.runner.calculate_probabilities_sampling(state, circuit)
-            probs.append(p)
-            l = model.probs_to_loss(p, label)
-            loss.append(l)
-        print(probs)
-        self.assertAlmostEqual(np.mean(loss), 0)
+        self.assertAlmostEqual(tf.reduce_mean(loss).numpy(), 0, places=0)
 
     def test_variable_setter_getter(self):
-        runner = CirqRunner(sim_repetitions=100)
-        model = Model(tf.constant(1., dtype=tf.float64), tf.constant(1., dtype=tf.float64), runner)
+        runner = TF2SimulatorRunner()
+        model = ModelTF(tf.constant(1., dtype=tf.float64), tf.constant(1., dtype=tf.float64), runner)
         gate_dict, gate_dict_0, gate_dict_1 = self.get_some_dicts()
         model.set_all_dicts(gate_dict, gate_dict_0, gate_dict_1)
 
@@ -143,18 +107,19 @@ class TestLossFromState(tf.test.TestCase):
         np.testing.assert_array_almost_equal(output, theta[:n_vars])
 
     def test_gradients(self):
-        runner = CirqRunner(sim_repetitions=100)
-        model = Model(tf.constant(1., dtype=tf.float64), tf.constant(1., dtype=tf.float64), runner)
+        runner = TF2SimulatorRunner()
+        model = ModelTF(tf.constant(1., dtype=tf.float64), tf.constant(1., dtype=tf.float64), runner)
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries().return_short_dicts_ran_vars()
         model.set_all_dicts(gate_dict, gate_dict_0, gate_dict_1)
         print('Vars before: {}'.format(model.get_variables()))
         zero_state, oozz_state = self.get_some_states()
-        grads = model.variables_gradient_exact(state=zero_state, label=(tf.constant(0, dtype=tf.float32)))
+        grads = model.variables_gradient_exact(state=tf.constant(zero_state, dtype=tf.complex64),
+                                               label=(tf.constant(0, dtype=tf.float32)))
         print('Grads: {}\n Vars:{}'.format(grads, model.get_variables()))
 
     def test_vars_ids(self):
-        runner = CirqRunner(sim_repetitions=100)
-        model = Model(tf.constant(1., dtype=tf.float64), tf.constant(1., dtype=tf.float64), runner)
+        runner = TF2SimulatorRunner()
+        model = ModelTF(tf.constant(1., dtype=tf.float64), tf.constant(1., dtype=tf.float64), runner)
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_new_dicts_rand_vars()
         model.set_all_dicts(gate_dict, gate_dict_0, gate_dict_1)
         ids = model.get_gate_ids()
