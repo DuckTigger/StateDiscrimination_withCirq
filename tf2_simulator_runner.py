@@ -31,7 +31,8 @@ class TF2SimulatorRunner:
 
     @staticmethod
     def check_density_mat_tf(state: tf.Tensor) -> tf.bool:
-        hermitian = tf.reduce_all(tf.equal(state, tf.math.conj(tf.transpose(state))))
+        hermitian_check = tf.cast(tf.subtract(state, tf.math.conj(tf.transpose(state))), tf.float32)
+        hermitian = tf.reduce_all(tf.less_equal(hermitian_check, 1e-7))
 
         trace = tf.cast(tf.linalg.trace(state), dtype=tf.float32)
         trace_eq1 = tf.logical_and(tf.math.logical_not(
@@ -61,15 +62,11 @@ class TF2SimulatorRunner:
             zero = tf.constant(0., dtype=tf.float32)
             return zero, zero
 
-        # probs = tf.cond(tf.logical_and(
-        #                 tf.greater_equal(tf.cast(prob, dtype=tf.float32), tf.constant(-1e-8, dtype=tf.float32)),
-        #                 self.check_density_mat_tf(state_in)
-        #                 ), lambda: true_fn(state_in), lambda: false_fn(state_in))
-        # return probs
-        state_out = self.simulator.apply_gate_dict(gate_dict, state_in)
-        prob_0, _ = self.simulator.return_prob_and_state(state_out, qid=1, measurement=0)
-        prob_1, _ = self.simulator.return_prob_and_state(state_out, qid=1, measurement=1)
-        return prob_0, prob_1
+        probs = tf.cond(tf.logical_and(
+                        tf.greater_equal(tf.cast(prob, dtype=tf.float32), tf.constant(-1e-8, dtype=tf.float32)),
+                        self.check_density_mat_tf(state_in)
+                        ), lambda: true_fn(state_in), lambda: false_fn(state_in))
+        return probs
 
     def calculate_probabilities(self, dicts: Tuple[Dict, Dict, Dict], state: tf.Tensor):
         state_pre_measure = self.simulator.apply_gate_dict(dicts[0], state)
