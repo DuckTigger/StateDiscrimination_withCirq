@@ -21,7 +21,6 @@ class MinimizeEnergy():
     def train_step(self):
         energy = self.model.energy_fn()
         grads = self.model.gradient_fn()
-        print('grads: {}'.format(grads))
         self.optimizer.apply_gradients(zip(grads, self.model.get_variables()))
         return energy
 
@@ -30,6 +29,7 @@ class MinimizeEnergy():
         for i in range(self.max_epoch):
             energy = self.train_step()
             print('epoch {}, energy = {}'.format(i+1, energy))
+            print('Angles: {}'.format(self.model.get_variables()))
 
 
 if __name__ == '__main__':
