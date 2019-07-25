@@ -179,6 +179,13 @@ class GateDictionaries:
         gate_dict, gate_dict_0, gate_dict_1 = GateDictionaries.return_standard_dicts()
         return GateDictionaries.fill_dicts_rand_vars((gate_dict, gate_dict_0, gate_dict_1))
 
+    @staticmethod
+    def return_energy_min_dict():
+        gate_dict = GateDictionaries.build_dict(np.array([2, 2, 0, 2]), np.array([0]), np.array([0, 1, 1, 1]),
+                                                np.array([1.5708, -2.16167, 0]))
+        gate_dict['theta'] = [tf.Variable(x, dtype=tf.float32) for x in gate_dict['theta']]
+        return gate_dict
+
 
 def test():
     gatedicts = GateDictionaries()

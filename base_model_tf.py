@@ -122,7 +122,6 @@ class ModelTF(tf.keras.Model):
         :param label: the label of that state
         :return: grads: a list of tensors representing the gradients for each variable.
         """
-        state, label = batch[0], batch[1]
         variables = self.get_variables()
         grads = []
         for i, var in enumerate(variables):
@@ -142,4 +141,5 @@ class ModelTF(tf.keras.Model):
 
         self.set_variables(variables)
         grads = tf.stack(grads)
+        tf.print(tf.shape(grads))
         return grads, batch, loss
