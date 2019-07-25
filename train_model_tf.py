@@ -95,7 +95,7 @@ class TrainModelTF:
     def create_outputs(self, location: str):
         CreateOutputs.create_outputs(location, self.model, self.test_data, self.runner)
 
-    # @tf.function
+    @tf.function
     def train_step(self, batch: tf.data.Dataset):
         model = self.model
         loss_in = tf.fill((self.batch_size,), tf.constant(0.))
