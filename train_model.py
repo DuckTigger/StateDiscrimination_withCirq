@@ -101,7 +101,6 @@ class TrainModel:
                 variables = model.get_variables()
                 self.optimizer.apply_gradients(zip(grads, variables))
         loss_out = tf.reduce_mean(loss)
-        tf.print('loss out: {}'.format(loss_out))
         return loss_out
 
     def train(self):
