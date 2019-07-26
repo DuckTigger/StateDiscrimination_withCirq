@@ -99,10 +99,8 @@ class TrainModel:
                 loss.append(model.state_to_loss(state, label))
                 grads = model.variables_gradient_exact(state, label)
                 variables = model.get_variables()
-                tf.print('grads: {}'.format(grads))
                 self.optimizer.apply_gradients(zip(grads, variables))
         loss_out = tf.reduce_mean(loss)
-        tf.print('loss out: {}'.format(loss_out))
         return loss_out
 
     def train(self):

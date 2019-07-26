@@ -102,7 +102,7 @@ class TrainModelTF:
         grads_in = tf.stack(np.full((self.batch_size, len(self.model.get_variables())), 0.).astype(np.float32))
         batch_out, loss = tf.map_fn(lambda x: model.loss_fn(x[0], x[1]), (batch, loss_in))
         grads, batch_out, _ = tf.map_fn(lambda x: model.variables_gradient_exact(x[0], x[1], x[2]),
-                                              (grads_in, batch, loss_in))
+                                        (grads_in, batch, loss_in))
         loss_out = tf.reduce_mean(loss)
         return loss_out, grads
 
@@ -130,5 +130,5 @@ class TrainModelTF:
 
 
 if __name__ == '__main__':
-    trainer = TrainModelTF(40., 40., batch_size=20, max_epoch=2500, a_const=False, b_const=True)
+    trainer = TrainModelTF(40., 40., batch_size=2, max_epoch=2, a_const=False, b_const=True)
     trainer.train()
