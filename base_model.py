@@ -102,8 +102,9 @@ class Model(tf.keras.Model):
             lambda: dont_convert(label))
 
         success = tf.reduce_sum(tf.gather(probs, label))
-        inconclusive = tf.multiply(tf.gather(probs, 3), self.cost_incon)
+        inconclusive = tf.gather(probs, 3)
         error = tf.multiply(tf.subtract(1, tf.add(success, inconclusive)), self.cost_error)
+        inconclusive = tf.multiply(inconclusive, self.cost_incon)
         loss = tf.reduce_sum([error, inconclusive])
         return loss
 
@@ -163,7 +164,7 @@ class Model(tf.keras.Model):
 
             self.set_variables(new_vars_minus)
             loss_minus = self.state_to_loss(state, label)
-            grad = tf.subtract(loss_plus, loss_minus)
+            grad = tf.cast(tf.subtract(loss_plus, loss_minus), tf.float32)
             grads.append(grad)
 
         self.set_variables(variables)

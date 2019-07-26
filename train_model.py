@@ -99,13 +99,13 @@ class TrainModel:
                 loss.append(model.state_to_loss(state, label))
                 grads = model.variables_gradient_exact(state, label)
                 variables = model.get_variables()
+                tf.print('grads: {}'.format(grads))
                 self.optimizer.apply_gradients(zip(grads, variables))
         loss_out = tf.reduce_mean(loss)
+        tf.print('loss out: {}'.format(loss_out))
         return loss_out
 
     def train(self):
-        # gate_dicts = self.gate_dicts
-        # self.model.set_all_dicts(gate_dicts[0], gate_dicts[1], gate_dicts[2])
         train, val, test = self.train_data, self.val_data, self.test_data
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
@@ -127,5 +127,5 @@ class TrainModel:
 
 
 if __name__ == '__main__':
-    trainer = TrainModel(40., 40., batch_size=20, max_epoch=2500, a_const=False, b_const=True)
+    trainer = TrainModel(1., 1., batch_size=2, max_epoch=2, a_const=False, b_const=True)
     trainer.train()
