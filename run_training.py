@@ -1,11 +1,14 @@
 from argparse import ArgumentParser
 from train_model import TrainModel
+from train_model_tf import TrainModelTF
 import pickle
 
 
 def main():
     parser = ArgumentParser(description='Runs training defined by arguments passed here. '
                                         'Cost values are required, all others have defaults.')
+    parser.add_argument('--use_tf', action='store_true',
+                        help='Use the tensorflow quantum simulator, otherwise use Cirq.')
     parser.add_argument('--cost_error', metavar='-ce', type=float, nargs='?', default=40.,
                         help='Weight of incorrect results in the loss function.')
     parser.add_argument('--cost_incon', metavar='-ci', type=float, nargs='?', default=40.,
@@ -55,7 +58,13 @@ def main():
         with open(args.dicts, 'rb') as f:
             args.dicts = pickle.load(f)
 
-    trainer = TrainModel(**vars(args))
+    use_tf = args.use_tf
+    del args.use_tf
+
+    if use_tf:
+        trainer = TrainModelTF(**vars(args))
+    else:
+        trainer = TrainModel(**vars(args))
     trainer.save_inputs(args)
     trainer.train()
 
