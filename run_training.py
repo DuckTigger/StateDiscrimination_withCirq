@@ -75,7 +75,7 @@ def main():
         trainer = TrainModel(**vars(args))
 
     if create_outputs:
-        trainer.create_outputs(os.path.join(trainer.restore_loc, 'outputs'))
+        trainer.create_outputs(os.path.join(trainer.restore_loc, 'outputs'), n_states=100)
     else:
         trainer.save_inputs(args)
         trainer.train()

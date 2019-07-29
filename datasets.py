@@ -105,11 +105,11 @@ class Datasets:
         shortfall = int(prop_train / self.max_epoch * self.batch_size)
         prop_val = int(0.2 * length)
         prop_test = int(0.1 * length)
-        dataset = dataset.shuffle(1000)
+        dataset = dataset.shuffle(100000)
 
         if shortfall < 1:
             dataset = dataset.repeat(int(1/shortfall))
-            dataset = dataset.shuffle(1000)
+            dataset = dataset.shuffle(100000)
 
         train = dataset.take(prop_train)
         test = dataset.skip(prop_train)

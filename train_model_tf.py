@@ -92,8 +92,12 @@ class TrainModelTF:
         dict_copy = copy.deepcopy(self.gate_dicts)
         CreateOutputs.save_params_dicts(self.save_dir, namespace, dict_copy)
 
-    def create_outputs(self, location: str):
-        CreateOutputs.create_outputs(location, self.model, self.test_data, self.runner)
+    def create_outputs(self, location: str, n_states: int = None):
+        if n_states is not None:
+            test_data = self.test_data.take(n_states)
+        else:
+            test_data = self.test_data
+        CreateOutputs.create_outputs(location, self.model, test_data, self.runner)
 
     @tf.function
     def train_step(self, batch: tf.data.Dataset):
