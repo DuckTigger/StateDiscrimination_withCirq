@@ -1,3 +1,4 @@
+import os
 from argparse import ArgumentParser
 from train_model import TrainModel
 from train_model_tf import TrainModelTF
@@ -16,6 +17,11 @@ def main():
     parser.add_argument('--file_loc', metavar='-f', type=str, nargs='?', default=None,
                         help='File name of pre-generated data file. Must be saved in data folder. '
                              'Overrides other data generation arguments')
+    parser.add_argument('--restore_loc', type=str, nargs='?', default=None,
+                        help='The location of the checkpoints to restore')
+    parser.add_argument('--create_outputs', action='store_true',
+                        help='Should be used in conjunction with the restore_loc arg. '
+                             'If True will create outputs. If not used training will continue.')
     parser.add_argument('--batch_size', metavar='-bs', type=int, nargs='?', default=20,
                         help='Number of states in a single batch.')
     parser.add_argument('--max_epoch', metavar='-me', type=int, nargs='?', default=2500,
@@ -59,14 +65,20 @@ def main():
             args.dicts = pickle.load(f)
 
     use_tf = args.use_tf
+    create_outputs = args.create_outputs
     del args.use_tf
+    del args.create_outputs
 
     if use_tf:
         trainer = TrainModelTF(**vars(args))
     else:
         trainer = TrainModel(**vars(args))
-    trainer.save_inputs(args)
-    trainer.train()
+
+    if create_outputs:
+        trainer.create_outputs(os.path.join(trainer.restore_loc, 'outputs'))
+    else:
+        trainer.save_inputs(args)
+        trainer.train()
 
 
 if __name__ == '__main__':
