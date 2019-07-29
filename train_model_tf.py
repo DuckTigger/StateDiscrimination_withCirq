@@ -120,14 +120,12 @@ class TrainModelTF:
                     grads_out = tf.reduce_sum(grads_out, 0)
                     self.optimizer.apply_gradients(zip(grads_out, self.model.get_variables()))
                     step = (epoch * self.batch_size) + i
+                if i % 100 == 0:
                     tf.summary.scalar('Training loss', loss_out, step)
-                    self.checkpoint.save(file_prefix=self.checkpoint_prefix)
-                    self.writer.flush()
-
-                if epoch % 10 == 0:
                     intermediate_loc = os.path.join(self.save_dir, 'intermediate')
                     self.create_outputs(intermediate_loc)
-                    print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
+                    self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+                    self.writer.flush()
             self.checkpoint.save(file_prefix=self.checkpoint_prefix)
             outputs = os.path.join(self.save_dir, 'outputs')
             self.create_outputs(outputs)
