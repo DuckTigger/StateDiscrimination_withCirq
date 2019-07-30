@@ -120,8 +120,8 @@ class TrainModelTF:
                     grads_out = tf.reduce_sum(grads_out, 0)
                     self.optimizer.apply_gradients(zip(grads_out, self.model.get_variables()))
                     step = (epoch * self.batch_size) + i
+                    tf.summary.scalar('Training loss', loss_out, step)
                     if i % 100 == 0:
-                        tf.summary.scalar('Training loss', loss_out, step)
                         intermediate_loc = os.path.join(self.save_dir, 'intermediate')
                         self.create_outputs(intermediate_loc, 250)
                         self.checkpoint.save(file_prefix=self.checkpoint_prefix)
