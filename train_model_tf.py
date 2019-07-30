@@ -123,12 +123,13 @@ class TrainModelTF:
                     if i % 100 == 0:
                         tf.summary.scalar('Training loss', loss_out, step)
                         intermediate_loc = os.path.join(self.save_dir, 'intermediate')
-                        self.create_outputs(intermediate_loc)
+                        self.create_outputs(intermediate_loc, 250)
                         self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                         self.writer.flush()
             self.checkpoint.save(file_prefix=self.checkpoint_prefix)
             outputs = os.path.join(self.save_dir, 'outputs')
-            self.create_outputs(outputs)
+            self.create_outputs(outputs, 250)
+            self.writer.flush()
 
 
 if __name__ == '__main__':
