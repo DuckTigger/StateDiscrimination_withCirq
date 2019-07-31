@@ -4,7 +4,7 @@ import os
 import json
 import numpy as np
 
-from generate_data import CreateDensityMatrices
+from shared.generate_data import CreateDensityMatrices
 
 
 class Datasets:

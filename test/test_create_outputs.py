@@ -1,8 +1,8 @@
 import numpy as np
 
-from train_model import TrainModel
-from create_outputs import CreateOutputs
-from gate_dictionaries import GateDictionaries
+from cirq.train_model import TrainModel
+from shared.create_outputs import CreateOutputs
+from shared.gate_dictionaries import GateDictionaries
 
 
 class TestCreateOutputs(np.testing.TestCase):

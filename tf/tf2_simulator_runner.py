@@ -1,8 +1,8 @@
 import tensorflow as tf
-from typing import Dict, List, Union, Tuple
+from typing import Dict, Tuple
 
 
-from tf2_simulator import QSimulator
+from tf.tf2_simulator import QSimulator
 
 
 class TF2SimulatorRunner:

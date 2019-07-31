@@ -3,7 +3,7 @@ import json
 import numpy as np
 from argparse import ArgumentParser
 from typing import Dict
-from train_model import TrainModel
+from cirq.train_model import TrainModel
 
 
 class RestoreModel:

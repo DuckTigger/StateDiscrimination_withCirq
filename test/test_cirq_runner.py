@@ -4,9 +4,9 @@ from typing import Counter
 import tensorflow as tf
 import copy
 
-from cirq_runner import CirqRunner
+from cirq.cirq_runner import CirqRunner
 from test.test_model import TestLossFromState
-from gate_dictionaries import GateDictionaries
+from shared.gate_dictionaries import GateDictionaries
 
 
 class TestCirqRunner(np.testing.TestCase):

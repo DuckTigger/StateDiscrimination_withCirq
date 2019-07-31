@@ -4,17 +4,16 @@ import os
 import sys
 import time
 from argparse import Namespace
-from typing import Tuple, Dict, List
+from typing import Tuple, Dict
 
 import numpy as np
 import tensorflow as tf
 
-from base_model_tf import ModelTF
-from tf2_simulator_runner import TF2SimulatorRunner
-from create_outputs import CreateOutputs
-from datasets import Datasets
-from gate_dictionaries import GateDictionaries
-from generate_data import CreateDensityMatrices
+from tf.base_model_tf import ModelTF
+from tf.tf2_simulator_runner import TF2SimulatorRunner
+from shared.create_outputs import CreateOutputs
+from shared.datasets import Datasets
+from shared.gate_dictionaries import GateDictionaries
 
 
 class TrainModelTF:

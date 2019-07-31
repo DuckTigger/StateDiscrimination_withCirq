@@ -1,12 +1,11 @@
 import numpy as np
 import cirq
-from typing import Counter
 import tensorflow as tf
 import copy
 
-from tf2_simulator_runner import TF2SimulatorRunner
-from cirq_runner import CirqRunner
-from gate_dictionaries import GateDictionaries
+from tf.tf2_simulator_runner import TF2SimulatorRunner
+from cirq.cirq_runner import CirqRunner
+from shared.gate_dictionaries import GateDictionaries
 from test.test_model import TestLossFromState
 
 

@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 from typing import List
 
-from cirq_runner import CirqRunner
+from cirq.cirq_runner import CirqRunner
 
 
 class MinimizeEnergyModel(tf.keras.Model):

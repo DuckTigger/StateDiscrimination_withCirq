@@ -1,10 +1,9 @@
 import tensorflow as tf
-import numpy as np
 import sys
 
-from cirq_runner import CirqRunner
-from gate_dictionaries import GateDictionaries
-from minimize_energy_model import MinimizeEnergyModel
+from cirq.cirq_runner import CirqRunner
+from shared.gate_dictionaries import GateDictionaries
+from minimize_siam.minimize_energy_model import MinimizeEnergyModel
 
 
 class MinimizeEnergy():
