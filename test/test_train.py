@@ -1,8 +1,8 @@
 import tensorflow as tf
 
-from shared.generate_data import CreateDensityMatrices
-from cirq_trainer.train_model import TrainModel
-from tf.train_model_tf import TrainModelTF
+from generate_data import CreateDensityMatrices
+from train_model import TrainModel
+from train_model_tf import TrainModelTF
 
 
 class TestTraining(tf.test.TestCase):

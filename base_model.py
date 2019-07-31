@@ -3,7 +3,7 @@ import numpy as np
 import copy
 from typing import List
 
-from cirq_trainer.cirq_runner import CirqRunner
+from cirq_runner import CirqRunner
 
 
 class Model(tf.keras.Model):

@@ -1,7 +1,7 @@
 import cirq
 import numpy as np
 import itertools as it
-from cirq_trainer.noise_model import TwoQubitNoiseModel, two_qubit_depolarize
+from noise_model import TwoQubitNoiseModel, two_qubit_depolarize
 
 
 class TestNoiseModel(np.testing.TestCase):

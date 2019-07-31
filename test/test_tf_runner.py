@@ -3,9 +3,9 @@ import cirq
 import tensorflow as tf
 import copy
 
-from tf.tf2_simulator_runner import TF2SimulatorRunner
-from cirq_trainer.cirq_runner import CirqRunner
-from shared.gate_dictionaries import GateDictionaries
+from tf2_simulator_runner import TF2SimulatorRunner
+from cirq_runner import CirqRunner
+from gate_dictionaries import GateDictionaries
 from test.test_model import TestLossFromState
 
 

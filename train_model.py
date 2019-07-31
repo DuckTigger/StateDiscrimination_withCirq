@@ -9,12 +9,12 @@ from typing import Tuple, Dict
 import numpy as np
 import tensorflow as tf
 
-from cirq_trainer.base_model import Model
-from cirq_trainer.cirq_runner import CirqRunner
-from shared.create_outputs import CreateOutputs
-from shared.datasets import Datasets
-from shared.gate_dictionaries import GateDictionaries
-from shared.generate_data import CreateDensityMatrices
+from base_model import Model
+from cirq_runner import CirqRunner
+from create_outputs import CreateOutputs
+from datasets import Datasets
+from gate_dictionaries import GateDictionaries
+from generate_data import CreateDensityMatrices
 
 
 class TrainModel:
@@ -98,7 +98,6 @@ class TrainModel:
             if CreateDensityMatrices.check_state(state):
                 loss.append(model.state_to_loss(state, label))
                 grads = model.variables_gradient_exact(state, label)
-                tf.print(grads)
                 variables = model.get_variables()
                 self.optimizer.apply_gradients(zip(grads, variables))
         loss_out = tf.reduce_mean(loss)
@@ -106,20 +105,21 @@ class TrainModel:
 
     def train(self):
         train, val, test = self.train_data, self.val_data, self.test_data
+        step = 0
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
                 start = time.time()
                 for i, batch in enumerate(train):
                     loss = self.train_step(batch[0], batch[1])
-                    step = (epoch * self.batch_size) + i
-                    tf.summary.scalar('Training loss', loss, step)
+                    step += 1
+                    tf.summary.scalar('Training loss', loss, step=step)
                     self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                     self.writer.flush()
 
-                if epoch % 10 == 0:
-                    intermediate_loc = os.path.join(self.save_dir, 'intermediate')
-                    self.create_outputs(intermediate_loc)
-                    print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
+                    if i % 10 == 0:
+                        intermediate_loc = os.path.join(self.save_dir, 'intermediate')
+                        self.create_outputs(intermediate_loc)
+                        print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
             self.checkpoint.save(file_prefix=self.checkpoint_prefix)
             outputs = os.path.join(self.save_dir, 'outputs')
             self.create_outputs(outputs)

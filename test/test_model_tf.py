@@ -2,9 +2,9 @@ import tensorflow as tf
 import numpy as np
 import copy
 
-from tf.base_model_tf import ModelTF
-from tf.tf2_simulator_runner import TF2SimulatorRunner
-from shared.gate_dictionaries import GateDictionaries
+from base_model_tf import ModelTF
+from tf2_simulator_runner import TF2SimulatorRunner
+from gate_dictionaries import GateDictionaries
 
 
 class TestLossFromStateTF(tf.test.TestCase):

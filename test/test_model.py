@@ -3,9 +3,9 @@ import numpy as np
 import cirq
 import copy
 
-from cirq_trainer.base_model import Model
-from cirq_trainer.cirq_runner import CirqRunner
-from shared.gate_dictionaries import GateDictionaries
+from base_model import Model
+from cirq_runner import CirqRunner
+from gate_dictionaries import GateDictionaries
 
 
 class TestLossFromState(tf.test.TestCase):

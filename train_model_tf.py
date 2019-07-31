@@ -9,11 +9,11 @@ from typing import Tuple, Dict
 import numpy as np
 import tensorflow as tf
 
-from tf.base_model_tf import ModelTF
-from tf.tf2_simulator_runner import TF2SimulatorRunner
-from shared.create_outputs import CreateOutputs
-from shared.datasets import Datasets
-from shared.gate_dictionaries import GateDictionaries
+from base_model_tf import ModelTF
+from tf2_simulator_runner import TF2SimulatorRunner
+from create_outputs import CreateOutputs
+from datasets import Datasets
+from gate_dictionaries import GateDictionaries
 
 
 class TrainModelTF:
@@ -111,6 +111,7 @@ class TrainModelTF:
 
     def train(self):
         train, val, test = self.train_data, self.val_data, self.test_data
+        step = 0
         with self.writer.as_default():
             for epoch in range(self.max_epoch):
                 start = time.time()
@@ -118,7 +119,7 @@ class TrainModelTF:
                     loss_out, grads_out = self.train_step(batch)
                     grads_out = tf.reduce_sum(grads_out, 0)
                     self.optimizer.apply_gradients(zip(grads_out, self.model.get_variables()))
-                    step = (epoch * self.batch_size) + i
+                    step += 1
                     tf.summary.scalar('Training loss', loss_out, step)
                     if i % 100 == 0:
                         intermediate_loc = os.path.join(self.save_dir, 'intermediate')
