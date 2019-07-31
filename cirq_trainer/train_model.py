@@ -9,8 +9,8 @@ from typing import Tuple, Dict
 import numpy as np
 import tensorflow as tf
 
-from cirq.base_model import Model
-from cirq.cirq_runner import CirqRunner
+from cirq_trainer.base_model import Model
+from cirq_trainer.cirq_runner import CirqRunner
 from shared.create_outputs import CreateOutputs
 from shared.datasets import Datasets
 from shared.gate_dictionaries import GateDictionaries
@@ -98,6 +98,7 @@ class TrainModel:
             if CreateDensityMatrices.check_state(state):
                 loss.append(model.state_to_loss(state, label))
                 grads = model.variables_gradient_exact(state, label)
+                tf.print(grads)
                 variables = model.get_variables()
                 self.optimizer.apply_gradients(zip(grads, variables))
         loss_out = tf.reduce_mean(loss)

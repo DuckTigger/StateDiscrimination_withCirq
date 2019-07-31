@@ -1,6 +1,6 @@
 import numpy as np
 
-from cirq.train_model import TrainModel
+from cirq_trainer.train_model import TrainModel
 from shared.create_outputs import CreateOutputs
 from shared.gate_dictionaries import GateDictionaries
 

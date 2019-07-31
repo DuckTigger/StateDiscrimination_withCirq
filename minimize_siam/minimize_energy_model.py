@@ -3,11 +3,10 @@ import tensorflow as tf
 import numpy as np
 from typing import List
 
-from cirq.cirq_runner import CirqRunner
+from cirq_trainer.cirq_runner import CirqRunner
 
 
 class MinimizeEnergyModel(tf.keras.Model):
-
 
     def __init__(self, u: float, v: float):
         self.u = u

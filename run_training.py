@@ -1,6 +1,6 @@
 import os
 from argparse import ArgumentParser
-from cirq.train_model import TrainModel
+from cirq_trainer.train_model import TrainModel
 from tf.train_model_tf import TrainModelTF
 import pickle
 

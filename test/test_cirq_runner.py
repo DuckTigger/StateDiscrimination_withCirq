@@ -4,7 +4,7 @@ from typing import Counter
 import tensorflow as tf
 import copy
 
-from cirq.cirq_runner import CirqRunner
+from cirq_trainer.cirq_runner import CirqRunner
 from test.test_model import TestLossFromState
 from shared.gate_dictionaries import GateDictionaries
 

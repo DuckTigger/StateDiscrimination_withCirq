@@ -1,7 +1,7 @@
 import cirq
 import numpy as np
 import itertools as it
-from cirq.noise_model import TwoQubitNoiseModel, two_qubit_depolarize
+from cirq_trainer.noise_model import TwoQubitNoiseModel, two_qubit_depolarize
 
 
 class TestNoiseModel(np.testing.TestCase):
@@ -71,8 +71,8 @@ class TestNoiseModel(np.testing.TestCase):
 
     def test_1q_circuit(self):
         circuit = cirq.Circuit.from_ops(cirq.X(self.qubits[0]))
-        sim = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4*self.noise_prob / 5),
-                                                                   two_qubit_depolarize(self.noise_prob)))
+        sim = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4 * self.noise_prob / 5),
+                                                                           two_qubit_depolarize(self.noise_prob)))
         state = sim.simulate(circuit, initial_state=0).final_density_matrix
         expected_st = np.array([[0, 0], [0, 1]])
         noisy_st = self.noise_1q(4*self.noise_prob / 5, expected_st)
@@ -81,7 +81,7 @@ class TestNoiseModel(np.testing.TestCase):
     def test_2q_circuit(self):
         circuit = cirq.Circuit.from_ops(cirq.X(self.qubits[0]), cirq.CNOT(self.qubits[0], self.qubits[1]))
         sim = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4 * self.noise_prob / 5),
-                                                                   two_qubit_depolarize(self.noise_prob)))
+                                                                           two_qubit_depolarize(self.noise_prob)))
         state = sim.simulate(circuit).final_density_matrix
         z = np.array([[1, 0], [0, 0]])
         o = np.array([[0, 0], [0, 1]])

@@ -7,7 +7,7 @@ from tf.tf2_simulator import QSimulator
 
 class TF2SimulatorRunner:
     """
-    Will replicate the cirq runner in all necessary functions, except will use the tf simulator as a backend.
+    Will replicate the cirq_trainer runner in all necessary functions, except will use the tf simulator as a backend.
     """
 
     def __init__(self, no_qubits: int = 4, noise_on: bool = False, noise_prob: float = 0.1):

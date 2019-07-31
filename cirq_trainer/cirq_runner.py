@@ -3,7 +3,7 @@ import numpy as np
 import copy
 from typing import Dict, List, Union, Tuple
 
-from cirq.noise_model import TwoQubitNoiseModel, two_qubit_depolarize
+from cirq_trainer.noise_model import TwoQubitNoiseModel, two_qubit_depolarize
 from shared.generate_data import CreateDensityMatrices
 
 
@@ -49,7 +49,7 @@ class CirqRunner:
         Takes in the gate dictionary in the form used in teh rest of the program and returns a cirq.Circuit
         from that.
         :param gate_dict: A gate dictionary in the same form as used in the rest of the program
-        :return: circuit, a cirq Circuit representation of that.
+        :return: circuit, a cirq_trainer Circuit representation of that.
         """
         circuit = cirq.Circuit()
         for i in range(len(gate_dict['gate_id'])):
@@ -58,7 +58,7 @@ class CirqRunner:
 
     def read_dict(self, gate_dict: Dict, index: int) -> cirq.Operation:
         """
-        The function called for each label within the gate_dictionary. Converts that form into a cirq Gate
+        The function called for each label within the gate_dictionary. Converts that form into a cirq_trainer Gate
         :param gate_dict: The gate dictionary we are iterating over
         :param index: The index we are at
         :return: cirq.Operation, converted from that line in the dictionary.
@@ -198,8 +198,8 @@ class CirqRunner:
                                 state: np.ndarray) -> List[float]:
         state_in = copy.copy(state)
         if self.noise_on:
-            simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4*self.noise_prob / 5),
-                                                                             two_qubit_depolarize(self.noise_prob)))
+            simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4 * self.noise_prob / 5),
+                                                                                     two_qubit_depolarize(self.noise_prob)))
         else:
             simulator = cirq.DensityMatrixSimulator()
         circuit_pre = self.gate_dict_to_circuit(gate_dicts[0])
@@ -222,17 +222,17 @@ class CirqRunner:
 
     def calculate_energy(self, u: float, v: float, gate_dict: Dict) -> float:
         if self.noise_on:
-            simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4*self.noise_prob / 5),
-                                                                    two_qubit_depolarize(self.noise_prob)))
+            simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4 * self.noise_prob / 5),
+                                                                                     two_qubit_depolarize(self.noise_prob)))
         else:
             simulator = cirq.DensityMatrixSimulator()
 
         circuit_pre = self.gate_dict_to_circuit(gate_dict)
         rho = simulator.simulate(circuit_pre).final_density_matrix
         measure_x0 = cirq.Circuit.from_ops([cirq.X(self.qubits[0]),
-                                           cirq.I(self.qubits[1])])
+                                                    cirq.I(self.qubits[1])])
         measure_x1 = cirq.Circuit.from_ops([cirq.X(self.qubits[1]),
-                                           cirq.I(self.qubits[0])])
+                                                    cirq.I(self.qubits[0])])
         measure_z0z1 = cirq.Circuit.from_ops([cirq.Z(self.qubits[0]), cirq.Z(self.qubits[1])])
 
         rho_x0 = simulator.simulate(measure_x0, initial_state=rho).final_density_matrix
@@ -250,18 +250,18 @@ class CirqRunner:
 
     def calculate_energy_sampling(self, u: float, v: float, gate_dict: Dict) -> float:
         if self.noise_on:
-            simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4*self.noise_prob / 5),
-                                                                    two_qubit_depolarize(self.noise_prob)))
+            simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4 * self.noise_prob / 5),
+                                                                                     two_qubit_depolarize(self.noise_prob)))
         else:
             simulator = cirq.DensityMatrixSimulator()
 
         circuit_pre = self.gate_dict_to_circuit(gate_dict)
         measure_x0 = cirq.Circuit.from_ops([cirq.X(self.qubits[0]),
-                                           cirq.I(self.qubits[1]), cirq.measure(self.qubits[0], key='x0')])
+                                                    cirq.I(self.qubits[1]), cirq.measure(self.qubits[0], key='x0')])
         measure_x1 = cirq.Circuit.from_ops([cirq.X(self.qubits[1]),
-                                           cirq.I(self.qubits[0]), cirq.measure(self.qubits[1], key='x1')])
+                                                    cirq.I(self.qubits[0]), cirq.measure(self.qubits[1], key='x1')])
         measure_z0z1 = cirq.Circuit.from_ops([cirq.Z(self.qubits[0]), cirq.Z(self.qubits[1]),
-                                              cirq.measure(self.qubits[0], self.qubits[1], key='z0z1')])
+                                                      cirq.measure(self.qubits[0], self.qubits[1], key='z0z1')])
         circuit_x0 = circuit_pre.copy()
         circuit_x0.append(measure_x0)
         circuit_x1 = circuit_pre.copy()

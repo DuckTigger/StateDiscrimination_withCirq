@@ -6,9 +6,9 @@ import json
 from typing import Dict, Tuple, Union
 from argparse import Namespace
 
-from cirq.cirq_runner import CirqRunner
+from cirq_trainer.cirq_runner import CirqRunner
 from tf.tf2_simulator_runner import TF2SimulatorRunner
-from cirq.base_model import Model
+from cirq_trainer.base_model import Model
 from shared.generate_data import CreateDensityMatrices
 
 
