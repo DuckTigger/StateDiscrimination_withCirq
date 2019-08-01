@@ -6,8 +6,7 @@ import pickle
 
 
 def main():
-    parser = ArgumentParser(description='Runs training defined by arguments passed here. '
-                                        'Cost values are required, all others have defaults.')
+    parser = ArgumentParser(description='Runs training defined by arguments passed here.')
     parser.add_argument('--use_tf', action='store_true',
                         help='Use the tensorflow quantum simulator, otherwise use Cirq.')
     parser.add_argument('--cost_error', metavar='-ce', type=float, nargs='?', default=40.,
@@ -22,6 +21,8 @@ def main():
     parser.add_argument('--create_outputs', action='store_true',
                         help='Should be used in conjunction with the restore_loc arg. '
                              'If True will create outputs. If not used training will continue.')
+    parser.add_argument('--output_loc', type=str, nargs='?', default=None,
+                        help='If the outputs are to be saved to a new location, pass it to this argument.')
     parser.add_argument('--batch_size', metavar='-bs', type=int, nargs='?', default=20,
                         help='Number of states in a single batch.')
     parser.add_argument('--max_epoch', metavar='-me', type=int, nargs='?', default=2500,
@@ -66,6 +67,8 @@ def main():
 
     use_tf = args.use_tf
     create_outputs = args.create_outputs
+    output_loc = args.output_loc
+    del args.output_loc
     del args.use_tf
     del args.create_outputs
 
@@ -75,7 +78,10 @@ def main():
         trainer = TrainModel(**vars(args))
 
     if create_outputs:
-        trainer.create_outputs(os.path.join(trainer.restore_loc, 'outputs'), n_states=100)
+        if output_loc is None:
+            trainer.create_outputs(os.path.join(trainer.restore_loc, 'outputs'), n_states=250)
+        else:
+            trainer.create_outputs(output_loc, n_states=250)
     else:
         trainer.save_inputs(args)
         trainer.train()

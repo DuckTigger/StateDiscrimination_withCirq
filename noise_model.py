@@ -851,3 +851,5 @@ def construct_eigen_space(mat):
         phase = cmath.phase(complex(val)) / np.pi
         tuples.append((phase, proj))
     return tuples
+
+cirq.NoiseModel
