@@ -53,47 +53,49 @@ def create_args(path: str) -> str:
 def generate_output_file(directory: str) -> None:
     folder_list = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
     for restore_path in folder_list:
-        full_path = os.path.join(directory, restore_path)
-        args = " --create_outputs" + " --restore_loc=\"{}\"".format(full_path)
+        if os.path.exists(os.path.join(restore_path, 'saved_params.json')):
+            full_path = os.path.join(directory, restore_path)
+            args = " --create_outputs" + " --restore_loc=\"{}\"".format(full_path)
 
-        if re.match(r'tf', restore_path):
-            args = args + " --use_tf"
-        args = args + create_args(full_path)
+            if re.match(r'tf', restore_path):
+                args = args + " --use_tf"
+            args = args + create_args(full_path)
 
-        run_file = os.path.join(code_path, 'run_training.py')
-        os.system("python \"" + run_file + "\"" + args)
+            run_file = os.path.join(code_path, 'run_training.py')
+            os.system("python \"" + run_file + "\"" + args)
 
 
 def label_plot(directory: str) -> None:
     folder_list = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
     for path in folder_list:
         plot_path = os.path.join(directory, path, 'outputs')
-        with open(os.path.join(directory, path, 'saved_params.json')) as f:
-            param_dict = json.load(f)
+        if os.path.exists(os.path.join(directory, path, 'saved_params.json')):
+            with open(os.path.join(directory, path, 'saved_params.json')) as f:
+                param_dict = json.load(f)
 
-        param_list = ['cost_error', 'cost_incon', 'noise_on', 'noise_prob', 'mu_a', 'sigma_a', 'job_name']
-        if not param_dict['b_const']:
-            param_list.extend(['mu_b', 'sigma_b'])
+            param_list = ['cost_error', 'cost_incon', 'noise_on', 'noise_prob', 'mu_a', 'sigma_a', 'job_name']
+            if not param_dict['b_const']:
+                param_list.extend(['mu_b', 'sigma_b'])
 
-        msg = ""
-        for i, param in enumerate(param_list):
-            msg = msg + '{}: {} '.format(param, param_dict[param])
-            if i % 3 == 0:
-                msg = msg + "\n"
+            msg = ""
+            for i, param in enumerate(param_list):
+                msg = msg + '{}: {} '.format(param, param_dict[param])
+                if i % 3 == 0:
+                    msg = msg + "\n"
 
-        font_path = os.path.join("C:\\Users\\Andrew Patterson\\Documents\\PhD\\fonts\\fonts\\ofl\\sourcecodepro",
-                                 'SourceCodePro-Light.ttf')
-        font = ImageFont.truetype(font_path, size=10)
-        plot = Image.open(os.path.join(plot_path, 'bar_graph.png'))
+            font_path = os.path.join("C:\\Users\\Andrew Patterson\\Documents\\PhD\\fonts\\fonts\\ofl\\sourcecodepro",
+                                     'SourceCodePro-Light.ttf')
+            font = ImageFont.truetype(font_path, size=10)
+            plot = Image.open(os.path.join(plot_path, 'bar_graph.png'))
 
-        cropped = plot.crop((100, 35, 570, 435))
-        draw = ImageDraw.Draw(cropped)
-        (x, y) = (5, 5)
-        colour = 'rgb(0, 0, 0)'
-        draw.text((x, y), msg, fill=colour, font=font)
-        save_path = os.path.join(plot_path, 'plot_labeled.png')
-        cropped.save(save_path)
-        os.system("convert \"{}\" -fuzz 2% -transparent white \"{}\"".format(save_path, save_path))
+            cropped = plot.crop((100, 35, 570, 435))
+            draw = ImageDraw.Draw(cropped)
+            (x, y) = (5, 5)
+            colour = 'rgb(0, 0, 0)'
+            draw.text((x, y), msg, fill=colour, font=font)
+            save_path = os.path.join(plot_path, 'plot_labeled.png')
+            cropped.save(save_path)
+            os.system("convert \"{}\" -fuzz 2% -transparent white \"{}\"".format(save_path, save_path))
 
 
 def nwise(iterable, n):
@@ -144,13 +146,13 @@ def plot_loss_fn(folder, n=6, cutoff=100000):
     ax.plot(list(step_ma), list(loss_ma), label=noise_level)
     ax.legend()
     plt.savefig(os.path.join(folder, 'outputs', 'loss_fn.png'))
-    plt.show()
 
 
 def save_loss_fns(directory: str):
     folder_list = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
     for path in folder_list:
-        plot_loss_fn(os.path.join(directory, path))
+        if os.path.exists(os.path.join(directory, path, 'saved_params.json')):
+            plot_loss_fn(os.path.join(directory, path))
 
 
 def create_data_frame(directory: str):
