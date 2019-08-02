@@ -246,7 +246,7 @@ def create_noise_levels_df(directory: str) -> pd.DataFrame:
 
         df = df.append({'P_err': p_error, 'P_inc': p_inc, 'cost_err': params['cost_error'],
                         'cost_inc': params['cost_incon'], 'training_noise': training_noise,
-                        'noise_prob': re.sub('\_', '.', p), 'loss': loss},
+                        'noise_prob': re.sub('_', '.', p), 'loss': loss},
                        ignore_index=True)
     return df
 
