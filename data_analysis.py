@@ -53,8 +53,8 @@ def create_args(path: str) -> str:
 def generate_output_file(directory: str) -> None:
     folder_list = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
     for restore_path in folder_list:
-        if os.path.exists(os.path.join(restore_path, 'saved_params.json')):
-            full_path = os.path.join(directory, restore_path)
+        full_path = os.path.join(directory, restore_path)
+        if os.path.exists(os.path.join(full_path, 'saved_params.json')):
             args = " --create_outputs" + " --restore_loc=\"{}\"".format(full_path)
 
             if re.match(r'tf', restore_path):
