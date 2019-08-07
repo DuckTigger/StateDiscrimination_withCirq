@@ -25,7 +25,7 @@ def create_args(path: str) -> str:
     args = ""
     with open(os.path.join(path, 'saved_params.json')) as f:
         params = json.load(f)
-        
+
     args = args + ' --max_epoch=25'
     data_args = ['prop_a', 'b_const', 'a_const', 'mu_a', 'mu_b', 'sigma_a', 'sigma_b']
     for a in data_args:

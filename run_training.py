@@ -72,6 +72,9 @@ def main():
     del args.use_tf
     del args.create_outputs
 
+    if args.noise_prob == 0:
+        args.noise_on = False
+
     if use_tf:
         trainer = TrainModelTF(**vars(args))
     else:
