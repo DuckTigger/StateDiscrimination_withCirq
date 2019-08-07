@@ -25,16 +25,11 @@ def create_args(path: str) -> str:
     args = ""
     with open(os.path.join(path, 'saved_params.json')) as f:
         params = json.load(f)
-
-    if params['mu_a'] == 0.5:
-        args = args + ' --file_loc=sigma005_mu05_bconst.json'
-    elif params['mu_a'] == 0.25:
-        args = args + ' --file_loc=sigma005_mu025_bconst.json'
-    else:
-        args = args + ' --max_epoch=25'
-        data_args = ['prop_a', 'b_const', 'a_const', 'mu_a', 'mu_b', 'sigma_a', 'sigma_b']
-        for a in data_args:
-            args = args + ' --{}={}'.format(a, str(params[a]))
+        
+    args = args + ' --max_epoch=25'
+    data_args = ['prop_a', 'b_const', 'a_const', 'mu_a', 'mu_b', 'sigma_a', 'sigma_b']
+    for a in data_args:
+        args = args + ' --{}={}'.format(a, str(params[a]))
 
     dicts = (params['gate_dict'], params['gate_dict_0'], params['gate_dict_1'])
     dict_path = os.path.join(path, 'temp_dicts.pkl')
