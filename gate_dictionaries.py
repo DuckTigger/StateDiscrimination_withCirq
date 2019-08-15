@@ -195,6 +195,20 @@ class GateDictionaries:
         gate_dict['theta'] = variables
         return gate_dict
 
+    @staticmethod
+    def return_short_dicts():
+        gate_dict = GateDictionaries.build_dict(gate_id=np.array([0, 0, 0, 0, 1, 1, 3, 3]),
+                                                control=np.array([3, 3, 2, 2]),
+                                                qid=np.array([0, 1, 0, 1, 0, 1, 0, 1]))
+        gate_dict_0 = GateDictionaries.build_dict(gate_id=np.array([0, 0, 1, 4]),
+                                                  control=np.array([3, 2]),
+                                                  qid=np.array([1, 1, 1, 0]))
+
+        gate_dict_1 = GateDictionaries.build_dict(gate_id=np.array([0, 0, 1, 4]),
+                                                  control=np.array([3, 2]),
+                                                  qid=np.array([1, 1, 1, 0]))
+        return gate_dict, gate_dict_0, gate_dict_1
+
 
 def test():
     gatedicts = GateDictionaries()
