@@ -197,6 +197,9 @@ def pre_trained_new_noise_level(restore_directory: str, use_tf: bool, noise_leve
         args_str = args_str + create_args(restore_directory)
         args_str = re.sub('(--noise_prob=\d*.\d*)', "--noise_prob={}".format(noise), args_str)
         args_str = re.sub('(--noise_on=\w*|\"\w*\")', "--noise_on=True", args_str)
+        args_str = re.sub('(--max_epoch=\d*)', '--max_epoch=50', args_str)
+        args_str = re.sub('(--batch_size=\d*)', '--batch_size=10', args_str)
+
 
         noise_dir = os.path.join(noise_levels_path, re.sub('\.', '_', str(noise)))
         args_str = args_str + ' --output_loc=\"{}\"'.format(noise_dir)
@@ -291,5 +294,5 @@ if __name__ == '__main__':
     else:
         runs = sys.argv[1:]
     folders_to_run = [os.path.join(run_folder, f) for f in runs]
-    noise_levels = [0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25]
+    noise_levels = [0, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25]
     run_all_on_folders(folders_to_run, noise_levels)
