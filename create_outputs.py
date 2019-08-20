@@ -24,7 +24,11 @@ class CreateOutputs:
         for batch in test_data:
             for state, label in zip(batch[0], batch[1]):
                 state_in = state.numpy().astype(np.complex64)
-                if CreateDensityMatrices.check_state(state_in):
+                if isinstance(runner, CirqRunner):
+                    check = CreateDensityMatrices.check_state(state_in)
+                else:
+                    check = True
+                if check:
                     gate_dicts = model.return_gate_dicts()
                     measurements = runner.calculate_probabilities(gate_dicts, state_in)
                     probs = [measurements[0] + measurements[2], measurements[1], measurements[3]]
