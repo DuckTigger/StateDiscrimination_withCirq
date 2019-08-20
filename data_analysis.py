@@ -22,7 +22,11 @@ print(cirq.__version__)
 
 
 def create_args(path: str) -> str:
-    args = ""
+    args = "--create_outputs --restore_loc=\"{}\"".format(path)
+
+    if re.match(r'tf', path):
+        args = args + " --use_tf"
+
     with open(os.path.join(path, 'saved_params.json')) as f:
         params = json.load(f)
 
@@ -49,15 +53,11 @@ def generate_output_file(directory: str) -> None:
     folder_list = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
     for restore_path in folder_list:
         full_path = os.path.join(directory, restore_path)
-        if os.path.exists(os.path.join(full_path, 'saved_params.json')):
-            args = " --create_outputs" + " --restore_loc=\"{}\"".format(full_path)
 
-            if re.match(r'tf', restore_path):
-                args = args + " --use_tf"
-            args = args + create_args(full_path)
+        args = create_args(full_path)
 
-            run_file = os.path.join(code_path, 'run_training.py')
-            os.system("python \"" + run_file + "\"" + args)
+        run_file = os.path.join(code_path, 'run_training.py')
+        os.system("python \"" + run_file + "\"" + args)
 
 
 def label_plot(directory: str) -> None:
@@ -191,15 +191,9 @@ def pre_trained_new_noise_level(restore_directory: str, use_tf: bool, noise_leve
         os.mkdir(noise_levels_path)
 
     for noise in noise_levels:
-        args_str = " --create_outputs" + " --restore_loc=\"{}\"".format(restore_directory)
-        if use_tf:
-            args_str = args_str + " --use_tf"
-        args_str = args_str + create_args(restore_directory)
+        args_str = create_args(restore_directory)
         args_str = re.sub('(--noise_prob=\d*.\d*)', "--noise_prob={}".format(noise), args_str)
         args_str = re.sub('(--noise_on=\w*|\"\w*\")', "--noise_on=True", args_str)
-        args_str = re.sub('(--max_epoch=\d*)', '--max_epoch=50', args_str)
-        args_str = re.sub('(--batch_size=\d*)', '--batch_size=10', args_str)
-
 
         noise_dir = os.path.join(noise_levels_path, re.sub('\.', '_', str(noise)))
         args_str = args_str + ' --output_loc=\"{}\"'.format(noise_dir)
