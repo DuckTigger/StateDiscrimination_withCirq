@@ -48,8 +48,8 @@ class CreateOutputs:
 
         classes = np.array([0, 1, 2])
         xticks = [0, 1]
-        ylabs = ['Pure', 'Mixed', 'Inconclusive']
-        xlabs = ['Pure States', 'Mixed States']
+        ylabs = ['$a$ States', '$b$ States', 'Inconclusive Result']
+        xlabs = ['$a$ States', '$b$ States']
         data = np.stack([prob_pure, prob_mixed])
 
         for r, row in enumerate(data):
@@ -68,11 +68,15 @@ class CreateOutputs:
 
         ax3d.axes.set_yticklabels(ylabs)
         ax3d.axes.set_yticks(classes)
+        ax3d.axes.set_ylabel('Output')
         ax3d.set_ylim(0, 2.5)
 
         ax3d.axes.set_xticklabels(xlabs)
         ax3d.axes.set_xticks(xticks)
+        ax3d.axes.set_xlabel('Input states')
         ax3d.set_xlim(0, 1.5)
+
+        ax3d.axes.set_zlabel('Probability')
 
         plt.savefig(os.path.join(save_loc, 'bar_graph.png'))
         np.save(os.path.join(save_loc, 'probs.npy'), data)
