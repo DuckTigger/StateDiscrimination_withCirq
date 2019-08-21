@@ -58,7 +58,7 @@ class CreateOutputs:
                 y.append(classes[c])
                 dz.append(col)
 
-        z = np.zeros(len(y))
+        z = np.zeros(len(y))    
         dx = np.ones(len(y)) * 0.5
         dy = np.ones(len(y)) * 0.5
 
