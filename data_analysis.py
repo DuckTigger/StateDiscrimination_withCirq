@@ -277,6 +277,7 @@ def run_all_on_folders(folders: list, noise_levels: list):
 
 
 if __name__ == '__main__':
+    #
     if sys.platform.startswith('win'):
         run_folder = "C:\\Users\\Andrew Patterson\\Documents\\PhD\\cirq_state_discrimination\\checkpoints\\myriad_data\\"
     else:

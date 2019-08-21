@@ -48,7 +48,7 @@ class CreateOutputs:
 
         classes = np.array([0, 1, 2])
         xticks = [0, 1]
-        ylabs = ['$a$ States', '$b$ States', 'Inconclusive Result']
+        ylabs = ['$a$ States', '$b$ States', 'Inconclusive']
         xlabs = ['$a$ States', '$b$ States']
         data = np.stack([prob_pure, prob_mixed])
 
@@ -68,16 +68,21 @@ class CreateOutputs:
 
         ax3d.axes.set_yticklabels(ylabs)
         ax3d.axes.set_yticks(classes)
-        ax3d.axes.set_ylabel('Output')
+        ax3d.yaxis.set_rotate_label(False)
+        ax3d.axes.set_ylabel('\n\nOutput')
         ax3d.set_ylim(0, 2.5)
 
         ax3d.axes.set_xticklabels(xlabs)
         ax3d.axes.set_xticks(xticks)
-        ax3d.axes.set_xlabel('Input states')
+        ax3d.xaxis.set_rotate_label(False)
+        ax3d.axes.set_xlabel('\nInput states')
+
         ax3d.set_xlim(0, 1.5)
 
         ax3d.axes.set_zlabel('Probability')
 
+        ax3d.yaxis.set_tick_params(labelsize=9)
+        ax3d.xaxis.set_tick_params(labelsize=9)
         plt.savefig(os.path.join(save_loc, 'bar_graph.png'))
         np.save(os.path.join(save_loc, 'probs.npy'), data)
 
@@ -115,3 +120,7 @@ class CreateOutputs:
             os.makedirs(save_loc)
         with open(os.path.join(save_loc, 'saved_params.json'), 'w') as f:
             json.dump(out, f)
+
+if __name__ == '__main__':
+    probs = np.array([[0.92672777, 0.03029269, 0.04297941], [0.26218718, 0.47460639, 0.26320657]])
+    CreateOutputs.create_bar_plot(r"C:\Users\Andrew Patterson\Desktop", probs[0], probs[1])
