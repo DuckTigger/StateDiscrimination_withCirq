@@ -22,7 +22,7 @@ print(cirq.__version__)
 
 
 def create_args(path: str) -> str:
-    args = "--create_outputs --restore_loc=\"{}\"".format(path)
+    args = " --create_outputs --restore_loc=\"{}\" ".format(path)
 
     if re.match(r'tf', path):
         args = args + " --use_tf"
