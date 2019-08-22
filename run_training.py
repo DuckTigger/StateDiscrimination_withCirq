@@ -43,6 +43,8 @@ def main():
                         help='The job name, if given creates a subdirectory for this job.')
     parser.add_argument('--dicts', nargs='?', default=None,
                         help='A Tuple of the three gate dictionaries defining the circuit.')
+    parser.add_argument('--n_output_states', nargs='?', default=250,
+                        help='The number of states to use when creating the output')
 
     parser.add_argument('--prop_a', type=float, nargs='?', default=1/3,
                         help='Proportion of a type states.')
@@ -68,9 +70,11 @@ def main():
     use_tf = args.use_tf
     create_outputs = args.create_outputs
     output_loc = args.output_loc
+    n_output_states = args.n_output_states
     del args.output_loc
     del args.use_tf
     del args.create_outputs
+    del args.n_output_states
 
     if args.noise_prob == 0:
         args.noise_on = False
@@ -82,9 +86,9 @@ def main():
 
     if create_outputs:
         if output_loc is None:
-            trainer.create_outputs(os.path.join(trainer.restore_loc, 'outputs'), n_states=250)
+            trainer.create_outputs(os.path.join(trainer.restore_loc, 'outputs'), n_states=n_output_states)
         else:
-            trainer.create_outputs(output_loc, n_states=250)
+            trainer.create_outputs(output_loc, n_states=n_output_states)
     else:
         trainer.save_inputs(args)
         trainer.train()
