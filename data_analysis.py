@@ -53,11 +53,11 @@ def generate_output_file(directory: str) -> None:
     folder_list = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
     for restore_path in folder_list:
         full_path = os.path.join(directory, restore_path)
+        if os.path.exists(os.path.join(full_path, 'saved_params.json')):
+            args = create_args(full_path)
 
-        args = create_args(full_path)
-
-        run_file = os.path.join(code_path, 'run_training.py')
-        os.system("python \"" + run_file + "\"" + args)
+            run_file = os.path.join(code_path, 'run_training.py')
+            os.system("python \"" + run_file + "\"" + args)
 
 
 def label_plot(directory: str) -> None:
@@ -185,7 +185,7 @@ def create_data_frame(directory: str):
     return df
 
 
-def pre_trained_new_noise_level(restore_directory: str, use_tf: bool, noise_levels: list):
+def pre_trained_new_noise_level(restore_directory: str, noise_levels: list):
     noise_levels_path = os.path.join(restore_directory, 'outputs_with_noise_levels')
     if not os.path.exists(noise_levels_path):
         os.mkdir(noise_levels_path)
@@ -207,11 +207,7 @@ def pre_trained_multiple(directory: str, noise_levels: list):
         # if (not os.path.exists(os.path.join(directory, path, 'outputs_with_noise_levels')))
         # and os.path.exists(os.path.join(directory, path, 'saved_params.json')):
         if os.path.exists(os.path.join(directory, path, 'saved_params.json')):
-            if re.match(r'tf_', path):
-                use_tf = True
-            else:
-                use_tf = False
-            pre_trained_new_noise_level(os.path.join(directory, path), use_tf, noise_levels)
+            pre_trained_new_noise_level(os.path.join(directory, path), noise_levels)
 
 
 def create_noise_levels_df(directory: str) -> pd.DataFrame:
