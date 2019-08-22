@@ -24,7 +24,7 @@ print(cirq.__version__)
 def create_args(path: str) -> str:
     args = " --create_outputs --restore_loc=\"{}\" ".format(path)
 
-    if re.match(r'tf', path):
+    if re.search('tf', path):
         args = args + " --use_tf"
 
     with open(os.path.join(path, 'saved_params.json')) as f:
