@@ -27,6 +27,7 @@ class TrainModelTF:
 
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
         self.runner = TF2SimulatorRunner(no_qubits, noise_on, noise_prob)
+        self.noise_prob = noise_prob
         self.model = ModelTF(cost_error, cost_incon, self.runner)
         self.max_epoch = max_epoch
         self.batch_size = batch_size
@@ -47,6 +48,26 @@ class TrainModelTF:
                 "C:\\Users\\Andrew Patterson\\Documents\\PhD\\cirq_state_discrimination\\checkpoints")
         else:
             self.checkpoint, self.writer = self.setup_save("/home/zcapga1/Scratch/state_discrimination/training_out")
+
+    @property
+    def noise_prob(self):
+        return self.__noise_prob
+
+    @noise_prob.getter
+    def noise_prob(self):
+        return self.__noise_prob
+
+    @noise_prob.setter
+    def noise_prob(self, noise_prob):
+        if noise_prob > 1:
+            self.__noise_prob = 1
+            self.runner.noise_prob = 1
+        elif noise_prob <= 0:
+            self.__noise_prob = 0
+            self.runner.noise_prob = 0
+        else:
+            self.__noise_prob = noise_prob
+            self.runner.noise_prob = noise_prob
 
     @property
     def gate_dicts(self):
