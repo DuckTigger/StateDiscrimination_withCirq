@@ -16,7 +16,9 @@ class RunAnalysisTF:
         else:
             self.n_states = no_of_states
         if noise_levels is None:
-            self.noise_levels = [0, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]
+            self.noise_levels = [0.0, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]
+        else:
+            self.noise_levels = noise_levels
 
 
     def load_model(self) -> TrainModelTF:
@@ -97,4 +99,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run = RunAnalysisTF(r"C:\Users\Andrew Patterson\Documents\PhD\cirq_state_discrimination\checkpoints\myriad_data\new_script\tf_noise_array_mu025\2019_08_14_17_54_51", 50, [0])
+    run.create_outputs()
+    # run.check_probs_all_folders()

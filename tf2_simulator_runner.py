@@ -43,8 +43,10 @@ class TF2SimulatorRunner:
                                    tf.less_equal(trace, tf.constant(1 - 1e-2, dtype=tf.float32))))
         # AND NOT less than 1-1e-2
 
+
         pos_semidef = tf.reduce_all(tf.greater_equal(tf.cast(tf.linalg.eigvalsh(state), dtype=tf.float32),
-                                    tf.constant(-1e-8, dtype=tf.float32)))
+                                    tf.constant(-1e-4, dtype=tf.float32)))
+
         # All eigenvalues >= 0
 
         valid = tf.math.logical_and(hermitian, tf.math.logical_and(trace_eq1, pos_semidef))
@@ -66,6 +68,7 @@ class TF2SimulatorRunner:
                         tf.greater_equal(tf.cast(prob, dtype=tf.float32), tf.constant(-1e-8, dtype=tf.float32)),
                         self.check_density_mat_tf(state_in)
                         ), lambda: true_fn(state_in), lambda: false_fn(state_in))
+
         return probs
 
     def calculate_probabilities(self, dicts: Tuple[Dict, Dict, Dict], state: tf.Tensor):
