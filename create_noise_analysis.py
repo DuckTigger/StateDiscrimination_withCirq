@@ -99,6 +99,6 @@ def main():
 
 
 if __name__ == '__main__':
-    run = RunAnalysisTF(r"C:\Users\Andrew Patterson\Documents\PhD\cirq_state_discrimination\checkpoints\myriad_data\new_script\tf_noise_array_mu025\2019_08_14_17_54_51", 50, [0])
+    run = RunAnalysisTF(r"C:\Users\Andrew Patterson\Documents\PhD\cirq_state_discrimination\checkpoints\myriad_data\new_script\tf_old_long\2019_08_19_17_52_37", 10, [0])
     run.create_outputs()
     # run.check_probs_all_folders()
