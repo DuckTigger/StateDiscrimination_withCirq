@@ -135,6 +135,8 @@ def plot_loss_fn(folder, n=6, cutoff=100000):
     tot_cost = float(params['cost_error']) + float(params['cost_incon'])
     loss = np.array(loss)
     loss = loss / tot_cost
+    if not os.path.exists(os.path.join(folder, 'outputs'):
+        os.mkdir(os.path.join(folder, 'outputs')
     np.save(os.path.join(folder, 'outputs', 'loss_fn.npy'), (steps, loss))
     loss_ma = moving_average(loss, n)
     step_ma = moving_average(steps, n)
