@@ -8,3 +8,4 @@ __pycache__/
 data/new_*
 report.txt
 .ipynb_checkpoints/
+restore_from_direc.py
