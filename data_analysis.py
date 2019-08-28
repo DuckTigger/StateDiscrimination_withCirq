@@ -55,7 +55,6 @@ def generate_output_file(directory: str) -> None:
         full_path = os.path.join(directory, restore_path)
         if os.path.exists(os.path.join(full_path, 'saved_params.json')):
             args = create_args(full_path)
-
             run_file = os.path.join(code_path, 'run_training.py')
             os.system("python \"" + run_file + "\"" + args)
 
@@ -282,8 +281,7 @@ if __name__ == '__main__':
         run_folder = "/home/zcapga1/Scratch/state_discrimination/training_out/"
 
     if len(sys.argv) == 1:
-        runs = ['tf_noise_off', 'tf_old_dicts_noise_off', 'cirq_training_noise_off', 'tf_noise_array',
-                'tf_old_dicts_noise_array', 'tf_old_dicts_noise_off']
+        runs = ['tf_old_new']
     else:
         runs = sys.argv[1:]
     folders_to_run = [os.path.join(run_folder, f) for f in runs]
