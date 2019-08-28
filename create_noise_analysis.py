@@ -20,7 +20,6 @@ class RunAnalysisTF:
         else:
             self.noise_levels = noise_levels
 
-
     def load_model(self) -> TrainModelTF:
         params_file = os.path.join(self.folder, 'saved_params.json')
         if not os.path.exists(os.path.join(self.folder, 'saved_params.json')):
@@ -47,6 +46,7 @@ class RunAnalysisTF:
 
     def create_outputs(self) -> None:
         model = self.load_model()
+        model.test_data = model.train_data.concatenate(model.val_data).concatenate(model.test_data)
         outputs = os.path.join(self.folder, 'outputs')
         model.create_outputs(outputs, self.n_states)
 
@@ -54,7 +54,7 @@ class RunAnalysisTF:
         for level in self.noise_levels:
             folder = os.path.join(outputs_levels, str(level).replace(r'.', r'_'))
             model.noise_prob = level
-            model.test_data = model.test_data.skip(self.n_states)
+            # model.test_data = model.test_data.skip(self.n_states)
             model.create_outputs(folder, self.n_states)
 
     def check_probs_all_folders(self):
