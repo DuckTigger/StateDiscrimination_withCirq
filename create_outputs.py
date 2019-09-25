@@ -3,7 +3,6 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from matplotlib import rc
 rc('font', **{'family': 'serif', 'serif':['Computer Modern Roman']})
-rc('text', usetex=True)
 import numpy as np
 import json
 from typing import Dict, Tuple, Union
