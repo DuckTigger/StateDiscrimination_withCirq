@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import rc
+rc('text', usetex=True)
+rc('font', **{'family': 'serif', 'serif':['Computer Modern Roman']})
 import json
 import os
 import itertools
@@ -12,6 +15,7 @@ import seaborn as sns
 import sys
 import pickle as pkl
 from PIL import Image, ImageDraw, ImageFont
+from create_outputs import CreateOutputs
 if sys.platform.startswith('win'):
     code_path = "C:\\Users\\Andrew Patterson\\Google Drive\\PhD\\First Year\\Untitled Folder\\cirq_state_discrimination"
 else:
@@ -59,30 +63,44 @@ def generate_output_file(directory: str) -> None:
             os.system("python \"" + run_file + "\"" + args)
 
 
-def label_plot(directory: str) -> None:
+def label_plot(directory: str, create_new=False) -> None:
     folder_list = [f for f in os.listdir(directory) if os.path.isdir(os.path.join(directory, f))]
     for path in folder_list:
+        param_path = os.path.join(directory, path, 'saved_params.json')
         plot_path = os.path.join(directory, path, 'outputs')
-        if os.path.exists(os.path.join(directory, path, 'saved_params.json')):
-            with open(os.path.join(directory, path, 'saved_params.json')) as f:
+        if os.path.exists(os.path.join(directory, path, 'saved_params.json')) and os.path.exists(
+                os.path.join(plot_path, 'probs.npy')):
+            if create_new:
+                probs = np.load(os.path.join(plot_path, 'probs.npy'))
+                CreateOutputs.create_bar_plot(plot_path, probs[0], probs[1])
+
+            with open(param_path) as f:
                 param_dict = json.load(f)
+
+            probs = np.load(os.path.join(plot_path, 'probs.npy'))
+            p_suc = np.average([probs[0][0], probs[1][1]])
+            msg = 'Success: {:.2f}, '.format(p_suc)
 
             param_list = ['cost_error', 'cost_incon', 'noise_on', 'noise_prob', 'mu_a', 'sigma_a', 'job_name']
             if not param_dict['b_const']:
                 param_list.extend(['mu_b', 'sigma_b'])
 
-            msg = ""
+            if param_dict['noise_on'] == 'False':
+                param_list.remove('noise_prob')
+
             for i, param in enumerate(param_list):
-                msg = msg + '{}: {} '.format(param, param_dict[param])
-                if i % 3 == 0:
+                msg = msg + '{}: {}, '.format(param, param_dict[param])
+                if (i + 1) % 3 == 0:
                     msg = msg + "\n"
+            msg = msg[:-2]
 
             font_path = os.path.join("C:\\Users\\Andrew Patterson\\Documents\\PhD\\fonts\\fonts\\ofl\\sourcecodepro",
                                      'SourceCodePro-Light.ttf')
             font = ImageFont.truetype(font_path, size=10)
             plot = Image.open(os.path.join(plot_path, 'bar_graph.png'))
 
-            cropped = plot.crop((100, 35, 570, 435))
+            width, height = plot.size
+            cropped = plot.crop((100, 35, 599, 450))
             draw = ImageDraw.Draw(cropped)
             (x, y) = (5, 5)
             colour = 'rgb(0, 0, 0)'
@@ -275,15 +293,16 @@ def run_all_on_folders(folders: list, noise_levels: list):
 
 if __name__ == '__main__':
     #
-    if sys.platform.startswith('win'):
-        run_folder = "C:\\Users\\Andrew Patterson\\Documents\\PhD\\cirq_state_discrimination\\checkpoints\\myriad_data\\"
-    else:
-        run_folder = "/home/zcapga1/Scratch/state_discrimination/training_out/"
-
-    if len(sys.argv) == 1:
-        runs = ['tf_old_new']
-    else:
-        runs = sys.argv[1:]
-    folders_to_run = [os.path.join(run_folder, f) for f in runs]
-    noise_levels = [0, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25]
-    run_all_on_folders(folders_to_run, noise_levels)
+    # if sys.platform.startswith('win'):
+    #     run_folder = "C:\\Users\\Andrew Patterson\\Documents\\PhD\\cirq_state_discrimination\\checkpoints\\myriad_data\\"
+    # else:
+    #     run_folder = "/home/zcapga1/Scratch/state_discrimination/training_out/"
+    #
+    # if len(sys.argv) == 1:
+    #     runs = ['tf_old_new']
+    # else:
+    #     runs = sys.argv[1:]
+    # folders_to_run = [os.path.join(run_folder, f) for f in runs]
+    # noise_levels = [0, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25]
+    # run_all_on_folders(folders_to_run, noise_levels)
+    label_plot(r"C:\Users\Andrew Patterson\Documents\PhD\cirq_state_discrimination\checkpoints\myriad_data\tf_old_new_copy", True)

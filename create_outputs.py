@@ -1,6 +1,9 @@
 import os
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from matplotlib import rc
+rc('font', **{'family': 'serif', 'serif':['Computer Modern Roman']})
+rc('text', usetex=True)
 import numpy as np
 import json
 from typing import Dict, Tuple, Union
@@ -69,20 +72,27 @@ class CreateOutputs:
         ax3d.axes.set_yticklabels(ylabs)
         ax3d.axes.set_yticks(classes)
         ax3d.yaxis.set_rotate_label(False)
-        ax3d.axes.set_ylabel('\n\nOutput')
+        ax3d.yaxis.labelpad = 33
+        ax3d.axes.set_ylabel(r'Output', fontsize=23, linespacing=3.5)
+        ax3d.yaxis._axinfo['label']['space_factor'] = 5.0
         ax3d.set_ylim(0, 2.5)
 
         ax3d.axes.set_xticklabels(xlabs)
         ax3d.axes.set_xticks(xticks)
         ax3d.xaxis.set_rotate_label(False)
-        ax3d.axes.set_xlabel('\nInput states')
+        ax3d.xaxis.labelpad = 17
+        ax3d.axes.set_xlabel('Input states', fontsize=23, linespacing=3.5)
+        ax3d.xaxis._axinfo['label']['space_factor'] = 3.0
 
         ax3d.set_xlim(0, 1.5)
 
-        ax3d.axes.set_zlabel('Probability')
+        ax3d.axes.set_zlabel('Probability', fontsize=23)
+        ax3d.zaxis.labelpad = 10
 
-        ax3d.yaxis.set_tick_params(labelsize=9)
-        ax3d.xaxis.set_tick_params(labelsize=9)
+        ax3d.yaxis.set_tick_params(labelsize=19, pad=12)
+        ax3d.xaxis.set_tick_params(labelsize=19)
+        ax3d.zaxis.set_tick_params(labelsize=19)
+        # plt.show()
         plt.savefig(os.path.join(save_loc, 'bar_graph.png'))
         np.save(os.path.join(save_loc, 'probs.npy'), data)
 
