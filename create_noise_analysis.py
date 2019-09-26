@@ -93,8 +93,8 @@ def main():
     for directory in args.directory:
         checkpoint_list = [os.path.join(directory, f) for f in os.listdir(directory) if
                            os.path.isfile(os.path.join(directory, f, 'saved_params.json'))]
-	if args.folder_index is not None:
-		checkpoint_list = checkpoint_list[args.folder_index]
+    if args.folder_index is not None:
+        checkpoint_list = [checkpoint_list[i] for i in args.folder_index]
         for checkpoint in checkpoint_list:
             run = RunAnalysisTF(checkpoint, no_of_states=args.n_states, noise_levels=args.noise_levels)
             run.create_outputs()
