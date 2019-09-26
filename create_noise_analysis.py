@@ -86,11 +86,15 @@ def main():
                         help='The noise levels to validate this run with.')
     parser.add_argument('--check_for_0', action='store_true',
                         help='Set to check for 0s in the outputs and re-try (long)')
+    parser.add_argument('--folder_index', type=int, nargs='*', default=None,
+    			help='Only runs on the folders provided')
     args = parser.parse_args()
 
     for directory in args.directory:
         checkpoint_list = [os.path.join(directory, f) for f in os.listdir(directory) if
                            os.path.isfile(os.path.join(directory, f, 'saved_params.json'))]
+	if args.folder_index is not None:
+		checkpoint_list = checkpoint_list[args.folder_index]
         for checkpoint in checkpoint_list:
             run = RunAnalysisTF(checkpoint, no_of_states=args.n_states, noise_levels=args.noise_levels)
             run.create_outputs()
