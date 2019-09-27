@@ -16,7 +16,7 @@ class RunAnalysisTF:
         else:
             self.n_states = no_of_states
         if noise_levels is None:
-            self.noise_levels = [0.0, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]
+            self.noise_levels = [0.0, 0.001, 0.005, 0.01, 0.05]
         else:
             self.noise_levels = noise_levels
 
