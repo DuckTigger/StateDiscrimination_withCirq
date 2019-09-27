@@ -78,7 +78,7 @@ class RunAnalysisTF:
 
 def main():
     parser = ArgumentParser('Creates the outputs required. Quicker.')
-    parser.add_argument('--directory', type=str, nargs=1,
+    parser.add_argument('--directory', type=str, nargs='*',
                         help='The top level directory where the checkpoint folders are stored')
     parser.add_argument('--n_states', type=int, nargs='?', default=None,
                         help='The number of states in a batch for a single output.')
@@ -87,14 +87,20 @@ def main():
     parser.add_argument('--check_for_0', action='store_true',
                         help='Set to check for 0s in the outputs and re-try (long)')
     parser.add_argument('--folder_index', type=int, nargs='*', default=None,
-    			help='Only runs on the folders provided')
+    			        help='Only runs on the indexed folders provided')
+    parser.add_argument('--chkpt_folder', action='store_true',
+                        help='If passed, will run on the directory argument provided, not as top-level')
     args = parser.parse_args()
 
     for directory in args.directory:
-        checkpoint_list = [os.path.join(directory, f) for f in os.listdir(directory) if
-                           os.path.isfile(os.path.join(directory, f, 'saved_params.json'))]
-    if args.folder_index is not None:
-        checkpoint_list = [checkpoint_list[i] for i in args.folder_index]
+        if not args.chkpt_folder:
+            checkpoint_list = [os.path.join(directory, f) for f in os.listdir(directory) if
+                               os.path.isfile(os.path.join(directory, f, 'saved_params.json')) and
+                               not os.path.exists(os.path.join(directory, f, 'outputs_with_noise_levels', '0_1'))]
+            if args.folder_index is not None:
+                checkpoint_list = [checkpoint_list[i] for i in args.folder_index]
+        else:
+            checkpoint_list = [directory]
         for checkpoint in checkpoint_list:
             run = RunAnalysisTF(checkpoint, no_of_states=args.n_states, noise_levels=args.noise_levels)
             run.create_outputs()
