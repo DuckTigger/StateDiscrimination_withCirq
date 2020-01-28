@@ -102,14 +102,18 @@ class Datasets:
         :return: train, val, test: Training, Validation and Test datasets
         """
         prop_train = int(0.7 * length)
-        shortfall = int(prop_train / self.max_epoch * self.batch_size)
-        prop_val = int(0.2 * length)
-        prop_test = int(0.1 * length)
+        shortfall = prop_train / (self.max_epoch * self.batch_size)
         dataset = dataset.shuffle(self.max_epoch * self.batch_size * 200)
 
         if shortfall < 1:
             dataset = dataset.repeat(int(1/shortfall))
             dataset = dataset.shuffle(self.max_epoch * self.batch_size * 200)
+            prop_train = int(0.7 * length * (1 / shortfall))
+            prop_val = int(0.2 * length * (1 / shortfall))
+            prop_test = int(0.1 * length * (1 / shortfall))
+        else:
+            prop_val = int(0.2 * length)
+            prop_test = int(0.1 * length)
 
         train = dataset.take(prop_train)
         test = dataset.skip(prop_train)
