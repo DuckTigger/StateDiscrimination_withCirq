@@ -22,6 +22,7 @@ class TestLossFromStateTF(tf.test.TestCase):
     def get_some_dicts():
         gate_dict = {
             'gate_id': np.array([1, 1, 4, 4]),
+
             'theta': np.array([np.pi, np.pi]),
             'theta_indices': np.array([0, 1]),
             'control_qid': np.array([]),

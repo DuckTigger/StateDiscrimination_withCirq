@@ -20,6 +20,36 @@ class TestTFRunner(np.testing.TestCase):
                 out = np.kron(out, l[i])
         return out
 
+    @staticmethod
+    def get_some_dicts():
+        gate_dict = {
+            'gate_id': np.array([1, 1, 4, 4]),
+            'theta': tf.Variable([np.pi, np.pi]),
+            'theta_indices': np.array([0, 1]),
+            'control_qid': np.array([]),
+            'control_indices': np.array([]),
+            'qid': np.array([0, 1, 2, 3])
+        }
+
+        gate_dict_0 = {
+            'gate_id': np.array([1, 4, 4]),
+            'theta': tf.Variable([np.pi]),
+            'theta_indices': np.array([0]),
+            'control_qid': np.array([]),
+            'control_indices': np.array([]),
+            'qid': np.array([1, 2, 3])
+        }
+
+        gate_dict_1 = {
+            'gate_id': np.array([1, 4, 4]),
+            'theta': tf.Variable([np.pi]),
+            'theta_indices': np.array([0]),
+            'control_qid': np.array([]),
+            'control_indices': np.array([]),
+            'qid': np.array([1, 2, 3])
+        }
+        return gate_dict, gate_dict_0, gate_dict_1
+
     def test_calculate_probabilities(self):
         cirq_runner = CirqRunner(sim_repetitions=1000)
         qubits = cirq_runner.qubits
@@ -61,15 +91,15 @@ class TestTFRunner(np.testing.TestCase):
         circuit2.append(cirq.measure(qubits[1], key='m1'))
         probs2 = cirq_runner.calculate_probabilities_sampling(z_copy_1, circuit2)
         probs_tf_2 = tf_runner.calculate_probabilities(dicts, tf.constant(z_copy_2))
-        np.testing.assert_array_almost_equal(probs2, [0.25, 0.25, 0.25, 0.25], decimal=2)
+        np.testing.assert_array_almost_equal(probs2, [0.25, 0.25, 0.25, 0.25], decimal=1)
         np.testing.assert_array_almost_equal(probs_tf_2, probs2, decimal=1)
 
     def test_compare_prob_methods(self):
         c_runner = CirqRunner(sim_repetitions=10000)
         tf_runner = TF2SimulatorRunner()
-        dicts = TestLossFromState.get_some_dicts()
-        for gate_dict in dicts:
-            gate_dict['theta'] = [tf.Variable(x) for x in gate_dict['theta']]
+        dicts = TestTFRunner.get_some_dicts()
+        # for gate_dict in dicts:
+        #     gate_dict['theta'] = [tf.Variable(x) for x in gate_dict['theta']]
         zero, _ = TestLossFromState.get_some_states()
         zero_ = copy.copy(zero)
         zero__ = copy.copy(zero)

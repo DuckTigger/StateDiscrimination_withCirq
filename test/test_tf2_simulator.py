@@ -260,16 +260,15 @@ class TestNoisyGates(tf.test.TestCase):
         gate2 = np.kron(np.eye(2 ** 2), np.kron(k2, np.eye(2 ** 3)))
         np_out = np.matmul(gate1, np.matmul(state, np.conj(gate1.T))) + \
                  np.matmul(gate2, np.matmul(state, np.conj(gate2.T)))
-        expected = tf.constant(np_out, dtype=tf.complex128)
+        expected = tf.constant(np_out, dtype=tf.complex64)
 
-        rho_in = tf.constant(state, dtype=tf.complex128)
+        rho_in = tf.constant(state, dtype=tf.complex64)
         kops = tester.amplitude_damping_kops(0.1)
         kops = [tester.gate_matrix_1q(2, k) for k in kops]
         output = tester.apply_kraus_ops(rho_in, kops)
 
 
-        self.assertAllEqual(expected, output)
-
+        self._assertArrayLikeAllClose(expected.numpy(), output.numpy())
     
         tester = QSimulator(1)
         k1 = np.array([[1, 0], [0, np.sqrt(0.9)]])
@@ -277,14 +276,14 @@ class TestNoisyGates(tf.test.TestCase):
         one = np.array([[0, 0], [0, 1]])
 
         expected = np.matmul(k1, np.matmul(one, k1.T)) + np.matmul(k2, np.matmul(one, k2.T))
-        expected = tf.constant(expected, dtype=tf.complex128)
-        rho_in = tf.constant(one, dtype=tf.complex128)
+        expected = tf.constant(expected, dtype=tf.complex64)
+        rho_in = tf.constant(one, dtype=tf.complex64)
         kops = tester.amplitude_damping_kops(0.1)
         output = tester.apply_kraus_ops(rho_in, kops)
 
 
         print('np:\n{}\ntf:\n{}\n'.format(expected, output))
-        self.assertAllEqual(expected, output)
+        self._assertArrayLikeAllClose(expected, output)
 
     def test_apply_gatedict_to_many_rhos_noisy(self):
         
