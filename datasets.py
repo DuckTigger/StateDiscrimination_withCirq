@@ -29,7 +29,7 @@ class Datasets:
             dataset, length = self.generate_datasets(**kwargs)
         return self.split_and_batch_dataset(dataset, length)
 
-    def generate_datasets(self, prop_a: float = 1/3, b_const: bool = True,
+    def generate_datasets(self, random_states: bool = False, prop_a: float = 1/3, b_const: bool = True,
                           a_const: bool = False, lower: int = 0, upper: int = 1,
                           mu_a: float = 0.5, sigma_a: float = 0.25, mu_b: float = 0.75,
                           sigma_b: float = 0.125) -> Tuple[tf.data.Dataset, int]:
@@ -38,7 +38,10 @@ class Datasets:
         For params see CreateDensityMatrices.create_from_distribution
         :return: dataset: the full tf.Dataset, and its length.
         """
-        states = CreateDensityMatrices.create_from_distribution(self.batch_size * self.max_epoch * 100, prop_a, b_const,
+        if random_states:
+            states = CreateDensityMatrices.create_random_states(self.batch_size * self.max_epoch * 100, lower, upper, mu_a, sigma_a)
+        else:
+            states = CreateDensityMatrices.create_from_distribution(self.batch_size * self.max_epoch * 100, prop_a, b_const,
                                                                 a_const, lower, upper, mu_a, sigma_a, mu_b, sigma_b)
         states_set = []
         labels_set = []

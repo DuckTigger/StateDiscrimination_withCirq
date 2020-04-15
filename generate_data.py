@@ -70,6 +70,31 @@ class CreateDensityMatrices:
         return True
 
     @staticmethod
+    def create_random_states(total_states: int = 1000, lower: int = 0, upper: int = 1,
+                             mu_a: float = 0.5, sigma_a: float = 0.15):
+        dist = truncnorm.rvs((lower - mu_a) / sigma_a,  (upper - mu_a) / sigma_a, mu_a, sigma_a,
+                              size=4 * total_states + 2)
+        a_states = []
+        b_states = []
+
+        for i in range(0, total_states, 8):
+            a_out = CreateDensityMatrices.create_random(dist[i:i+4], b=False)
+            b_out = CreateDensityMatrices.create_random(dist[i+4:i+8], b=True)
+            if CreateDensityMatrices.check_state(a_out):
+                a_states.append(a_out)
+            if CreateDensityMatrices.check_state(b_out):
+                b_states.append(b_out)
+        return a_states, b_states
+
+    @staticmethod
+    def create_random(dist, b: bool = False):
+        phi = np.array(dist).astype(np.complex64)
+        if b:
+            phi *= 1j
+        state = CreateDensityMatrices.state_from_vec(phi)
+        return state
+
+    @staticmethod
     def create_from_distribution(total_states: int = 1000, prop_a: float = 1 / 2, b_const: bool = True,
                                  a_const: bool = False, lower: int = 0, upper: int = 1,
                                  mu_a: float = 0.5, sigma_a: float = 0.25,

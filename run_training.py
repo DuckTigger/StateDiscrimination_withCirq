@@ -60,6 +60,8 @@ def main():
                         help='Mean of b distribution.')
     parser.add_argument('--sigma_b', type=float, nargs='?', default=0.125,
                         help='Std dev of b distribution.')
+    parser.add_argument('--random_states', nargs='?', default=False,
+                        help='Whether to use Harr random staes instead of a and b distributions')
 
     args = parser.parse_args()
 
