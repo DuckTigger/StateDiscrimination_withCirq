@@ -1,7 +1,5 @@
 import unittest
-import numpy as np
-import cirq
-from generate_data import CreateDensityMatrices
+from shared.generate_data import CreateDensityMatrices
 from cirq.sim.wave_function import validate_normalized_state
 
 

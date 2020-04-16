@@ -3,7 +3,7 @@ import numpy as np
 import copy
 from typing import List, Tuple
 
-from tf2_simulator_runner import TF2SimulatorRunner
+from tensorflow_backend.tf2_simulator_runner import TF2SimulatorRunner
 
 
 class ModelTF(tf.keras.Model):

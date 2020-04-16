@@ -3,8 +3,8 @@ import numpy as np
 import copy
 from typing import Dict, List, Union, Tuple
 
-from noise_model import TwoQubitNoiseModel, two_qubit_depolarize
-from generate_data import CreateDensityMatrices
+from cirq_backend.noise_model import TwoQubitNoiseModel, two_qubit_depolarize
+from shared.generate_data import CreateDensityMatrices
 
 
 class CirqRunner:

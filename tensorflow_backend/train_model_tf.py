@@ -9,11 +9,11 @@ from typing import Tuple, Dict
 import numpy as np
 import tensorflow as tf
 
-from base_model_tf import ModelTF
-from tf2_simulator_runner import TF2SimulatorRunner
+from tensorflow_backend.base_model_tf import ModelTF
+from tensorflow_backend.tf2_simulator_runner import TF2SimulatorRunner
 from create_outputs import CreateOutputs
-from datasets import Datasets
-from gate_dictionaries import GateDictionaries
+from shared.datasets import Datasets
+from shared.gate_dictionaries import GateDictionaries
 
 
 class TrainModelTF:

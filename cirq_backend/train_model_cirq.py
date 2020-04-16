@@ -9,12 +9,12 @@ from typing import Tuple, Dict
 import numpy as np
 import tensorflow as tf
 
-from base_model import Model
-from cirq_runner import CirqRunner
+from cirq_backend.base_model import Model
+from cirq_backend.cirq_runner import CirqRunner
 from create_outputs import CreateOutputs
-from datasets import Datasets
-from gate_dictionaries import GateDictionaries
-from generate_data import CreateDensityMatrices
+from shared.datasets import Datasets
+from shared.gate_dictionaries import GateDictionaries
+from shared.generate_data import CreateDensityMatrices
 
 
 class TrainModel:

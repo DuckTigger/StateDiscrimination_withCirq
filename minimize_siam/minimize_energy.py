@@ -1,8 +1,8 @@
 import tensorflow as tf
 import sys
 
-from cirq_runner import CirqRunner
-from gate_dictionaries import GateDictionaries
+from cirq_backend.cirq_runner import CirqRunner
+from shared.gate_dictionaries import GateDictionaries
 from minimize_siam.minimize_energy_model import MinimizeEnergyModel
 
 

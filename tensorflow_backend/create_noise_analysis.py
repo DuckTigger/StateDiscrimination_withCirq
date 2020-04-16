@@ -1,7 +1,7 @@
 import os
 import copy
 from argparse import ArgumentParser
-from train_model_tf import TrainModelTF
+from tensorflow_backend.train_model_tf import TrainModelTF
 import numpy as np
 import json
 from typing import List

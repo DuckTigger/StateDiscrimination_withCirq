@@ -2,7 +2,7 @@ import tensorflow as tf
 from typing import Dict, Tuple
 
 
-from tf2_simulator import QSimulator
+from tensorflow_backend.tf2_simulator import QSimulator
 
 
 class TF2SimulatorRunner:

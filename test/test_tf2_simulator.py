@@ -11,7 +11,7 @@
 # This file is so named so that python unittest will not automatically run it.
 
 
-from tf2_simulator import QSimulator
+from tensorflow_backend.tf2_simulator import QSimulator
 import numpy as np
 import os
 import itertools as iter
