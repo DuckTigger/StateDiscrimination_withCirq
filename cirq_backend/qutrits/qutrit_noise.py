@@ -6,7 +6,7 @@ import numpy as np
 import itertools as it
 
 
-from qutrits.qutrit_ops import QutritMinusGate, QutritPlusGate, QutritZPlusGate, QutritZMinusGate
+from cirq_backend.qutrits.qutrit_ops import QutritMinusGate, QutritPlusGate, QutritZPlusGate, QutritZMinusGate
 
 
 def create_noise_matrices():
