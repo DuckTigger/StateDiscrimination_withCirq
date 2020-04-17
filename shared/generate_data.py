@@ -90,7 +90,8 @@ class CreateDensityMatrices:
     def create_random(dist, b: bool = False):
         phi = np.array(dist).astype(np.complex64)
         if b:
-            phi *= 1j
+            phi[1] *= 1j
+            phi[2] *= 1j
         state = CreateDensityMatrices.state_from_vec(phi)
         return state
 
