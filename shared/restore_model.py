@@ -3,7 +3,7 @@ import json
 import numpy as np
 from argparse import ArgumentParser
 from typing import Dict
-from cirq_backend.train_model_cirq import TrainModel
+from cirq_backend.train_model_cirq import TrainModelCirq
 
 
 class RestoreModel:
@@ -21,7 +21,7 @@ class RestoreModel:
         return params
 
     @staticmethod
-    def restore(model_loc: str) -> TrainModel:
+    def restore(model_loc: str) -> TrainModelCirq:
         params = RestoreModel.load_params(model_loc)
         dicts = params.pop('gate_dict', None), params.pop('gate_dict_0', None), params.pop('gate_dict_1', None)
         for d in dicts:
@@ -33,7 +33,7 @@ class RestoreModel:
         else:
             params['job_name'] = params['job_name'] + '_restored'
 
-        trainer = TrainModel(restore_loc=model_loc, dicts=dicts, **params)
+        trainer = TrainModelCirq(restore_loc=model_loc, dicts=dicts, **params)
         return trainer
 
     @staticmethod

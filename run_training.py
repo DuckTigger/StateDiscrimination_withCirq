@@ -1,6 +1,6 @@
 import os
 from argparse import ArgumentParser
-from cirq_backend.train_model_cirq import TrainModel
+from cirq_backend.train_model_cirq import TrainModelCirq
 from tensorflow_backend.train_model_tf import TrainModelTF
 import pickle
 
@@ -84,7 +84,7 @@ def main():
     if use_tf:
         trainer = TrainModelTF(**vars(args))
     else:
-        trainer = TrainModel(**vars(args))
+        trainer = TrainModelCirq(**vars(args))
 
     if create_outputs:
         if output_loc is None:

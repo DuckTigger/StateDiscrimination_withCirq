@@ -1,15 +1,15 @@
 import tensorflow as tf
 
 from shared.generate_data import CreateDensityMatrices
-from cirq_backend.train_model_cirq import TrainModel
+from cirq_backend.train_model_cirq import TrainModelCirq
 from tensorflow_backend.train_model_tf import TrainModelTF
 
 
 class TestTraining(tf.test.TestCase):
 
     def test_training(self):
-        trainer = TrainModel(40., 40., batch_size=20, max_epoch=2, g_epsilon=0.0001, sim_repetitions=100,
-                             a_const=False, b_const=True)
+        trainer = TrainModelCirq(40., 40., batch_size=20, max_epoch=2, g_epsilon=0.0001, sim_repetitions=100,
+                                 a_const=False, b_const=True)
         trainer.train()
 
     def test_correct_density_matrices(self):
