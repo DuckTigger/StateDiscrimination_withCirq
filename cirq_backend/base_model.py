@@ -144,8 +144,8 @@ class Model(tf.keras.Model):
 
     def variables_gradient_exact(self, state: np.ndarray, label: tf.Tensor) -> List:
         """
-        Calculates the gradient of the loss function w.r.t. each variable, for a small change in variable defined
-        by g_epsilon.
+        Calculates the gradient of the loss function w.r.t. each variable, for a change in the variablie of \pm pi/2.
+        Refernce: https://arxiv.org/abs/1803.00745
         :param state: The state in
         :param label: the label of that state
         :return: grads: a list of tensors representing the gradients for each variable.
@@ -156,8 +156,8 @@ class Model(tf.keras.Model):
             new_vars_plus = copy.copy(variables)
             new_vars_minus = copy.copy(variables)
 
-            new_vars_plus[i] = tf.add(var, np.pi/4)
-            new_vars_minus[i] = tf.subtract(var, np.pi/4)
+            new_vars_plus[i] = tf.add(var, np.pi/2)
+            new_vars_minus[i] = tf.subtract(var, np.pi/2)
 
             self.set_variables(new_vars_plus)
             loss_plus = self.state_to_loss(state, label)

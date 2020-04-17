@@ -22,15 +22,14 @@ class TrainModel:
     def __init__(self, cost_error: float = 40., cost_incon: float = 10.,
                  file_loc: str = None,
                  batch_size: int = 50, max_epoch: int = 2500,
-                 learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
-                 g_epsilon: float = 1e-6, no_qubits: int = 4,
+                 learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,  no_qubits: int = 4,
                  noise_on: bool = False, noise_prob: float = 0.1, sim_repetitions: int = 1000,
                  job_name: str = None, restore_loc: str = None, dicts: Tuple[Dict, Dict, Dict] = None,
                  **kwargs):
 
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
         self.runner = CirqRunner(no_qubits, noise_on, noise_prob, sim_repetitions)
-        self.model = Model(cost_error, cost_incon, self.runner, g_epsilon)
+        self.model = Model(cost_error, cost_incon, self.runner)
         self.max_epoch = max_epoch
         self.batch_size = batch_size
         self.save_time = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
@@ -68,6 +67,10 @@ class TrainModel:
         self.__gate_dicts = dicts
 
     def setup_save(self, save_dir: str) -> Tuple[tf.train.Checkpoint,  tf.summary.SummaryWriter]:
+        """
+        Sets up the tf checkpoint saver and variable writer (for tensorboard) in the directory specified.
+        If directory contains a checkpoint, will restore the model from that checkpoint.
+        """
         if self.job_name is None:
             checkpoint_dir = os.path.join(save_dir, self.save_time)
         else:
@@ -87,10 +90,16 @@ class TrainModel:
         return checkpoint, writer
 
     def save_inputs(self, namespace: Namespace):
+        """
+        Saves the parameters passsed there to a file, for easy restoration.
+        """
         dict_copy = copy.deepcopy(self.gate_dicts)
         CreateOutputs.save_params_dicts(self.save_dir, namespace, dict_copy)
 
     def create_outputs(self, location: str, n_states: int = None):
+        """
+        When called, will take test datat and run through the circuit, creating the bar charts.
+        """
         if n_states is not None:
             test_data = self.test_data.take(n_states)
         else:
@@ -98,15 +107,19 @@ class TrainModel:
         CreateOutputs.create_outputs(location, self.model, test_data, self.runner)
 
     def train_step(self, state_batch: tf.Tensor, label_batch: tf.Tensor):
+        """
+        One step of training, takes a batch of states and applies gradient descent to them.
+        Periodically caculates the loss, for tracking.
+        """
         model = self.model
         loss = []
-        for state, label in zip(state_batch, label_batch):
+        for i, (state, label) in enumerate(zip(state_batch, label_batch)):
             state = state.numpy().astype(np.complex64)
-            if CreateDensityMatrices.check_state(state):
+            grads = model.variables_gradient_exact(state, label)
+            variables = model.get_variables()
+            self.optimizer.apply_gradients(zip(grads, variables))
+            if i % 50:
                 loss.append(model.state_to_loss(state, label))
-                grads = model.variables_gradient_exact(state, label)
-                variables = model.get_variables()
-                self.optimizer.apply_gradients(zip(grads, variables))
         loss_out = tf.reduce_mean(loss)
         return loss_out
 
@@ -120,11 +133,11 @@ class TrainModel:
                     loss = self.train_step(batch[0], batch[1])
                     step += 1
                     tf.summary.scalar('Training loss', loss, step=step)
-                    if i % 10 == 0:
+                    if i % 50 == 0:
                         self.checkpoint.save(file_prefix=self.checkpoint_prefix)
                         self.writer.flush()
                         intermediate_loc = os.path.join(self.save_dir, 'intermediate')
-                        self.create_outputs(intermediate_loc)
+                        self.create_outputs(intermediate_loc, 10)
                         print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
             self.checkpoint.save(file_prefix=self.checkpoint_prefix)
             outputs = os.path.join(self.save_dir, 'outputs')

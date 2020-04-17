@@ -32,12 +32,12 @@ class CirqRunner:
         else:
             self.__noise_prob = noise_prob
 
-    def set_qubits(self, no_qubits: int) -> List[cirq.NamedQubit]:
+    def set_qubits(self, no_qubits: int) -> List[cirq.Qid]:
         """
         We initially begin the project just with named qubits, those with the fewest restrictions
         :return: qubits, a list containing qubits
         """
-        qubits = [cirq.NamedQubit(str(x)) for x in range(no_qubits)]
+        qubits = [cirq.LineQid(str(x), dimension=2) for x in range(no_qubits)]
         self.qubits = qubits
         return qubits
 
@@ -93,7 +93,7 @@ class CirqRunner:
 
     @staticmethod
     def yield_controlled_circuit(input_circuit: cirq.Circuit,
-                                 control_qubit: Union[cirq.GridQubit, cirq.NamedQubit, cirq.LineQubit]):
+                                 control_qubit: cirq.Qid):
         for moment in input_circuit:
             for operation in moment:
                 yield operation.controlled_by(control_qubit)
@@ -168,22 +168,13 @@ class CirqRunner:
         rho_out = rho_out / np.trace(rho_out)
         return prob, rho_out
 
-    def prob_2q(self, state: np.ndarray, measure_qubits: Tuple[int, ...], measurement: Tuple[int, ...]):
-        e = np.array([[1, 0], [0, 1]]).astype(np.complex64)
-        z = np.array([[1, 0], [0, 0]]).astype(np.complex64)
-        o = np.array([[0, 0], [0, 1]]).astype(np.complex64)
-        zero_one = [z, o]
-        l = [e for _ in range(len(self.qubits))]
-        for i, qubit in enumerate(measure_qubits):
-            l[qubit] = zero_one[measurement[i]]
-        m = self.kron_list(l)
-        rho_out = m @ state @ m.T
-        prob = np.trace(m.T @ m @ state)
-        rho_out = rho_out / np.trace(rho_out)
-        return prob, rho_out
-
     def probs_controlled_part(self, gate_dict: Dict, state_in: np.ndarray, prob: np.ndarray,
                               sim: cirq.DensityMatrixSimulator) -> Tuple[float, float]:
+        """
+        Caculates the measurement  probabilities of the second part of the circuit,
+         whilst ensuring that this circuit has been ran, i.e. the probability of progressing is above
+         the numerical accuracy.
+        """
         if prob > 1e-8 and CreateDensityMatrices.check_state(state_in):
             circuit_0 = self.gate_dict_to_circuit(gate_dict)
             rho_0 = sim.simulate(circuit_0, initial_state=state_in).final_density_matrix
@@ -196,6 +187,10 @@ class CirqRunner:
 
     def calculate_probabilities(self, gate_dicts: Tuple[Dict, Dict, Dict],
                                 state: np.ndarray) -> List[float]:
+        """
+        Simulates measurement of the qubits during the circuit by taking the final density matrix before measurements,
+         extracting the probability of each measurement and setting the qubit value.
+        """
         state_in = copy.copy(state)
         if self.noise_on:
             simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4 * self.noise_prob / 5),
@@ -221,6 +216,9 @@ class CirqRunner:
         return out
 
     def calculate_energy(self, u: float, v: float, gate_dict: Dict) -> float:
+        """
+        Uses the simulation and minimisation techniques here to calculate the energy of the SIAM model
+        """
         if self.noise_on:
             simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4 * self.noise_prob / 5),
                                                                                      two_qubit_depolarize(self.noise_prob)))
@@ -249,6 +247,9 @@ class CirqRunner:
         return energy
 
     def calculate_energy_sampling(self, u: float, v: float, gate_dict: Dict) -> float:
+        """
+        Same as above function, but samples the measurements.
+        """
         if self.noise_on:
             simulator = cirq.DensityMatrixSimulator(noise=TwoQubitNoiseModel(cirq.depolarize(4 * self.noise_prob / 5),
                                                                                      two_qubit_depolarize(self.noise_prob)))
@@ -273,3 +274,20 @@ class CirqRunner:
         prob_z0z1 = simulator.run(circuit_pre, repetitions=self.reps).histogram(key='z0z1')[0] / self.reps
         energy = (u / 4)*prob_z0z1 + (v/2)*(prob_x0 + prob_x1)
         return energy
+
+    def prob_2q(self, state: np.ndarray, measure_qubits: Tuple[int, ...], measurement: Tuple[int, ...]):
+        """
+        Calculates the two-qubit term of the SIAM Hamiltonian
+        """
+        e = np.array([[1, 0], [0, 1]]).astype(np.complex64)
+        z = np.array([[1, 0], [0, 0]]).astype(np.complex64)
+        o = np.array([[0, 0], [0, 1]]).astype(np.complex64)
+        zero_one = [z, o]
+        l = [e for _ in range(len(self.qubits))]
+        for i, qubit in enumerate(measure_qubits):
+            l[qubit] = zero_one[measurement[i]]
+        m = self.kron_list(l)
+        rho_out = m @ state @ m.T
+        prob = np.trace(m.T @ m @ state)
+        rho_out = rho_out / np.trace(rho_out)
+        return prob, rho_out
