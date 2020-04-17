@@ -49,8 +49,11 @@ class TrainModel:
             self.checkpoint, self.writer = self.setup_save(
                 "C:\\Users\\Andrew Patterson\\Documents\\PhD\\cirq_state_discrimination\\checkpoints")
         else:
-            self.checkpoint, self.writer = self.setup_save("/home/zcapga1/Scratch/state_discrimination/training_out")
-
+            if 'zcapga1' in os.getcwd():
+                self.checkpoint, self.writer = self.setup_save("/home/zcapga1/Scratch/state_discrimination/training_out")
+            else:
+                self.checkpoint, self.writer = self.setup_save(
+                    "/home/andrew/Documents/PhD/StateDiscrimination_withCirq/training_out")
     @property
     def gate_dicts(self):
         return self.__gate_dicts
@@ -117,16 +120,16 @@ class TrainModel:
                     loss = self.train_step(batch[0], batch[1])
                     step += 1
                     tf.summary.scalar('Training loss', loss, step=step)
-                    self.checkpoint.save(file_prefix=self.checkpoint_prefix)
-                    self.writer.flush()
-
                     if i % 10 == 0:
+                        self.checkpoint.save(file_prefix=self.checkpoint_prefix)
+                        self.writer.flush()
                         intermediate_loc = os.path.join(self.save_dir, 'intermediate')
                         self.create_outputs(intermediate_loc)
                         print('Epoch {} of {}, time for epoch is {}'.format(epoch + 1, self.max_epoch, time.time() - start))
             self.checkpoint.save(file_prefix=self.checkpoint_prefix)
             outputs = os.path.join(self.save_dir, 'outputs')
             self.create_outputs(outputs)
+            self.writer.flush()
 
 
 if __name__ == '__main__':
