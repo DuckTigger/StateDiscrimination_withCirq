@@ -45,6 +45,8 @@ def main():
                         help='A Tuple of the three gate dictionaries defining the circuit.')
     parser.add_argument('--n_output_states', nargs='?', default=250,
                         help='The number of states to use when creating the output')
+    parser.add_argument('--full_dicts', nargs='?', default=False,
+                        help='If True, will use the full dictionaries')
 
     parser.add_argument('--prop_a', type=float, nargs='?', default=1/3,
                         help='Proportion of a type states.')

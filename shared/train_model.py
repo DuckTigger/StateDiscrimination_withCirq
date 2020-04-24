@@ -22,7 +22,7 @@ class TrainModel:
                  batch_size: int = 50, max_epoch: int = 2500,
                  learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
                  noise_prob: float = 0.1, job_name: str = None, restore_loc: str = None,
-                 dicts: Tuple[Dict, Dict, Dict] = None, **kwargs):
+                 dicts: Tuple[Dict, Dict, Dict] = None, full_dicts: bool = False, **kwargs):
 
         self.dataset = Datasets(file_loc, batch_size, max_epoch)
         self.noise_prob = noise_prob
@@ -36,7 +36,8 @@ class TrainModel:
         self.restore_loc = restore_loc
         self.train_data, self.val_data, self.test_data = self.dataset.return_train_val_test(**kwargs)
         if dicts is None:
-            self.gate_dicts = GateDictionaries.return_new_dicts_rand_vars()
+            self.gate_dicts = GateDictionaries.return_new_dicts_rand_vars() if not full_dicts \
+                else GateDictionaries.return_dicts_rand_vars()
         else:
             self.gate_dicts = GateDictionaries.fill_dicts_rand_vars(dicts)
 

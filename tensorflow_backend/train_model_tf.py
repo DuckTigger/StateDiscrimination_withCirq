@@ -17,12 +17,12 @@ class TrainModelTF(TrainModel):
                  batch_size: int = 50, max_epoch: int = 2500,
                  learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999, no_qubits: int = 4,
                  noise_on: bool = False, noise_prob: float = 0.1, job_name: str = None, restore_loc: str = None,
-                 dicts: Tuple[Dict, Dict, Dict] = None, **kwargs):
+                 dicts: Tuple[Dict, Dict, Dict] = None, full_dicts: bool = False, **kwargs):
 
         self.runner = TF2SimulatorRunner(no_qubits, noise_on, noise_prob)
         self.model = ModelTF(cost_error, cost_incon, self.runner)
         super().__init__(file_loc, batch_size, max_epoch, learning_rate, beta1, beta2, noise_prob, job_name,
-                         restore_loc, dicts, **kwargs)
+                         restore_loc, dicts, full_dicts, **kwargs)
 
     @tf.function
     def caclulate_loss(self, batch: tf.data.Dataset):
