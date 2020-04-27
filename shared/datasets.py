@@ -38,8 +38,11 @@ class Datasets:
         For params see CreateDensityMatrices.create_from_distribution
         :return: dataset: the full tf.Dataset, and its length.
         """
-        if random_states:
+        if random_states == 1:
             states = CreateDensityMatrices.create_random_states(self.batch_size * self.max_epoch * 100, lower, upper, mu_a, sigma_a)
+        elif random_states == 2:
+            states = CreateDensityMatrices.create_random_states(2, lower, upper,
+                                                                mu_a, sigma_a)
         else:
             states = CreateDensityMatrices.create_from_distribution(self.batch_size * self.max_epoch * 100, prop_a, b_const,
                                                                 a_const, lower, upper, mu_a, sigma_a, mu_b, sigma_b)
@@ -106,11 +109,11 @@ class Datasets:
         """
         prop_train = int(0.7 * length)
         shortfall = prop_train / (self.max_epoch * self.batch_size)
-        dataset = dataset.shuffle(self.max_epoch * self.batch_size * 200)
+        dataset = dataset.shuffle(self.max_epoch * self.batch_size)
 
         if shortfall < 1:
             dataset = dataset.repeat(int(1/shortfall))
-            dataset = dataset.shuffle(self.max_epoch * self.batch_size * 200)
+            dataset = dataset.shuffle(self.max_epoch * self.batch_size)
             prop_train = int(0.7 * length * (1 / shortfall))
             prop_val = int(0.2 * length * (1 / shortfall))
             prop_test = int(0.1 * length * (1 / shortfall))
