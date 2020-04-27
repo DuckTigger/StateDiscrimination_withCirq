@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import truncnorm
+from scipy.stats import truncnorm, uniform
 import os
 import json
 from typing import Tuple, List
@@ -65,15 +65,19 @@ class CreateDensityMatrices:
             return False
         if not np.allclose(np.trace(state), 1):
             return False
-        if not np.all(np.linalg.eigvalsh(state) > -1e-8):
+        if not np.all(np.linalg.eigvalsh(state) > -1e-7):
             return False
         return True
 
     @staticmethod
     def create_random_states(total_states: int = 1000, lower: int = 0, upper: int = 1,
                              mu_a: float = 0.5, sigma_a: float = 0.15):
-        dist = truncnorm.rvs((lower - mu_a) / sigma_a,  (upper - mu_a) / sigma_a, mu_a, sigma_a,
-                              size=4 * total_states + 2)
+        if total_states == 2:
+            dist = uniform.rvs(size=8)
+            total_states = 8
+        else:
+            dist = truncnorm.rvs((lower - mu_a) / sigma_a,  (upper - mu_a) / sigma_a, mu_a, sigma_a,
+                                  size=4 * total_states + 2)
         a_states = []
         b_states = []
 

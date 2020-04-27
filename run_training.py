@@ -63,7 +63,8 @@ def main():
     parser.add_argument('--sigma_b', type=float, nargs='?', default=0.125,
                         help='Std dev of b distribution.')
     parser.add_argument('--random_states', nargs='?', default=False,
-                        help='Whether to use Harr random staes instead of a and b distributions')
+                        help='Whether to use Harr random staets instead of a and b distributions.'
+                             'Passing 2 will fix a and b from the uniform distribution and train on copies of that.')
 
     args = parser.parse_args()
 
